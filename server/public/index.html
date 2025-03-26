@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>🎥 하이라이트 요약</title>
+  <style>
+    body { font-family: sans-serif; padding: 2rem; }
+    #dropZone {
+      width: 500px; height: 150px; border: 3px dashed #999;
+      display: flex; justify-content: center; align-items: center;
+      margin-bottom: 1rem; border-radius: 10px;
+    }
+    #dropZone.hover { background-color: #f0f0f0; }
+    video { width: 600px; border-radius: 10px; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+<h1>📥 영상 업로드 및 요약</h1>
+
+<div id="dropZone">여기로 .mp4 파일을 드래그하세요</div>
+<button id="startBtn" disabled>🚀 요약 시작</button>
+<p id="status"></p>
+
+<h2>🎬 최종 요약 영상</h2>
+<video id="finalVideo" controls style="display:none;"></video>
+
+<script>
+let uploadedFileName = "";
+
+const dropZone = document.getElementById("dropZone");
+const startBtn = document.getElementById("startBtn");
+const statusDiv = document.getElementById("status");
+
+dropZone.addEventListener("dragover", e => {
+  e.preventDefault();
+  dropZone.classList.add("hover");
+});
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("hover"));
+
+dropZone.addEventListener("drop", async e => {
+  e.preventDefault();
+  dropZone.classList.remove("hover");
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.name.endsWith(".mp4")) return alert("⚠️ mp4 파일만 업로드 가능!");
+
+  const formData = new FormData();
+  formData.append("video", file);
+
+  statusDiv.textContent = "⏫ 업로드 중...";
+  const res = await fetch("/upload", { method: "POST", body: formData });
+  const data = await res.json();
+  if (res.ok) {
+    uploadedFileName = data.filename;
+    statusDiv.textContent = `✅ 업로드 완료: ${uploadedFileName}`;
+    startBtn.disabled = false;
+  } else {
+    statusDiv.textContent = "❌ 업로드 실패";
+  }
+});
+
+startBtn.addEventListener("click", async () => {
+  if (!uploadedFileName) return;
+  statusDiv.textContent = "🧠 요약 중...";
+
+  const res = await fetch(`/upload/process?filename=${uploadedFileName}`);
+  const data = await res.json();
+  if (res.ok) {
+    statusDiv.textContent = "✅ 요약 완료!";
+    const finalVideo = document.getElementById("finalVideo");
+    finalVideo.src = "/results/final_highlight.mp4";
+    finalVideo.style.display = "block";
+  } else {
+    statusDiv.textContent = "❌ 요약 실패!";
+  }
+});
+</script>
+
+</body>
+</html>

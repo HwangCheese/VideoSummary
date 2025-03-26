@@ -1,0 +1,12 @@
+/dataset
+/model
+/networks
+/preprocess
+/features
+
+*.mp4
+*.wav
+
+__pycache__
+
+node_modules
