@@ -1,4 +1,4 @@
-# pgl_test.py
+# pgl_module.py
 import torch
 import h5py
 import numpy as np
