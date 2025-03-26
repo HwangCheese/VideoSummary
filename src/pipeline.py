@@ -5,7 +5,7 @@ import glob
 import re
 import argparse
 from moviepy.editor import VideoFileClip, concatenate_videoclips
-from extract_features_module import extract_features_chunk
+from src.extract_features_module import extract_features_chunk
 from pgl_test import run_pgl_chunk  # 또는 run_sl_chunk 등으로 교체 가능
 
 # pipeline.py가 있는 폴더 경로를 sys.path에 추가
