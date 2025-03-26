@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>🎥 하이라이트 요약</title>
+  <title>🎥 숏폼 요약</title>
   <style>
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -92,14 +92,14 @@
 </head>
 <body>
 
-<h1>🎬 비디오 하이라이트 요약 서비스</h1>
+<h1>🎬 비디오 -> 숏폼 요약 서비스</h1>
 
 <div id="dropZone">📂 .mp4 파일을 이곳에 드래그하세요</div>
-<button id="startBtn" disabled>🚀 하이라이트 생성</button>
+<button id="startBtn" disabled>숏폼 생성</button>
 <p id="status"></p>
 <div id="loadingSpinner" class="spinner" style="display:none;"></div>
 
-<h2>✨ 하이라이트 결과 영상</h2>
+<h2>✨ 숏폼 결과 영상</h2>
 <video id="finalVideo" controls style="display:none;"></video>
 
 <script>
@@ -162,12 +162,12 @@ startBtn.addEventListener("click", async () => {
   loadingSpinner.style.display = "none";
 
   if (res.ok) {
-    statusDiv.textContent = "🎉 하이라이트 영상 생성 완료!";
+    statusDiv.textContent = "🎉 숏폼 영상 생성 완료!";
     const finalVideo = document.getElementById("finalVideo");
-    finalVideo.src = "/results/highlight_sample.mp4?" + new Date().getTime();
+    finalVideo.src = "/clips/highlight_sample.mp4?" + new Date().getTime();
     finalVideo.style.display = "block";
   } else {
-    statusDiv.textContent = "❌ 하이라이트 생성 실패";
+    statusDiv.textContent = "❌ 숏폼 생성 실패";
     startBtn.disabled = false;
   }
 });
