@@ -3,6 +3,7 @@
 /networks
 /preprocess
 /features
+/clips
 
 *.mp4
 *.wav

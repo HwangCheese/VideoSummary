@@ -58,11 +58,10 @@ def main(args):
 
     for chunk_path in chunks:
         base_name = os.path.splitext(os.path.basename(chunk_path))[0]
-        chunk_dir = os.path.dirname(chunk_path)
-        output_h5 = os.path.join(chunk_dir, f"{base_name}.h5")
-        output_json_scene = os.path.join(chunk_dir, f"{base_name}_scenes.json")
-        output_json_highlight = os.path.join(chunk_dir, f"{base_name}_highlight.json")
-        output_dir_highlights = os.path.join(chunk_dir, f"{base_name}_highlights")
+        output_h5 = os.path.join(f"../features/{base_name}.h5")
+        output_json_scene = os.path.join(f"../{base_name}_scenes.json")
+        output_json_highlight = os.path.join(f"../{base_name}_highlight.json")
+        output_dir_highlights = os.path.join(f"../{base_name}_highlights")
 
         print(f"\n📌 처리중인 청크: {chunk_path}")
         extract_features_chunk(chunk_path, output_h5, output_json_scene, device=args.device)
