@@ -1,4 +1,4 @@
-// server/result.js
+// server/routes/result.js
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -10,7 +10,7 @@ router.get("/clips", (req, res) => {
   if (!fs.existsSync(clipsDir)) return res.json({ clips: [] });
 
   const files = fs.readdirSync(clipsDir)
-    .filter(f => f.startsWith("final_highlight") && f.endsWith(".mp4"))
+    .filter(f => f.startsWith("highlight_sample") && f.endsWith(".mp4"))
     .map(f => `/clips/${f}`);
 
   res.json({ clips: files });

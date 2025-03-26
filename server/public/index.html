@@ -164,7 +164,7 @@ startBtn.addEventListener("click", async () => {
   if (res.ok) {
     statusDiv.textContent = "🎉 하이라이트 영상 생성 완료!";
     const finalVideo = document.getElementById("finalVideo");
-    finalVideo.src = "/results/final_highlight.mp4?" + new Date().getTime();
+    finalVideo.src = "/results/highlight_sample.mp4?" + new Date().getTime();
     finalVideo.style.display = "block";
   } else {
     statusDiv.textContent = "❌ 하이라이트 생성 실패";

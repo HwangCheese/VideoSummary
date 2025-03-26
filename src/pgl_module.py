@@ -1,22 +1,13 @@
 # pgl_module.py
 import torch
-import h5py
-import numpy as np
-import moviepy.editor as mp
-import os
 import json
-import kss
-from faster_whisper import WhisperModel
+import numpy as np
+import h5py
 from networks.pgl_sum.pgl_sum import PGL_SUM
 
-
-def load_model_checkpoint(model, ckpt_path, device):
-    checkpoint = torch.load(ckpt_path, map_location=device)
-    if "model_state_dict" in checkpoint:
-        model.load_state_dict(checkpoint["model_state_dict"], strict=False)
-    else:
-        model.load_state_dict(checkpoint, strict=False)
-    return model
+def load_h5_features(h5_path):
+    with h5py.File(h5_path, "r") as hf:
+        return np.array(hf["features"])
 
 def predict_scores(model, features, device="cpu"):
     x = torch.from_numpy(features).float().to(device)
@@ -27,126 +18,94 @@ def predict_scores(model, features, device="cpu"):
         scores, _ = model(x, mask)
     return scores.cpu().numpy().squeeze()
 
-def compute_segment_scores(scores, segment_length=1, fps=1.0):
+def load_model_checkpoint(model, ckpt_path, device):
+    checkpoint = torch.load(ckpt_path, map_location=device)
+    if "model_state_dict" in checkpoint:
+        model.load_state_dict(checkpoint["model_state_dict"], strict=False)
+    else:
+        model.load_state_dict(checkpoint, strict=False)
+    return model
+
+def load_scene_segments(scene_json, fps):
+    with open(scene_json, "r") as f:
+        segments = json.load(f)
+    for seg in segments:
+        seg["start_frame"] = int(seg["start_time"] * fps)
+        seg["end_frame"] = int(seg["end_time"] * fps)
+    return segments
+
+def save_segment_frame_scores_json(scores, scene_segments, output_json):
     segment_scores = []
-    num_frames = len(scores)
-    num_segments = num_frames // segment_length
-    for i in range(num_segments):
-        start_idx = i * segment_length
-        end_idx = min(start_idx + segment_length, num_frames)
-        avg_score = np.mean(scores[start_idx:end_idx])
-        segment_scores.append((i * segment_length, float(avg_score)))
+    for seg in scene_segments:
+        start_frame = seg["start_frame"]
+        end_frame = min(seg["end_frame"], len(scores) - 1)
+        frame_scores = scores[start_frame:end_frame + 1]
+        avg_score = float(np.mean(frame_scores))
+        max_score = float(np.max(frame_scores))
+        std_score = float(np.std(frame_scores))
+        segment_scores.append({
+            "segment_id": seg["segment_id"],
+            "start_time": seg["start_time"],
+            "end_time": seg["end_time"],
+            "frame_scores": frame_scores.tolist(),
+            "avg_score": avg_score,
+            "max_score": max_score,
+            "std_score": std_score
+        })
+    with open(output_json, "w") as f:
+        json.dump({"segments": segment_scores}, f, indent=2, ensure_ascii=False)
+    print(f"📄 Segment scores JSON saved: {output_json}")
     return segment_scores
 
-def detect_highlights(segment_scores, top_k=3, clip_duration=15):
-    sorted_segments = sorted(segment_scores, key=lambda x: x[1], reverse=True)
-    selected_highlights = []
-    selected_times = []
-    for start, score in sorted_segments:
-        end = start + clip_duration
-        if any(start < e and end > s for s, e in selected_times):
-            continue
-        selected_times.append((start, end))
-        selected_highlights.append({"start": start, "end": end, "score": float(score)})
-        if len(selected_highlights) >= top_k:
-            break
-    selected_highlights.sort(key=lambda x: x["start"])
-    return selected_highlights
-
-def get_transcription_segments(audio_clip, stt_model):
-    temp_audio_path = "temp_audio.wav"
-    audio_clip.write_audiofile(temp_audio_path, codec="pcm_s16le", fps=16000, verbose=False, logger=None)
-    segments, _ = stt_model.transcribe(temp_audio_path, word_timestamps=True, language='ko')
-    return list(segments)
-
-def adjust_highlight_by_stt_with_sentences(highlight, video, stt_model, margin=3.0):
-    h_start, h_end = highlight["start"], highlight["end"]
-    extract_start = max(0, h_start - margin)
-    extract_end = min(video.duration, h_end + margin)
-    audio_clip = video.subclip(extract_start, extract_end).audio
-    segments = get_transcription_segments(audio_clip, stt_model)
-
-    words = []
-    full_text = ""
-    offset = extract_start
-
-    for seg in segments:
-        if hasattr(seg, "words") and seg.words:
-            for word in seg.words:
-                words.append((word.start + offset, word.end + offset, word.word))
-                full_text += word.word
-        else:
-            words.append((seg.start + offset, seg.end + offset, seg.text))
-            full_text += seg.text
-
-    sentences = kss.split_sentences(full_text)
-    sentence_boundaries = []
-    current_idx = 0
-
-    for sentence in sentences:
-        sent_length = len(sentence.replace(' ', ''))
-        sent_words = []
-        current_sent_len = 0
-        while current_idx < len(words) and current_sent_len < sent_length:
-            word = words[current_idx]
-            sent_words.append(word)
-            current_sent_len += len(word[2].replace(' ', ''))
-            current_idx += 1
-        if sent_words:
-            start_time = sent_words[0][0]
-            end_time = sent_words[-1][1]
-            sentence_boundaries.append((start_time, end_time))
-
-    new_start, new_end = h_start, h_end
-    for s_time, e_time in sentence_boundaries:
-        if s_time <= h_start < e_time:
-            new_start = s_time
-        if s_time < h_end <= e_time:
-            new_end = e_time
-            break
-
-    return {"start": new_start, "end": new_end, "score": highlight["score"]}
-
-def save_highlight_json(highlights, output_json):
+def save_sorted_segments_json(segment_scores, sort_key, output_json):
+    if output_json is None:
+        return
+    sorted_segments = sorted(segment_scores, key=lambda x: x[sort_key], reverse=True)
     with open(output_json, "w") as f:
-        json.dump({"highlights": highlights}, f, indent=2, ensure_ascii=False)
+        json.dump({"segments": sorted_segments}, f, indent=2, ensure_ascii=False)
+    print(f"📄 Sorted segments JSON saved ({sort_key}): {output_json}")
 
-def extract_highlight_clips(video_path, highlights, output_dir):
-    video = mp.VideoFileClip(video_path)
-    os.makedirs(output_dir, exist_ok=True)
-    for i, h in enumerate(highlights, 1):
-        start, end = h["start"], h["end"]
-        end = min(end, video.duration)
-        clip_out = os.path.join(output_dir, f"highlight_{i}.mp4")
-        video.subclip(start, end).write_videofile(clip_out, codec="libx264", fps=30, audio=True, audio_codec="aac")
+def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_json):
+    if output_json is None:
+        return 
+    for seg in segment_scores:
+        seg["combined_score"] = (
+            seg["avg_score"] * alpha +
+            seg["max_score"] * (1 - alpha) -
+            seg["std_score"] * std_weight
+        )
+    sorted_segments = sorted(segment_scores, key=lambda x: x["combined_score"], reverse=True)
+    with open(output_json, "w") as f:
+        json.dump({"segments": sorted_segments}, f, indent=2, ensure_ascii=False)
+    print(f"📄 Sorted segments JSON saved (combined_score): {output_json}")
 
-def run_pgl_chunk(video_path, feature_h5, output_json, output_dir, ckpt_path,
-                  clip_duration=15, fps=1.0, device="cuda", top_k=3):  # ✅ 추가됨
-    print("🚀 PGL-SUM 실행 시작")
+def run_pgl_module(
+    ckpt_path,
+    feature_h5,
+    scene_json,
+    output_json,
+    output_sorted_max_json,
+    output_sorted_avg_json,
+    output_sorted_combined_json,
+    fps=1.0,
+    device="cpu",
+    alpha=0.7,
+    std_weight=0.3
+):
+    print(f"🚀 Running PGL Module | Device: {device}")
 
-    model = PGL_SUM(
-    input_size=1024,
-    output_size=1024,
-    freq=10000,
-    pos_enc="absolute",
-    num_segments=4,
-    heads=8,
-    fusion="add"
-    )
-    model = load_model_checkpoint(model, ckpt_path, device).eval().to(device)
-    stt_model = WhisperModel("base", device="cpu", compute_type="int8")
+    model = PGL_SUM(input_size=1024, output_size=1024, num_segments=4, heads=8, fusion="add", pos_enc="absolute")
+    model = load_model_checkpoint(model, ckpt_path, device)
+    model.to(device).eval()
 
-    with h5py.File(feature_h5, "r") as hf:
-        features = np.array(hf["features"])
+    features = load_h5_features(feature_h5)
+    scores = predict_scores(model, features, device=device)
 
-    scores = predict_scores(model, features, device)
-    seg_scores = compute_segment_scores(scores, segment_length=5, fps=fps)
-    highlights = detect_highlights(seg_scores, top_k=3, clip_duration=clip_duration)
+    scene_segments = load_scene_segments(scene_json, fps)
+    segment_scores = save_segment_frame_scores_json(scores, scene_segments, output_json)
 
-    video = mp.VideoFileClip(video_path)
-    final_highlights = [adjust_highlight_by_stt_with_sentences(h, video, stt_model) for h in highlights]
+    save_sorted_segments_json(segment_scores, "max_score", output_sorted_max_json)
+    save_sorted_segments_json(segment_scores, "avg_score", output_sorted_avg_json)
+    save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_sorted_combined_json)
 
-    save_highlight_json(final_highlights, output_json)
-    extract_highlight_clips(video_path, final_highlights, output_dir)
-
-    print("✅ 하이라이트 저장 완료:", output_json)
+    return segment_scores 

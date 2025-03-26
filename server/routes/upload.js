@@ -1,3 +1,4 @@
+// routes/upload.js
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -34,12 +35,11 @@ router.get("/process", (req, res) => {
     "--video_path", inputPath,
     "--fine_ckpt", ckptPath,
     "--output_dir", outputDir,
-    "--clip_top_k", "3",
-    "--fps", "1.0",
-    "--device", "cuda"
+    "--device", "cuda",  // cuda가 안된다면 cpu로 실행
   ], {
     env: { ...process.env }
   });
+  
 
   pipeline.stdout.on("data", d => console.log("PYTHON STDOUT:", d.toString()));
   pipeline.stderr.on("data", d => console.error("PYTHON ERR:", d.toString()));
