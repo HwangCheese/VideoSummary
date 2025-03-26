@@ -4,25 +4,102 @@
   <meta charset="UTF-8">
   <title>🎥 하이라이트 요약</title>
   <style>
-    body { font-family: sans-serif; padding: 2rem; }
-    #dropZone {
-      width: 500px; height: 150px; border: 3px dashed #999;
-      display: flex; justify-content: center; align-items: center;
-      margin-bottom: 1rem; border-radius: 10px;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+      margin: 0;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
-    #dropZone.hover { background-color: #f0f0f0; }
-    video { width: 600px; border-radius: 10px; margin-top: 1rem; }
+
+    h1 {
+      margin-bottom: 1rem;
+    }
+
+    #dropZone {
+      width: 600px;
+      height: 180px;
+      border: 3px dashed #6c757d;
+      border-radius: 12px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.2rem;
+      color: #6c757d;
+      transition: background-color 0.3s, border-color 0.3s;
+      cursor: pointer;
+      margin-bottom: 1rem;
+    }
+
+    #dropZone.hover {
+      background-color: #e2e6ea;
+      border-color: #495057;
+      color: #495057;
+    }
+
+    button {
+      background-color: #007bff;
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.5rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s;
+    }
+
+    button:disabled {
+      background-color: #adb5bd;
+      cursor: not-allowed;
+    }
+
+    button:not(:disabled):hover {
+      background-color: #0056b3;
+    }
+
+    #status {
+      margin-top: 1rem;
+      font-weight: 500;
+    }
+
+    video {
+      width: 700px;
+      border-radius: 12px;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    /* Loading spinner */
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #007bff;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-top: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body>
 
-<h1>📥 영상 업로드 및 요약</h1>
+<h1>🎬 비디오 하이라이트 요약 서비스</h1>
 
-<div id="dropZone">여기로 .mp4 파일을 드래그하세요</div>
-<button id="startBtn" disabled>🚀 요약 시작</button>
+<div id="dropZone">📂 .mp4 파일을 이곳에 드래그하세요</div>
+<button id="startBtn" disabled>🚀 하이라이트 생성</button>
 <p id="status"></p>
+<div id="loadingSpinner" class="spinner" style="display:none;"></div>
 
-<h2>🎬 최종 요약 영상</h2>
+<h2>✨ 하이라이트 결과 영상</h2>
 <video id="finalVideo" controls style="display:none;"></video>
 
 <script>
@@ -31,47 +108,67 @@ let uploadedFileName = "";
 const dropZone = document.getElementById("dropZone");
 const startBtn = document.getElementById("startBtn");
 const statusDiv = document.getElementById("status");
+const loadingSpinner = document.getElementById("loadingSpinner");
 
-dropZone.addEventListener("dragover", e => {
-  e.preventDefault();
-  dropZone.classList.add("hover");
-});
-dropZone.addEventListener("dragleave", () => dropZone.classList.remove("hover"));
+// 드래그 앤 드롭 효과
+['dragenter', 'dragover'].forEach(evt =>
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault();
+    dropZone.classList.add("hover");
+  })
+);
 
+['dragleave', 'drop'].forEach(evt =>
+  dropZone.addEventListener(evt, e => {
+    e.preventDefault();
+    dropZone.classList.remove("hover");
+  })
+);
+
+// 파일 업로드 처리
 dropZone.addEventListener("drop", async e => {
-  e.preventDefault();
-  dropZone.classList.remove("hover");
   const file = e.dataTransfer.files[0];
-  if (!file || !file.name.endsWith(".mp4")) return alert("⚠️ mp4 파일만 업로드 가능!");
+  if (!file || !file.name.endsWith(".mp4")) return alert("⚠️ mp4 파일만 업로드 가능합니다.");
 
   const formData = new FormData();
   formData.append("video", file);
 
-  statusDiv.textContent = "⏫ 업로드 중...";
+  statusDiv.textContent = "⏳ 업로드 중...";
+  loadingSpinner.style.display = "block";
+
   const res = await fetch("/upload", { method: "POST", body: formData });
   const data = await res.json();
+  loadingSpinner.style.display = "none";
+
   if (res.ok) {
     uploadedFileName = data.filename;
-    statusDiv.textContent = `✅ 업로드 완료: ${uploadedFileName}`;
+    statusDiv.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
     startBtn.disabled = false;
   } else {
     statusDiv.textContent = "❌ 업로드 실패";
   }
 });
 
+// 하이라이트 생성
 startBtn.addEventListener("click", async () => {
   if (!uploadedFileName) return;
-  statusDiv.textContent = "🧠 요약 중...";
+
+  statusDiv.textContent = "🧠 하이라이트 생성 중...";
+  loadingSpinner.style.display = "block";
+  startBtn.disabled = true;
 
   const res = await fetch(`/upload/process?filename=${uploadedFileName}`);
   const data = await res.json();
+  loadingSpinner.style.display = "none";
+
   if (res.ok) {
-    statusDiv.textContent = "✅ 요약 완료!";
+    statusDiv.textContent = "🎉 하이라이트 영상 생성 완료!";
     const finalVideo = document.getElementById("finalVideo");
-    finalVideo.src = "/results/final_highlight.mp4";
+    finalVideo.src = "/results/final_highlight.mp4?" + new Date().getTime();
     finalVideo.style.display = "block";
   } else {
-    statusDiv.textContent = "❌ 요약 실패!";
+    statusDiv.textContent = "❌ 하이라이트 생성 실패";
+    startBtn.disabled = false;
   }
 });
 </script>

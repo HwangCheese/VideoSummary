@@ -1,4 +1,3 @@
-# pipeline.py
 import sys
 import os
 import glob
@@ -8,7 +7,7 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 from extract_features_module import extract_features_chunk
 from pgl_module import run_pgl_chunk  # 또는 run_sl_chunk 등으로 교체 가능
 
-# pipeline.py가 있는 폴더 경로를 sys.path에 추가
+# 현재 파일 경로 추가
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 # 🎬 영상 청크 분할
@@ -30,12 +29,14 @@ def extract_chunk_start(folder_name):
 
 # 🎞️ 하이라이트 클립 수집
 def collect_highlight_clips(base_folder="."):
+    print("📁 하이라이트 탐색 경로:", os.path.abspath(base_folder))
     highlight_paths = []
     chunk_folders = glob.glob(os.path.join(base_folder, "chunk_*_highlights"))
     chunk_folders = sorted(chunk_folders, key=extract_chunk_start)
 
     for chunk_folder in chunk_folders:
         clips = sorted(glob.glob(os.path.join(chunk_folder, "highlight_*.mp4")))
+        print(f"📦 {chunk_folder} → {len(clips)}개 클립 발견")
         highlight_paths.extend(clips)
 
     return highlight_paths
@@ -58,10 +59,10 @@ def main(args):
 
     for chunk_path in chunks:
         base_name = os.path.splitext(os.path.basename(chunk_path))[0]
-        output_h5 = os.path.join(f"../features/{base_name}.h5")
-        output_json_scene = os.path.join(f"../{base_name}_scenes.json")
-        output_json_highlight = os.path.join(f"../{base_name}_highlight.json")
-        output_dir_highlights = os.path.join(f"../{base_name}_highlights")
+        output_h5 = os.path.join(args.output_dir, f"{base_name}.h5")
+        output_json_scene = os.path.join(args.output_dir, f"{base_name}_scenes.json")
+        output_json_highlight = os.path.join(args.output_dir, f"{base_name}_highlight.json")
+        output_dir_highlights = os.path.join(args.output_dir, f"{base_name}_highlights")
 
         print(f"\n📌 처리중인 청크: {chunk_path}")
         extract_features_chunk(chunk_path, output_h5, output_json_scene, device=args.device)
