@@ -19,10 +19,10 @@ router.post("/", upload.single("video"), (req, res) => {
 
 router.get("/process", (req, res) => {
   const filename = req.query.filename;
-  const pipelinePath = path.resolve(__dirname, "..", "..", "pipeline.py");
+  const pipelinePath = path.resolve(__dirname, "..", "..", "src", "pipeline.py");
   const inputPath = path.resolve(__dirname, "..", "uploads", filename);
   const ckptPath = path.resolve(__dirname, "..", "..", "dataset", "sl_module1_best_f1.pkl");
-  const outputDir = path.resolve(__dirname, "..", ".."); // final_highlight.mp4 저장 위치
+  const outputDir = path.resolve(__dirname, "..", "..", "clips"); // final_highlight.mp4 저장 위치
 
   if (!fs.existsSync(inputPath)) {
     return res.status(404).json({ message: "파일 없음", path: inputPath });

@@ -6,7 +6,7 @@ const fs = require("fs");
 const router = express.Router();
 
 router.get("/clips", (req, res) => {
-  const clipsDir = path.join(__dirname, "../");
+  const clipsDir = path.join(__dirname, "../clips");
   if (!fs.existsSync(clipsDir)) return res.json({ clips: [] });
 
   const files = fs.readdirSync(clipsDir)

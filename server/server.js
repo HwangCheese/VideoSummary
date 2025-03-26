@@ -6,7 +6,7 @@ const uploadRouter = require("./routes/upload");
 const PORT = 3000;
 
 app.use(express.static(path.join(__dirname, "public")));
-app.use("/results", express.static(path.join(__dirname, ".."))); 
+app.use("/results", express.static(path.join(__dirname, "../clips"))); 
 
 app.use("/upload", uploadRouter);
 
