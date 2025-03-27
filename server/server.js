@@ -9,7 +9,7 @@ const PORT = 3000;
 
 app.use(express.static(path.join(__dirname, "public")));
 
-app.use("/clips", express.static(path.join(__dirname, "../clips")));
+app.use('/clips', express.static(path.join(__dirname, '..', 'clips')));
 
 app.use("/upload", uploadRouter);
 app.use("/results", resultRouter);

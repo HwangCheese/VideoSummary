@@ -46,6 +46,18 @@ def create_highlight_video(sorted_segments_json, video_path, output_video, top_r
     # 이어붙이기 + 저장
     final_clip = concatenate_videoclips(clips)
     final_clip.write_videofile(output_video, codec="libx264", audio_codec="aac")
-    final_clip.close() 
-    video.close() 
+    final_clip.close()
+    video.close()
     print(f"✅ 하이라이트 영상 저장 완료: {output_video}")
+
+    # ✅ original_duration 포함된 JSON 저장
+    segments_with_duration = {
+        "original_duration": round(video.duration, 2),
+        "segments": sorted_top_segments
+    }
+    output_json_path = output_video.replace(".mp4", ".json")  # 예: highlight_xxx.json
+    with open(output_json_path, "w", encoding="utf-8") as f:
+        json.dump(segments_with_duration, f, ensure_ascii=False, indent=2)
+    print(f"📝 하이라이트 세그먼트 JSON 저장: {output_json_path}")
+
+    return sorted_top_segments

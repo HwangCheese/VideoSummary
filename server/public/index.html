@@ -15,11 +15,7 @@
       align-items: center;
       justify-content: center;
     }
-
-    h1 {
-      margin-bottom: 1rem;
-    }
-
+    h1 { margin-bottom: 1rem; }
     #dropZone {
       width: 600px;
       height: 180px;
@@ -34,13 +30,12 @@
       cursor: pointer;
       margin-bottom: 1rem;
     }
-
     #dropZone.hover {
       background-color: #e2e6ea;
       border-color: #495057;
       color: #495057;
     }
-
+    
     button {
       background-color: #007bff;
       color: #fff;
@@ -51,29 +46,17 @@
       font-size: 1rem;
       transition: background-color 0.3s;
     }
-
     button:disabled {
       background-color: #adb5bd;
       cursor: not-allowed;
     }
-
     button:not(:disabled):hover {
       background-color: #0056b3;
     }
-
     #status {
       margin-top: 1rem;
       font-weight: 500;
     }
-
-    video {
-      width: 700px;
-      border-radius: 12px;
-      margin-top: 1.5rem;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-
-    /* Loading spinner */
     .spinner {
       border: 6px solid #f3f3f3;
       border-top: 6px solid #007bff;
@@ -83,7 +66,6 @@
       animation: spin 1s linear infinite;
       margin-top: 1rem;
     }
-
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -100,77 +82,171 @@
 <div id="loadingSpinner" class="spinner" style="display:none;"></div>
 
 <h2>✨ 숏폼 결과 영상</h2>
-<video id="finalVideo" controls style="display:none;"></video>
+<video id="finalVideo" controls style="width:700px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.2); display:none;"></video>
+
+<h2>🔎 원본 대비 하이라이트 구간</h2>
+<div id="highlightBarContainer"
+     style="width:700px; height:30px; background:#aaffaa; border-radius:8px; position:relative; overflow:visible; display:none;">
+</div>
+
 
 <script>
 let uploadedFileName = "";
-
 const dropZone = document.getElementById("dropZone");
 const startBtn = document.getElementById("startBtn");
 const statusDiv = document.getElementById("status");
 const loadingSpinner = document.getElementById("loadingSpinner");
+const finalVideo = document.getElementById("finalVideo");
 
-// 드래그 앤 드롭 효과
-['dragenter', 'dragover'].forEach(evt =>
-  dropZone.addEventListener(evt, e => {
+// 1) 드래그 앤 드롭 이벤트
+["dragenter", "dragover"].forEach(eventName => {
+  dropZone.addEventListener(eventName, e => {
     e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.add("hover");
-  })
-);
-
-['dragleave', 'drop'].forEach(evt =>
-  dropZone.addEventListener(evt, e => {
+  }, false);
+});
+["dragleave", "drop"].forEach(eventName => {
+  dropZone.addEventListener(eventName, e => {
     e.preventDefault();
+    e.stopPropagation();
     dropZone.classList.remove("hover");
-  })
-);
+  }, false);
+});
 
-// 파일 업로드 처리
+// 2) 파일 드롭
 dropZone.addEventListener("drop", async e => {
-  const file = e.dataTransfer.files[0];
-  if (!file || !file.name.endsWith(".mp4")) return alert("⚠️ mp4 파일만 업로드 가능합니다.");
+  e.preventDefault();
+  e.stopPropagation();
 
-  const formData = new FormData();
-  formData.append("video", file);
+  const dt = e.dataTransfer;
+  const files = dt?.files;
+
+  if (!files || !files.length) {
+    alert("⚠️ 파일이 감지되지 않았습니다.");
+    return;
+  }
+
+  const file = files[0];
+  if (!file.name.endsWith(".mp4")) {
+    alert("⚠️ mp4 파일만 업로드 가능합니다.");
+    return;
+  }
 
   statusDiv.textContent = "⏳ 업로드 중...";
   loadingSpinner.style.display = "block";
 
-  const res = await fetch("/upload", { method: "POST", body: formData });
-  const data = await res.json();
-  loadingSpinner.style.display = "none";
+  const formData = new FormData();
+  formData.append("video", file);
 
-  if (res.ok) {
-    uploadedFileName = data.filename;
-    statusDiv.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
-    startBtn.disabled = false;
-  } else {
-    statusDiv.textContent = "❌ 업로드 실패";
+  try {
+    const res = await fetch("/upload", { method: "POST", body: formData });
+    const data = await res.json();
+    loadingSpinner.style.display = "none";
+
+    if (res.ok) {
+      uploadedFileName = data.filename;
+      statusDiv.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
+      startBtn.disabled = false;
+    } else {
+      statusDiv.textContent = "❌ 업로드 실패";
+    }
+  } catch (error) {
+    console.error(error);
+    statusDiv.textContent = "❌ 업로드 중 오류 발생";
+    loadingSpinner.style.display = "none";
   }
 });
 
-// 하이라이트 생성
+// 3) **숏폼 생성 버튼** 누르면 /upload/process?filename=... 호출
 startBtn.addEventListener("click", async () => {
   if (!uploadedFileName) return;
 
-  statusDiv.textContent = " 숏폼 생성 중...";
+  statusDiv.textContent = "🧠 숏폼 생성 중...";
   loadingSpinner.style.display = "block";
   startBtn.disabled = true;
 
-  const res = await fetch(`/upload/process?filename=${uploadedFileName}`);
-  const data = await res.json();
-  loadingSpinner.style.display = "none";
+  try {
+    const res = await fetch(`/upload/process?filename=${uploadedFileName}`);
+    const data = await res.json();
+    loadingSpinner.style.display = "none";
 
-  if (res.ok) {
-    statusDiv.textContent = "🎉 숏폼 영상 생성 완료!";
-    const finalVideo = document.getElementById("finalVideo");
-    finalVideo.src = "/clips/highlight_sample.mp4?" + new Date().getTime();
-    finalVideo.style.display = "block";
-  } else {
-    statusDiv.textContent = "❌ 숏폼 생성 실패";
+    if (res.ok) {
+      statusDiv.textContent = "🎉 숏폼 영상 생성 완료!";
+      finalVideo.src = `/clips/highlight_${uploadedFileName}?` + Date.now();
+      finalVideo.style.display = "block";
+      // 하이라이트 영상 로딩된 다음에 highlightBar 갱신
+      finalVideo.addEventListener("loadedmetadata", showHighlightBar, { once: true });
+    } else {
+      statusDiv.textContent = "❌ 숏폼 생성 실패";
+      startBtn.disabled = false;
+    }
+  } catch (error) {
+    console.error(error);
+    statusDiv.textContent = "❌ 숏폼 생성 중 오류 발생";
+    loadingSpinner.style.display = "none";
     startBtn.disabled = false;
   }
 });
+
+// 4) 하이라이트 바 표시
+async function showHighlightBar() {
+  const baseName = uploadedFileName.split('.').slice(0, -1).join('.');
+  const jsonName = `highlight_${baseName}.json`;
+  const res = await fetch(`/clips/${jsonName}`);
+  const data = await res.json();
+  const segments = data.segments || [];
+  const originalDuration = data.original_duration || 60;
+  if (!segments.length || !originalDuration) return;
+
+  const bar = document.getElementById("highlightBarContainer");
+  bar.innerHTML = "";
+  bar.style.display = "block";
+
+  segments.forEach(seg => {
+    const start = seg.start_time;
+    const end = seg.end_time;
+    const segLen = end - start;
+    const percentStart = (start / originalDuration) * 100;
+    const percentWidth = (segLen / originalDuration) * 100;
+
+    const block = document.createElement("div");
+    block.style.position = "absolute";
+    block.style.left = `${percentStart}%`;
+    block.style.width = `${percentWidth}%`;
+    block.style.height = "100%";
+    block.style.backgroundColor = "red";
+    block.style.borderRadius = "8px";
+    block.style.boxShadow = "0 0 4px rgba(0,0,0,0.3)";
+
+    const tooltip = document.createElement("div");
+    tooltip.textContent = `${formatTime(start)} ~ ${formatTime(end)}`;
+    tooltip.style.position = "absolute";
+    tooltip.style.bottom = "100%";
+    tooltip.style.left = "50%";
+    tooltip.style.transform = "translateX(-50%)";
+    tooltip.style.backgroundColor = "black";
+    tooltip.style.color = "white";
+    tooltip.style.padding = "4px 8px";
+    tooltip.style.borderRadius = "6px";
+    tooltip.style.fontSize = "0.8rem";
+    tooltip.style.whiteSpace = "nowrap";
+    tooltip.style.display = "none";
+    tooltip.style.zIndex = "10";
+
+    block.appendChild(tooltip);
+    block.addEventListener("mouseenter", () => tooltip.style.display = "block");
+    block.addEventListener("mouseleave", () => tooltip.style.display = "none");
+
+    bar.appendChild(block);
+  });
+}
+
+function formatTime(seconds) {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = Math.floor(seconds % 60);
+  return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+}
 </script>
 
 </body>
