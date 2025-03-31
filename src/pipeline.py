@@ -20,26 +20,24 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0, alpha
     extract_features_pipe(video_path, output_h5, output_scene_json, device=device)
 
     print("\n🧠 [2/3] 하이라이트 점수 예측")
-    run_pgl_module(
+    selected_segments = run_pgl_module(
         ckpt_path=ckpt_path,
         feature_h5=output_h5,
         scene_json=output_scene_json,
         output_json=output_segment_json,
-        output_sorted_max_json=None,
-        output_sorted_avg_json=None,
         output_sorted_combined_json=output_sorted_combined_json,
         fps=fps,
         device=device,
         alpha=alpha,
-        std_weight=std_weight
+        std_weight=std_weight,
+        top_ratio=top_ratio
     )
 
     print("\n🎞️ [3/3] 하이라이트 영상 생성")
-    selected_segments = create_highlight_video(
-        sorted_segments_json=output_sorted_combined_json,
+    create_highlight_video(
+        selected_segments=selected_segments,
         video_path=video_path,
-        output_video=output_highlight_video,
-        top_ratio=top_ratio
+        output_video=output_highlight_video
     )
     print(f"\n✅ 파이프라인 완료! 하이라이트 영상: {output_highlight_video}")
 

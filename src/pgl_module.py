@@ -57,14 +57,6 @@ def save_segment_frame_scores_json(scores, scene_segments, output_json):
     print(f"📄 Segment scores JSON saved: {output_json}")
     return segment_scores
 
-def save_sorted_segments_json(segment_scores, sort_key, output_json):
-    if output_json is None:
-        return
-    sorted_segments = sorted(segment_scores, key=lambda x: x[sort_key], reverse=True)
-    with open(output_json, "w") as f:
-        json.dump({"segments": sorted_segments}, f, indent=2, ensure_ascii=False)
-    print(f"📄 Sorted segments JSON saved ({sort_key}): {output_json}")
-
 def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_json):
     if output_json is None:
         return 
@@ -78,34 +70,79 @@ def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_wei
     with open(output_json, "w") as f:
         json.dump({"segments": sorted_segments}, f, indent=2, ensure_ascii=False)
     print(f"📄 Sorted segments JSON saved (combined_score): {output_json}")
+    return sorted_segments
+
+def knapsack_segment_selection(segment_scores, max_length, fps):
+    n = len(segment_scores)
+    weights = [int((seg["end_time"] - seg["start_time"]) * fps) for seg in segment_scores]
+    values = [seg["combined_score"] for seg in segment_scores]
+
+    dp = [[0] * (max_length + 1) for _ in range(n + 1)]
+    keep = [[0] * (max_length + 1) for _ in range(n + 1)]
+
+    for i in range(1, n + 1):
+        for w in range(max_length + 1):
+            if weights[i-1] <= w:
+                if dp[i-1][w] < dp[i-1][w - weights[i-1]] + values[i-1]:
+                    dp[i][w] = dp[i-1][w - weights[i-1]] + values[i-1]
+                    keep[i][w] = 1
+                else:
+                    dp[i][w] = dp[i-1][w]
+            else:
+                dp[i][w] = dp[i-1][w]
+
+    w = max_length
+    selected_segments = []
+    for i in range(n, 0, -1):
+        if keep[i][w]:
+            selected_segments.append(segment_scores[i-1])
+            w -= weights[i-1]
+    return selected_segments[::-1]
 
 def run_pgl_module(
     ckpt_path,
     feature_h5,
     scene_json,
     output_json,
-    output_sorted_max_json,
-    output_sorted_avg_json,
     output_sorted_combined_json,
     fps=1.0,
     device="cpu",
     alpha=0.7,
-    std_weight=0.3
+    std_weight=0.3,
+    top_ratio=0.2
 ):
     print(f"🚀 Running PGL Module | Device: {device}")
 
+    # 1. 모델 로딩
     model = PGL_SUM(input_size=1024, output_size=1024, num_segments=4, heads=8, fusion="add", pos_enc="absolute")
     model = load_model_checkpoint(model, ckpt_path, device)
     model.to(device).eval()
 
+    # 2. 특징 로드 및 중요도 예측
     features = load_h5_features(feature_h5)
     scores = predict_scores(model, features, device=device)
 
+    # 3. 장면 세그먼트 로드
     scene_segments = load_scene_segments(scene_json, fps)
+
+    # 4. 세그먼트별 점수 계산
     segment_scores = save_segment_frame_scores_json(scores, scene_segments, output_json)
 
-    save_sorted_segments_json(segment_scores, "max_score", output_sorted_max_json)
-    save_sorted_segments_json(segment_scores, "avg_score", output_sorted_avg_json)
-    save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_sorted_combined_json)
+    # 5. combined_score 계산 및 저장
+    for seg in segment_scores:
+        seg["combined_score"] = (
+            seg["avg_score"] * alpha +
+            seg["max_score"] * (1 - alpha) -
+            seg["std_score"] * std_weight
+        )
+    sorted_segments = sorted(segment_scores, key=lambda x: x["combined_score"], reverse=True)
 
-    return segment_scores 
+    if output_sorted_combined_json:
+        with open(output_sorted_combined_json, "w") as f:
+            json.dump({"segments": sorted_segments}, f, indent=2, ensure_ascii=False)
+        print(f"📄 Sorted segments JSON saved (combined_score): {output_sorted_combined_json}")
+        
+    max_total_len = int(len(scores) * top_ratio)
+    selected_segments = knapsack_segment_selection(segment_scores, max_total_len, fps)
+
+    return selected_segments
