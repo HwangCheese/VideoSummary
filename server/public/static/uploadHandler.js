@@ -40,11 +40,6 @@ export function initUploadHandler() {
   });
 
   function handleFile(file) {
-    if (!file.name.endsWith(".mp4")) {
-      showToast("⚠️ mp4 파일만 업로드 가능합니다.", "warning");
-      return;
-    }
-
     fileName.textContent = file.name;
     fileSize.textContent = formatFileSize(file.size);
     uploadInfo.style.display = "block";
