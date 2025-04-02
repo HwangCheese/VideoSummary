@@ -57,19 +57,27 @@
       margin-top: 1rem;
       font-weight: 500;
     }
-    .spinner {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #007bff;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
+
+    /* 기존 .spinner (원형 로딩) 제거 또는 사용 안 함 */
+
+    /* [수평 진행바] */
+    #progressBarContainer {
+      width: 400px;
+      height: 20px;
+      background: #eee;
+      border-radius: 10px;
       margin-top: 1rem;
+      overflow: hidden;
+      /* 가운데 정렬 위해 margin: 0 auto; 등 추가 가능 */
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
+    #progressBarInner {
+      width: 0%;
+      height: 100%;
+      background: #007bff;
+      border-radius: 10px;
+      transition: width 0.3s;
     }
+
   </style>
 </head>
 <body>
@@ -78,8 +86,12 @@
 
 <div id="dropZone">📂 .mp4 파일을 이곳에 드래그하세요</div>
 <button id="startBtn" disabled>숏폼 생성</button>
+
+<!-- 진행 상태 표시 -->
 <p id="status"></p>
-<div id="loadingSpinner" class="spinner" style="display:none;"></div>
+<div id="progressBarContainer">
+  <div id="progressBarInner"></div>
+</div>
 
 <h2>✨ 숏폼 결과 영상</h2>
 <video id="finalVideo" controls style="width:700px; border-radius:12px; box-shadow:0 4px 8px rgba(0,0,0,0.2); display:none;"></video>
@@ -95,8 +107,10 @@ let uploadedFileName = "";
 const dropZone = document.getElementById("dropZone");
 const startBtn = document.getElementById("startBtn");
 const statusDiv = document.getElementById("status");
-const loadingSpinner = document.getElementById("loadingSpinner");
 const finalVideo = document.getElementById("finalVideo");
+
+// [수평 진행바 DOM]
+const progressBarInner = document.getElementById("progressBarInner");
 
 // 1) 드래그 앤 드롭 이벤트
 ["dragenter", "dragover"].forEach(eventName => {
@@ -134,7 +148,7 @@ dropZone.addEventListener("drop", async e => {
   }
 
   statusDiv.textContent = "⏳ 업로드 중...";
-  loadingSpinner.style.display = "block";
+  progressBarInner.style.width = "10%"; // 임의로 업로드 시작 시 10%
 
   const formData = new FormData();
   formData.append("video", file);
@@ -142,19 +156,20 @@ dropZone.addEventListener("drop", async e => {
   try {
     const res = await fetch("/upload", { method: "POST", body: formData });
     const data = await res.json();
-    loadingSpinner.style.display = "none";
 
     if (res.ok) {
       uploadedFileName = data.filename;
       statusDiv.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
+      progressBarInner.style.width = "20%";
       startBtn.disabled = false;
     } else {
       statusDiv.textContent = "❌ 업로드 실패";
+      progressBarInner.style.width = "0%";
     }
   } catch (error) {
     console.error(error);
     statusDiv.textContent = "❌ 업로드 중 오류 발생";
-    loadingSpinner.style.display = "none";
+    progressBarInner.style.width = "0%";
   }
 });
 
@@ -162,29 +177,30 @@ dropZone.addEventListener("drop", async e => {
 startBtn.addEventListener("click", async () => {
   if (!uploadedFileName) return;
 
-  statusDiv.textContent = "🧠 숏폼 생성 중...";
-  loadingSpinner.style.display = "block";
+  statusDiv.textContent = "🧠 생성 시작 대기 중...";
+  progressBarInner.style.width = "30%";
   startBtn.disabled = true;
 
   try {
     const res = await fetch(`/upload/process?filename=${uploadedFileName}`);
     const data = await res.json();
-    loadingSpinner.style.display = "none";
 
     if (res.ok) {
       statusDiv.textContent = "🎉 숏폼 영상 생성 완료!";
+      progressBarInner.style.width = "100%";
       finalVideo.src = `/clips/highlight_${uploadedFileName}?` + Date.now();
       finalVideo.style.display = "block";
       // 하이라이트 영상 로딩된 다음에 highlightBar 갱신
       finalVideo.addEventListener("loadedmetadata", showHighlightBar, { once: true });
     } else {
       statusDiv.textContent = "❌ 숏폼 생성 실패";
+      progressBarInner.style.width = "0%";
       startBtn.disabled = false;
     }
   } catch (error) {
     console.error(error);
     statusDiv.textContent = "❌ 숏폼 생성 중 오류 발생";
-    loadingSpinner.style.display = "none";
+    progressBarInner.style.width = "0%";
     startBtn.disabled = false;
   }
 });
@@ -247,6 +263,36 @@ function formatTime(seconds) {
   const remainingSeconds = Math.floor(seconds % 60);
   return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
 }
+
+// SSE 초기화
+document.addEventListener("DOMContentLoaded", () => {
+  // SSE 연결
+  const evtSource = new EventSource("/upload/progress-sse");
+  evtSource.onmessage = function(e) {
+    const progressState = JSON.parse(e.data);
+    console.log("SSE onmessage:", progressState);
+
+    // step(1,2,3)에 따라 대략 %로 계산
+    let percent = 0;
+    if (progressState.step === 1) percent = 30;
+    else if (progressState.step === 2) percent = 60;
+    else if (progressState.step === 3) percent = 90;
+
+    if (progressState.done) {
+      percent = 100;
+    }
+
+    progressBarInner.style.width = percent + "%";
+    if (progressState.message) {
+      // 상태 메시지 업데이트
+      document.getElementById("status").textContent = `${percent}% - ${progressState.message}`;
+    }
+
+    if (progressState.done) {
+      evtSource.close();
+    }
+  };
+});
 </script>
 
 </body>
