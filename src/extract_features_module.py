@@ -68,7 +68,7 @@ def save_to_h5(features, output_h5):
         hf.create_dataset("features", data=features)
     print("✅ 특징 저장 완료", flush=True)
 
-def detect_scenes(video_path, threshold=27.0, min_scene_len=45):
+def detect_scenes(video_path, threshold=16.0, min_scene_len=45):
     print("🎬 장면 분할(씬 디텍션) 중...", flush=True)
     video_manager = VideoManager([video_path])
     scene_manager = SceneManager()
