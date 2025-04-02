@@ -38,7 +38,7 @@ def extract_features(video_path, model, device):
                 feat = model(tensor).cpu().numpy().squeeze()
                 features.append(feat)
 
-            if frame_count % (round(fps) * 10) == 0:
+            if frame_count % (round(fps) * 1) == 0:
                 print(f"📸 처리 중... {frame_count}/{total_frames} 프레임", flush=True)
 
         success, frame = cap.read()
