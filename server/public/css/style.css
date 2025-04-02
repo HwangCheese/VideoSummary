@@ -287,9 +287,12 @@
   }
   
   .time-markers {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 20px;
+    top: 0;
+    left: 0;
+    z-index: 1; /* 하이라이트 블록보다 낮은 z-index */
   }
   
   .time-marker {
