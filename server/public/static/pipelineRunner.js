@@ -16,6 +16,8 @@ export function initPipelineRunner() {
   startBtn.addEventListener("click", async () => {
     if (!uploadedFileName) return;
 
+    startBtn.disabled = true;
+
     progressCard.style.display = "block";
     resultCard.style.display = "none";
     statusDiv.textContent = "🧠 생성 시작 중...";
@@ -50,6 +52,8 @@ export function initPipelineRunner() {
       console.error(error);
       statusDiv.textContent = "❌ 숏폼 생성 중 오류 발생";
       showToast("처리 중 오류가 발생했습니다.", "error");
+    } finally {
+        startBtn.disabled = false;
     }
   });
 
