@@ -30,6 +30,7 @@ def extract_features(video_path, model, device):
     frame_count = 0
     success, frame = cap.read()
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+    print(f"전체 프레임: {total_frames}, 프레임 변환 처리 시작", flush=True)
     while success:
         if frame_count % round(fps) == 0:
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -102,6 +103,8 @@ def extract_features_pipe(video_path, output_h5, output_json, device="cuda"):
     features = extract_features(video_path, model, device)
     pca_features = apply_pca(features)
     save_to_h5(pca_features, output_h5)
+    
+    print("✅ 장면 분할 시작", flush=True)
 
     change_points, fps = detect_scenes(video_path)
     save_segments_to_json(change_points, output_json, fps)

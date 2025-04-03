@@ -33,7 +33,7 @@ def create_highlight_video(selected_segments, video_path, output_video):
 
     # 클립 이어붙이기 + 저장
     final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(output_video, codec="libx264", audio_codec="aac")
+    final_clip.write_videofile(output_video, codec="libx264", audio_codec="aac", verbose=False, logger=None)
     final_clip.close()
     video.close()
     print(f"✅ 하이라이트 영상 저장 완료: {output_video}")
