@@ -8,6 +8,7 @@
 *.mp4
 *.wav
 *.h5
+*.MOV
 
 __pycache__
 
