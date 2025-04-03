@@ -7,34 +7,62 @@
   <link rel="icon" type="image/png" href="/css/head-icon.png" />
   <link rel="stylesheet" href="/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
 <body>
+  <div class="background-shapes">
+    <div class="shape shape1"></div>
+    <div class="shape shape2"></div>
+    <div class="shape shape3"></div>
+  </div>
+
   <div class="container">
-    <header>
-      <h1><i class="fas fa-film"></i> 영상 숏폼 자동 생성</h1>
+    <header class="animate__animated animate__fadeInDown">
+      <div class="logo">
+        <div class="logo-icon">
+          <i class="fas fa-film"></i>
+        </div>
+      </div>
+      <h1>영상 숏폼 자동 생성</h1>
       <p class="subtitle">긴 영상을 AI가 분석하여 핵심만 모아 숏폼으로 제작합니다</p>
     </header>
 
-    <div class="card">
+    <div class="card animate__animated animate__fadeIn">
       <div class="card-header">
         <h2><i class="fas fa-upload"></i> 영상 업로드</h2>
       </div>
       <div class="card-body">
         <div id="dropZone">
-          <i class="fas fa-cloud-upload-alt"></i>
+          <div class="upload-icon-container">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
           <p>.mp4 파일을 이곳에 드래그하세요</p>
           <span class="small">또는 클릭하여 파일 선택</span>
           <input type="file" id="fileInput" accept=".mp4" style="display:none">
+          <div class="upload-decorations">
+            <span class="decoration d1"></span>
+            <span class="decoration d2"></span>
+            <span class="decoration d3"></span>
+            <span class="decoration d4"></span>
+          </div>
         </div>
         
         <div id="uploadInfo" style="display:none">
           <div class="file-info">
-            <i class="fas fa-file-video"></i>
-            <span id="fileName"></span>
-            <span id="fileSize"></span>
+            <div class="file-icon">
+              <i class="fas fa-file-video"></i>
+            </div>
+            <div class="file-details">
+              <span id="fileName"></span>
+              <span id="fileSize"></span>
+            </div>
+            <button id="removeFileBtn" class="icon-btn">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
           <button id="startBtn" disabled>
             <i class="fas fa-magic"></i> 숏폼 생성하기
+            <span class="btn-shine"></span>
           </button>
         </div>
       </div>
@@ -45,21 +73,27 @@
         <h2><i class="fas fa-tasks"></i> 처리 진행률</h2>
       </div>
       <div class="card-body">
-        <p id="status" class="status-message"></p>
+        <p id="status" class="status-message"><i class="fas fa-spinner fa-spin"></i> 영상 분석중...</p>
         <div id="progressBarContainer">
           <div id="progressBarInner"></div>
         </div>
         <div id="progressSteps">
           <div class="step active" data-step="1">
-            <i class="fas fa-camera"></i>
+            <div class="step-icon">
+              <i class="fas fa-camera"></i>
+            </div>
             <span>특징 추출</span>
           </div>
           <div class="step" data-step="2">
-            <i class="fas fa-brain"></i>
+            <div class="step-icon">
+              <i class="fas fa-brain"></i>
+            </div>
             <span>분석</span>
           </div>
           <div class="step" data-step="3">
-            <i class="fas fa-video"></i>
+            <div class="step-icon">
+              <i class="fas fa-video"></i>
+            </div>
             <span>숏폼 생성</span>
           </div>
         </div>
@@ -71,7 +105,12 @@
         <h2><i class="fas fa-play-circle"></i> 숏폼 결과 영상</h2>
       </div>
       <div class="card-body">
-        <video id="finalVideo" controls></video>
+        <div class="video-container">
+          <video id="finalVideo" controls></video>
+          <div class="video-overlay">
+            <i class="fas fa-play-circle"></i>
+          </div>
+        </div>
         
         <div class="highlight-section">
           <h3><i class="fas fa-search"></i> 원본 대비 하이라이트 구간</h3>
@@ -94,15 +133,61 @@
           <button id="downloadBtn" class="secondary-btn">
             <i class="fas fa-download"></i> 다운로드
           </button>
-          <button id="newBtn" class="secondary-btn">
+          <button id="shareBtn" class="accent-btn">
+            <i class="fas fa-share-alt"></i> 공유하기
+          </button>
+          <button id="newBtn" class="primary-btn">
             <i class="fas fa-plus"></i> 새 영상 만들기
           </button>
         </div>
       </div>
     </div>
     
+    <div id="features" class="features-section">
+      <h2>서비스 특징</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-tachometer-alt"></i>
+          </div>
+          <h3>빠른 처리</h3>
+          <p>고성능 AI 기술로 긴 영상도 빠르게 분석하여 숏폼 생성</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-brain"></i>
+          </div>
+          <h3>스마트 분석</h3>
+          <p>영상의 핵심 내용을 자동으로 파악하여 중요한 순간만 추출</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="fas fa-lock"></i>
+          </div>
+          <h3>안전한 처리</h3>
+          <p>모든 데이터는 안전하게 처리되며 업로드 후 즉시 삭제됩니다</p>
+        </div>
+      </div>
+    </div>
+    
     <footer>
-      <p>© 2025 숏폼 자동 생성 서비스 | <a href="#">이용약관</a> | <a href="#">개인정보처리방침</a></p>
+      <div class="footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-film"></i> 숏폼 자동 생성
+        </div>
+        <div class="footer-links">
+          <a href="#">이용약관</a>
+          <a href="#">개인정보처리방침</a>
+          <a href="#">서비스 소개</a>
+          <a href="#">문의하기</a>
+        </div>
+        <div class="social-links">
+          <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+      <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved.</p>
     </footer>
   </div>
   
