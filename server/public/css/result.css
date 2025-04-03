@@ -1,0 +1,76 @@
+/*
+server/public/css/result.css 
+결과 영상, 하이라이트 구간 시각화
+*/
+
+#finalVideo {
+    width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 1.5rem;
+}
+
+.highlight-section {
+    margin-top: 1.5rem;
+}
+
+.highlight-section h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#highlightBarContainer {
+    width: 100%;
+    height: 25px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.time-markers {
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    top: 0;
+    left: 0;
+    z-index: 1; /* 하이라이트 블록보다 낮은 z-index */
+}
+
+.time-marker {
+    position: absolute;
+    font-size: 0.8rem;
+    top: -25px;
+    transform: translateX(-50%);
+}
+
+.highlight-legend {
+    display: flex;
+    gap: 1.5rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.legend-color.original {
+    background-color: #e0e0e0;
+}
+
+.legend-color.highlight {
+    background-color: var(--accent-color);
+}

@@ -1,0 +1,82 @@
+/*
+server/public/css/components.css 
+버튼, 아이콘, 유틸 컴포넌트
+*/
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 1.8rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    justify-content: center;
+    transition: var(--transition);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+}
+
+button:disabled {
+    background-color: var(--light-gray);
+    color: var(--gray-color);
+    cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-2px);
+}
+
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.75s ease;
+}
+
+button:not(:disabled):hover .btn-shine {
+    left: 100%;
+}
+
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.primary-btn {
+    background: var(--gradient);
+}
+
+.secondary-btn {
+    background-color: var(--light-gray);
+    color: var(--dark-color);
+}
+
+.secondary-btn:hover {
+    background-color: #dce2e6;
+}
+
+.accent-btn {
+    background: var(--gradient-accent);
+}
+
+.accent-btn:hover {
+    background: linear-gradient(135deg, var(--accent-dark), #9c1485);
+}
