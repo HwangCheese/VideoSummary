@@ -287,3 +287,31 @@ footer p.copyright {
   font-size: 0.9rem;
   color: var(--gray-color);
 }
+
+#cardScroller {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scroll-behavior: smooth;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+#cardScroller::-webkit-scrollbar {
+  display: none;
+}
+
+#cardScroller > * {
+  height: 100vh;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  width: 90%;
+  max-width: 1000px;
+  margin: 0 auto;
+}

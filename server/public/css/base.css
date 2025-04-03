@@ -39,5 +39,6 @@ body {
   color: var(--dark-color);
   line-height: 1.6;
   overflow-x: hidden;
+  overflow-y: auto;
   position: relative;
 }

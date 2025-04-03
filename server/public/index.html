@@ -1,3 +1,4 @@
+<!-- server/public/index.html -->
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -16,181 +17,205 @@
     <div class="shape shape3"></div>
   </div>
 
-  <div class="container">
-    <header class="animate__animated animate__fadeInDown">
-      <div class="logo">
-        <div class="logo-icon">
-          <i class="fas fa-film"></i>
+  <div class="scroll-container">
+    <!-- 헤더 및 업로드 섹션 -->
+    <section id="upload-section" class="scroll-section upload-section">
+      <header class="animate__animated animate__fadeInDown">
+        <div class="logo">
+          <div class="logo-icon">
+            <i class="fas fa-film"></i>
+          </div>
         </div>
-      </div>
-      <h1>영상 숏폼 자동 생성</h1>
-      <p class="subtitle">긴 영상을 AI가 분석하여 핵심만 모아 숏폼으로 제작합니다</p>
-    </header>
+        <h1>영상 숏폼 자동 생성</h1>
+        <p class="subtitle">긴 영상을 AI가 분석하여 핵심만 모아 숏폼으로 제작합니다</p>
+      </header>
 
-    <div class="card animate__animated animate__fadeIn">
-      <div class="card-header">
-        <h2><i class="fas fa-upload"></i> 영상 업로드</h2>
-      </div>
-      <div class="card-body">
-        <div id="dropZone">
-          <div class="upload-icon-container">
-            <i class="fas fa-cloud-upload-alt"></i>
-          </div>
-          <p>.mp4 파일을 이곳에 드래그하세요</p>
-          <span class="small">또는 클릭하여 파일 선택</span>
-          <input type="file" id="fileInput" accept=".mp4" style="display:none">
-          <div class="upload-decorations">
-            <span class="decoration d1"></span>
-            <span class="decoration d2"></span>
-            <span class="decoration d3"></span>
-            <span class="decoration d4"></span>
-          </div>
+      <div class="card animate__animated animate__fadeIn">
+        <div class="card-header">
+          <h2><i class="fas fa-upload"></i> 영상 업로드</h2>
         </div>
-        
-        <div id="uploadInfo" style="display:none">
-          <div class="file-info">
-            <div class="file-icon">
-              <i class="fas fa-file-video"></i>
+        <div class="card-body">
+          <div id="dropZone">
+            <div class="upload-icon-container">
+              <i class="fas fa-cloud-upload-alt"></i>
             </div>
-            <div class="file-details">
-              <span id="fileName"></span>
-              <span id="fileSize"></span>
+            <p>.mp4 파일을 이곳에 드래그하세요</p>
+            <span class="small">또는 클릭하여 파일 선택</span>
+            <input type="file" id="fileInput" accept=".mp4" style="display:none">
+            <div class="upload-decorations">
+              <span class="decoration d1"></span>
+              <span class="decoration d2"></span>
+              <span class="decoration d3"></span>
+              <span class="decoration d4"></span>
             </div>
-            <button id="removeFileBtn" class="icon-btn">
-              <i class="fas fa-times"></i>
+          </div>
+          
+          <div id="uploadInfo" style="display:none">
+            <div class="file-info">
+              <div class="file-icon">
+                <i class="fas fa-file-video"></i>
+              </div>
+              <div class="file-details">
+                <span id="fileName"></span>
+                <span id="fileSize"></span>
+              </div>
+              <button id="removeFileBtn" class="icon-btn">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            <button id="startBtn" disabled>
+              <i class="fas fa-magic"></i> 숏폼 생성하기
+              <span class="btn-shine"></span>
             </button>
           </div>
-          <button id="startBtn" disabled>
-            <i class="fas fa-magic"></i> 숏폼 생성하기
-            <span class="btn-shine"></span>
-          </button>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div id="progressCard" class="card" style="display:none">
-      <div class="card-header">
-        <h2><i class="fas fa-tasks"></i> 처리 진행률</h2>
-      </div>
-      <div class="card-body">
-        <p id="status" class="status-message"><i class="fas fa-spinner fa-spin"></i> 영상 분석중...</p>
-        <div id="progressBarContainer">
-          <div id="progressBarInner"></div>
+    <!-- 진행률 섹션 -->
+    <section id="progress-section" class="scroll-section progress-section">
+      <div id="progressCard" class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-tasks"></i> 처리 진행률</h2>
         </div>
-        <div id="progressSteps">
-          <div class="step active" data-step="1">
-            <div class="step-icon">
-              <i class="fas fa-camera"></i>
-            </div>
-            <span>특징 추출</span>
+        <div class="card-body">
+          <p id="status" class="status-message"><i class="fas fa-spinner fa-spin"></i> 영상 분석중...</p>
+          <div id="progressBarContainer">
+            <div id="progressBarInner"></div>
           </div>
-          <div class="step" data-step="2">
-            <div class="step-icon">
+          <div id="progressSteps">
+            <div class="step active" data-step="1">
+              <div class="step-icon">
+                <i class="fas fa-camera"></i>
+              </div>
+              <span>특징 추출</span>
+            </div>
+            <div class="step" data-step="2">
+              <div class="step-icon">
+                <i class="fas fa-brain"></i>
+              </div>
+              <span>분석</span>
+            </div>
+            <div class="step" data-step="3">
+              <div class="step-icon">
+                <i class="fas fa-video"></i>
+              </div>
+              <span>숏폼 생성</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 결과 섹션 -->
+    <section id="result-section" class="scroll-section result-section">
+      <div id="resultCard" class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-play-circle"></i> 숏폼 결과 영상</h2>
+        </div>
+        <div class="card-body">
+          <div class="video-container">
+            <video id="finalVideo" controls></video>
+            <div class="video-overlay">
+              <i class="fas fa-play-circle"></i>
+            </div>
+          </div>
+          
+          <div class="highlight-section">
+            <h3><i class="fas fa-search"></i> 원본 대비 하이라이트 구간</h3>
+            <div id="highlightBarContainer">
+              <div class="time-markers">
+                <span class="time-marker" style="left: 0%">00:00</span>
+                <span class="time-marker" style="left: 25%">25%</span>
+                <span class="time-marker" style="left: 50%">50%</span>
+                <span class="time-marker" style="left: 75%">75%</span>
+                <span class="time-marker" style="left: 100%">100%</span>
+              </div>
+            </div>
+            <div class="highlight-legend">
+              <span class="legend-item"><span class="legend-color original"></span> 원본 영상</span>
+              <span class="legend-item"><span class="legend-color highlight"></span> 하이라이트 구간</span>
+            </div>
+          </div>
+          
+          <div class="button-group">
+            <button id="downloadBtn" class="secondary-btn">
+              <i class="fas fa-download"></i> 다운로드
+            </button>
+            <button id="shareBtn" class="accent-btn">
+              <i class="fas fa-share-alt"></i> 공유하기
+            </button>
+            <button id="newBtn" class="primary-btn">
+              <i class="fas fa-plus"></i> 새 영상 만들기
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    
+    <!-- 특징 섹션 -->
+    <section id="feature-section" class="scroll-section features-section-container">
+      <div class="features-section">
+        <h2>서비스 특징</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-tachometer-alt"></i>
+            </div>
+            <h3>빠른 처리</h3>
+            <p>고성능 AI 기술로 긴 영상도 빠르게 분석하여 숏폼 생성</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">
               <i class="fas fa-brain"></i>
             </div>
-            <span>분석</span>
+            <h3>스마트 분석</h3>
+            <p>영상의 핵심 내용을 자동으로 파악하여 중요한 순간만 추출</p>
           </div>
-          <div class="step" data-step="3">
-            <div class="step-icon">
-              <i class="fas fa-video"></i>
+          <div class="feature-card">
+            <div class="feature-icon">
+              <i class="fas fa-lock"></i>
             </div>
-            <span>숏폼 생성</span>
+            <h3>안전한 처리</h3>
+            <p>모든 데이터는 안전하게 처리되며 업로드 후 즉시 삭제됩니다</p>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div id="resultCard" class="card" style="display:none">
-      <div class="card-header">
-        <h2><i class="fas fa-play-circle"></i> 숏폼 결과 영상</h2>
-      </div>
-      <div class="card-body">
-        <div class="video-container">
-          <video id="finalVideo" controls></video>
-          <div class="video-overlay">
-            <i class="fas fa-play-circle"></i>
+    <!-- 푸터 섹션 -->
+    <section id="footer-section" class="scroll-section">
+      <footer>
+        <div class="footer-content">
+          <div class="footer-logo">
+            <i class="fas fa-film"></i> 숏폼 자동 생성
+          </div>
+          <div class="footer-links">
+            <a href="#">이용약관</a>
+            <a href="#">개인정보처리방침</a>
+            <a href="https://github.com/HwangCheese/CreateShorts">서비스 소개</a>
+            <a href="https://github.com/HwangCheese">문의하기</a>
+          </div>
+          <div class="social-links">
+            <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
           </div>
         </div>
-        
-        <div class="highlight-section">
-          <h3><i class="fas fa-search"></i> 원본 대비 하이라이트 구간</h3>
-          <div id="highlightBarContainer">
-            <div class="time-markers">
-              <span class="time-marker" style="left: 0%">00:00</span>
-              <span class="time-marker" style="left: 25%">25%</span>
-              <span class="time-marker" style="left: 50%">50%</span>
-              <span class="time-marker" style="left: 75%">75%</span>
-              <span class="time-marker" style="left: 100%">100%</span>
-            </div>
-          </div>
-          <div class="highlight-legend">
-            <span class="legend-item"><span class="legend-color original"></span> 원본 영상</span>
-            <span class="legend-item"><span class="legend-color highlight"></span> 하이라이트 구간</span>
-          </div>
-        </div>
-        
-        <div class="button-group">
-          <button id="downloadBtn" class="secondary-btn">
-            <i class="fas fa-download"></i> 다운로드
-          </button>
-          <button id="shareBtn" class="accent-btn">
-            <i class="fas fa-share-alt"></i> 공유하기
-          </button>
-          <button id="newBtn" class="primary-btn">
-            <i class="fas fa-plus"></i> 새 영상 만들기
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <div id="features" class="features-section">
-      <h2>서비스 특징</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-tachometer-alt"></i>
-          </div>
-          <h3>빠른 처리</h3>
-          <p>고성능 AI 기술로 긴 영상도 빠르게 분석하여 숏폼 생성</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-brain"></i>
-          </div>
-          <h3>스마트 분석</h3>
-          <p>영상의 핵심 내용을 자동으로 파악하여 중요한 순간만 추출</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">
-            <i class="fas fa-lock"></i>
-          </div>
-          <h3>안전한 처리</h3>
-          <p>모든 데이터는 안전하게 처리되며 업로드 후 즉시 삭제됩니다</p>
-        </div>
-      </div>
-    </div>
-    
-    <footer>
-      <div class="footer-content">
-        <div class="footer-logo">
-          <i class="fas fa-film"></i> 숏폼 자동 생성
-        </div>
-        <div class="footer-links">
-          <a href="#">이용약관</a>
-          <a href="#">개인정보처리방침</a>
-          <a href="#">서비스 소개</a>
-          <a href="#">문의하기</a>
-        </div>
-        <div class="social-links">
-          <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
-          <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-          <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-        </div>
-      </div>
-      <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved.</p>
-    </footer>
+        <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved. | Team. 황치즈</p>
+      </footer>
+    </section>
   </div>
 
+  <!-- 페이지 내비게이션 -->
+  <div class="page-navigation">
+    <div class="nav-dot active" data-section="upload-section"></div>
+    <div class="nav-dot" data-section="progress-section"></div>
+    <div class="nav-dot" data-section="result-section"></div>
+    <div class="nav-dot" data-section="feature-section"></div>
+    <div class="nav-dot" data-section="footer-section"></div>
+  </div>
+  
   <script type="module" src="/static/main.js"></script>
 </body>
 </html>
