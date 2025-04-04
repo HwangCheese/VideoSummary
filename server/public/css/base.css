@@ -34,7 +34,16 @@ server/public/css/base.css
 }
 
 body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-family:
+    "Pretendard",
+    "Apple SD Gothic Neo",
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
   background-color: #f5f7fa;
   color: var(--dark-color);
   line-height: 1.6;

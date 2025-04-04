@@ -72,31 +72,34 @@ def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_wei
     print(f"📄 Sorted segments JSON saved (combined_score): {output_json}")
     return sorted_segments
 
-def knapsack_segment_selection(segment_scores, max_length, fps):
+def knapsack_segment_selection(segment_scores, max_length):
     n = len(segment_scores)
-    weights = [int((seg["end_time"] - seg["start_time"]) * fps) for seg in segment_scores]
-    values = [seg["combined_score"] for seg in segment_scores]
+    
+    # ✅ frame_scores 길이를 weight로 사용
+    weights = [len(seg["frame_scores"]) for seg in segment_scores]
+    values = [seg.get("combined_score", 0.0) for seg in segment_scores]
 
     dp = [[0] * (max_length + 1) for _ in range(n + 1)]
     keep = [[0] * (max_length + 1) for _ in range(n + 1)]
 
     for i in range(1, n + 1):
         for w in range(max_length + 1):
-            if weights[i-1] <= w:
-                if dp[i-1][w] < dp[i-1][w - weights[i-1]] + values[i-1]:
-                    dp[i][w] = dp[i-1][w - weights[i-1]] + values[i-1]
+            if weights[i - 1] <= w:
+                if dp[i - 1][w] < dp[i - 1][w - weights[i - 1]] + values[i - 1]:
+                    dp[i][w] = dp[i - 1][w - weights[i - 1]] + values[i - 1]
                     keep[i][w] = 1
                 else:
-                    dp[i][w] = dp[i-1][w]
+                    dp[i][w] = dp[i - 1][w]
             else:
-                dp[i][w] = dp[i-1][w]
+                dp[i][w] = dp[i - 1][w]
 
-    w = max_length
     selected_segments = []
+    w = max_length
     for i in range(n, 0, -1):
         if keep[i][w]:
-            selected_segments.append(segment_scores[i-1])
-            w -= weights[i-1]
+            selected_segments.append(segment_scores[i - 1])
+            w -= weights[i - 1]
+
     return selected_segments[::-1]
 
 def run_pgl_module(
