@@ -101,7 +101,7 @@ router.get("/process", (req, res) => {
     } else if (text.includes("[3/3]")) {
       currentStep = 3;
       progressState.step = 3;
-      progressState.message = "🎞️ 하이라이트 영상 생성 중...";
+      progressState.message = "🎞️ 숏폼 영상 생성 중...";
       progressState.percent = 75;
       broadcastProgressUpdate(progressState);
     }
@@ -134,7 +134,7 @@ router.get("/process", (req, res) => {
         if (totalSegments > 0) {
           const fraction = madeSegments / totalSegments;
           progressState.percent = 75 + Math.floor(25 * fraction);
-          progressState.message = `🎞️ 하이라이트 영상 생성 중... (${madeSegments}/${totalSegments})`;
+          progressState.message = `🎞️ 숏폼폼 영상 생성 중... (${madeSegments}/${totalSegments})`;
           broadcastProgressUpdate(progressState);
         }
       }
@@ -142,7 +142,7 @@ router.get("/process", (req, res) => {
 
     if (text.includes("✅ 파이프라인 완료!")) {
       progressState.percent = 100;
-      progressState.message = "✅ 하이라이트 영상 생성 완료!";
+      progressState.message = "✅ 숏폼폼 영상 생성 완료!";
       progressState.done = true;
       broadcastProgressUpdate(progressState);
     }
@@ -161,7 +161,7 @@ router.get("/process", (req, res) => {
     progressState.percent = 100;
     progressState.done = true;
     progressState.step = 3;
-    progressState.message = "✅ 하이라이트 영상 생성 완료!";
+    progressState.message = "✅ 숏폼 영상 생성 완료!";
     broadcastProgressUpdate(progressState);
     res.json({ message: "요약 완료" });
   });

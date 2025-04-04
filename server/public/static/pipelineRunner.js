@@ -47,7 +47,6 @@ export function initPipelineRunner() {
   // 시작 버튼 클릭 시 파이프라인 실행
   startBtn.addEventListener("click", async () => {
     if (!uploadedFileName) return;
-
     startBtn.disabled = true;
 
     // UI 초기화: 진행률 카드 표시, 결과 카드 숨김
@@ -59,7 +58,14 @@ export function initPipelineRunner() {
     resetProgressSteps();
     updateProgressStep(1);
 
-    // SSE 연결 시작 (진행 상황 수신)
+    setTimeout(() => {
+      const progressSection = document.getElementById("progress-section");
+      if (progressSection) {
+        progressSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+
+    // SSE 연결 시작
     startSSE();
 
     try {
@@ -67,12 +73,11 @@ export function initPipelineRunner() {
       const data = await res.json();
 
       if (res.ok) {
-        progressCard.style.display = "none";
+
         resultCard.style.display = "block";
         showToast("🎉 숏폼 영상이 성공적으로 생성되었습니다!", "success");
 
         originalVideo.src = `/uploads/${uploadedFileName}?` + Date.now();
-
         finalVideo.src = `/clips/highlight_${uploadedFileName}?` + Date.now();
         finalVideo.addEventListener("loadedmetadata", showHighlightBar, { once: true });
 
@@ -82,6 +87,14 @@ export function initPipelineRunner() {
           link.download = `highlight_${uploadedFileName}`;
           link.click();
         });
+
+        // ✅ 2단계 스크롤: 1초 후 result-section으로
+        setTimeout(() => {
+          const resultSection = document.getElementById("result-section");
+          if (resultSection) {
+            resultSection.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 1000);
       } else {
         statusDiv.textContent = "❌ 숏폼 생성 실패";
         showToast("숏폼 생성에 실패했습니다. 다시 시도해주세요.", "error");
@@ -92,33 +105,24 @@ export function initPipelineRunner() {
       showToast("처리 중 오류가 발생했습니다.", "error");
     } finally {
       startBtn.disabled = false;
-    } 
+    }
   });
 
-  // 새 영상 만들기 버튼 클릭 시 UI 및 SSE 재설정
+  // 새 영상 만들기 버튼 클릭 시 초기화
   newBtn.addEventListener("click", () => {
-    // 결과 카드와 진행률 카드 숨기기
     resultCard.style.display = "none";
     progressCard.style.display = "none";
-
-    // 진행률 바와 상태 메시지 초기화
     progressBarInner.style.width = "0%";
     statusDiv.textContent = "";
 
-    // 단계(active 클래스) 초기화
     const steps = document.querySelectorAll("#progressSteps .step");
     steps.forEach(step => step.classList.remove("active"));
     if (steps.length > 0) {
       steps[0].classList.add("active");
     }
 
-    // 업로드 영역 다시 표시 (첫 번째 카드라고 가정)
     document.querySelector(".card").style.display = "block";
-
-    // 기타 UI 상태 리셋
     resetUI();
-
-    // 새 SSE 연결 시작
     startSSE();
   });
 
@@ -135,8 +139,8 @@ export function initPipelineRunner() {
       highlightBarContainer.innerHTML = `
         <div class="time-markers">
           ${[0, 0.25, 0.5, 0.75, 1]
-            .map(r => `<span class="time-marker" style="left: ${r * 100}%">${formatTime(originalDuration * r)}</span>`)
-            .join('')}
+          .map(r => `<span class="time-marker" style="left: ${r * 100}%">${formatTime(originalDuration * r)}</span>`)
+          .join('')}
         </div>
       `;
 
