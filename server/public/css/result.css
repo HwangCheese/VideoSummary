@@ -34,20 +34,22 @@ server/public/css/result.css
 .video-container-group {
     display: flex;
     flex-direction: row;
-    gap: 20px;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
 }
 
 .video-box {
     width: 480px;
-    max-width: 90%;
+    max-width: 48%;
+    flex-shrink: 0;
 }
 
 .video-box video {
     width: 100%;
     border-radius: 12px;
-    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.2);
 }
 
 .time-markers {
@@ -56,7 +58,8 @@ server/public/css/result.css
     height: 20px;
     top: 0;
     left: 0;
-    z-index: 1; /* 하이라이트 블록보다 낮은 z-index */
+    z-index: 1;
+    /* 하이라이트 블록보다 낮은 z-index */
 }
 
 .time-marker {
