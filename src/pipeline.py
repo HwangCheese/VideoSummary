@@ -41,16 +41,6 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0, alpha
     )
     print(f"\n✅ 파이프라인 완료! 요약 영상: {output_highlight_video}",flush=True)
 
-    # 📁 clips 디렉토리에 segments.json 저장 (프론트에서 사용)
-    clips_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "clips"))
-    os.makedirs(clips_dir, exist_ok=True)
-
-    top_segments_json = os.path.join(clips_dir, "segments.json")
-    with open(top_segments_json, "w", encoding="utf-8") as f:
-        json.dump({"segments": selected_segments}, f, ensure_ascii=False, indent=2)
-    print(f"✅ highlight 세그먼트 저장 완료 → {top_segments_json}")
-
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--video_path", required=True, help="입력 영상(mp4)")
