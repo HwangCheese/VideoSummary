@@ -12,6 +12,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     let highlightSegments = [];
     let originalDuration = 0;
     let isEditMode = false;
+    let backupSegments = null;
 
     // ------------------------------
     // UI 요소 준비
@@ -180,15 +181,33 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
      * 편집 모드 토글
      */
     function toggleEditMode() {
-        isEditMode = !isEditMode;
-        document.querySelectorAll(".highlight-segment").forEach(segment => {
-            segment.classList.toggle("editable", isEditMode);
-        });
-        saveCustomBtn.style.display = isEditMode ? "inline-block" : "none";
-        customizeBtn.innerHTML = isEditMode
-            ? '<i class="fas fa-times"></i> 편집 취소'
-            : '<i class="fas fa-edit"></i> 하이라이트 편집';
+        if (!isEditMode) {
+            // 편집 모드 진입 시 현재 highlightSegments를 백업
+            backupSegments = JSON.parse(JSON.stringify(highlightSegments)); // deep copy
+            isEditMode = true;
+            saveCustomBtn.style.display = "inline-block";
+            customizeBtn.innerHTML = '<i class="fas fa-times"></i> 편집 취소';
+        } else {
+            // 편집 취소 시, 백업 복원
+            if (backupSegments) {
+                highlightSegments = backupSegments;
+                backupSegments = null;
+            }
+            isEditMode = false;
+            saveCustomBtn.style.display = "none";
+            customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 하이라이트 편집';
+            showHighlightBar(); // 원래 상태로 리렌더링
+        }
     }
+
+    function exitEditModeAfterSave() {
+        backupSegments = null;
+        isEditMode = false;
+        saveCustomBtn.style.display = "none";
+        customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 하이라이트 편집';
+    }
+
+
 
     function setupResizeHandle(handle, seg, isLeft) {
         let isDragging = false;
@@ -262,9 +281,8 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             });
             if (res.ok) {
                 showToast("하이라이트 변경사항이 저장되었습니다!", "success");
-                // 편집 모드 끄기
-                toggleEditMode();
-                // 서버가 highlight_ 파일을 갱신하고, 새 mp4를 만들었다면, 다시 로드
+                // 저장 성공 후 편집 모드 종료 (백업 버림)
+                exitEditModeAfterSave();
                 finalVideo.src = `/clips/highlight_${uploadedFileName}?` + Date.now();
             } else {
                 showToast("변경사항 저장에 실패했습니다.", "error");
