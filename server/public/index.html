@@ -1,6 +1,7 @@
 <!-- server/public/index.html -->
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
 </head>
+
 <body>
   <div class="background-shapes">
     <div class="shape shape1"></div>
@@ -49,7 +51,7 @@
               <span class="decoration d4"></span>
             </div>
           </div>
-          
+
           <div id="uploadInfo" style="display:none">
             <div class="file-info">
               <div class="file-icon">
@@ -120,7 +122,7 @@
               <i class="fas fa-play-circle"></i>
             </div>
           </div>
-          
+
           <div class="highlight-section">
             <h3><i class="fas fa-search"></i> 원본 대비 하이라이트 구간</h3>
             <div id="highlightBarContainer">
@@ -137,7 +139,7 @@
               <span class="legend-item"><span class="legend-color highlight"></span> 하이라이트 구간</span>
             </div>
           </div>
-          
+
           <div class="button-group">
             <button id="downloadBtn" class="secondary-btn">
               <i class="fas fa-download"></i> 다운로드
@@ -152,59 +154,6 @@
         </div>
       </div>
     </section>
-    
-    <!-- 특징 섹션 -->
-    <section id="feature-section" class="scroll-section features-section-container">
-      <div class="features-section">
-        <h2>서비스 특징</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="fas fa-tachometer-alt"></i>
-            </div>
-            <h3>빠른 처리</h3>
-            <p>고성능 AI 기술로 긴 영상도 빠르게 분석하여 숏폼 생성</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="fas fa-brain"></i>
-            </div>
-            <h3>스마트 분석</h3>
-            <p>영상의 핵심 내용을 자동으로 파악하여 중요한 순간만 추출</p>
-          </div>
-          <div class="feature-card">
-            <div class="feature-icon">
-              <i class="fas fa-lock"></i>
-            </div>
-            <h3>안전한 처리</h3>
-            <p>모든 데이터는 안전하게 처리되며 업로드 후 즉시 삭제됩니다</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 푸터 섹션 -->
-    <section id="footer-section" class="scroll-section">
-      <footer>
-        <div class="footer-content">
-          <div class="footer-logo">
-            <i class="fas fa-film"></i> 숏폼 자동 생성
-          </div>
-          <div class="footer-links">
-            <a href="#">이용약관</a>
-            <a href="#">개인정보처리방침</a>
-            <a href="https://github.com/HwangCheese/CreateShorts">서비스 소개</a>
-            <a href="https://github.com/HwangCheese">문의하기</a>
-          </div>
-          <div class="social-links">
-            <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-          </div>
-        </div>
-        <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved. | Team. 황치즈</p>
-      </footer>
-    </section>
   </div>
 
   <!-- 페이지 내비게이션 -->
@@ -212,10 +161,9 @@
     <div class="nav-dot active" data-section="upload-section"></div>
     <div class="nav-dot" data-section="progress-section"></div>
     <div class="nav-dot" data-section="result-section"></div>
-    <div class="nav-dot" data-section="feature-section"></div>
-    <div class="nav-dot" data-section="footer-section"></div>
   </div>
-  
+
   <script type="module" src="/static/main.js"></script>
 </body>
+
 </html>
