@@ -31,6 +31,25 @@ server/public/css/result.css
     margin-bottom: 0.5rem;
 }
 
+.video-container-group {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.video-box {
+    width: 480px;
+    max-width: 90%;
+}
+
+.video-box video {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 0 12px rgba(0,0,0,0.2);
+}
+
 .time-markers {
     position: absolute;
     width: 100%;

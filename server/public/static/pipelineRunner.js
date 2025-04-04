@@ -11,6 +11,7 @@ export function initPipelineRunner() {
   const progressBarInner = document.getElementById("progressBarInner");
   const progressCard = document.getElementById("progressCard");
   const resultCard = document.getElementById("resultCard");
+  const originalVideo = document.getElementById("originalVideo");
   const finalVideo = document.getElementById("finalVideo");
   const downloadBtn = document.getElementById("downloadBtn");
   const newBtn = document.getElementById("newBtn");
@@ -69,6 +70,8 @@ export function initPipelineRunner() {
         progressCard.style.display = "none";
         resultCard.style.display = "block";
         showToast("🎉 숏폼 영상이 성공적으로 생성되었습니다!", "success");
+
+        originalVideo.src = `/uploads/${uploadedFileName}?` + Date.now();
 
         finalVideo.src = `/clips/highlight_${uploadedFileName}?` + Date.now();
         finalVideo.addEventListener("loadedmetadata", showHighlightBar, { once: true });

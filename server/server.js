@@ -14,6 +14,8 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/clips", express.static(path.join(__dirname, "..", "clips")));
 
 app.use("/upload", uploadRouter);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
 app.use("/results", resultRouter);
 
 app.listen(PORT, () => {
