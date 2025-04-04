@@ -96,3 +96,22 @@ server/public/css/result.css
 .legend-color.highlight {
     background-color: var(--accent-color);
 }
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    top: 0;
+    z-index: 5;
+    background-color: transparent;
+    cursor: ew-resize;
+    background-color: transparent;
+}
+
+.resize-handle.left {
+    left: -5px;
+}
+
+.resize-handle.right {
+    right: -5px;
+}
