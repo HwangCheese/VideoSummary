@@ -24,10 +24,24 @@
         }
 
         body {
-            background: linear-gradient(135deg, #2193b0, #6dd5ed);
+            background: linear-gradient(135deg, #35A9FF, #8F43FC);
             color: #fff;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
+        }
+
+        .scroll-wrapper {
+            height: 100vh;
+            overflow-y: scroll;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE, Edge */
+        }
+
+        .scroll-wrapper::-webkit-scrollbar {
+            display: none;
+            /* Chrome, Safari */
         }
 
         .container {
@@ -54,31 +68,33 @@
         .shape {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            animation: float 15s infinite ease-in-out;
+            filter: blur(100px);
+            /* 물감 느낌 */
+            opacity: 0.3;
+            /* 은은하게 */
+            animation: float 20s infinite ease-in-out;
+            mix-blend-mode: screen;
+            /* 겹칠 때 부드럽게 */
         }
 
         .shape1 {
             width: 400px;
             height: 400px;
-            left: -200px;
-            top: -100px;
+            background: #12fab4;
+            /* 민트 */
+            top: 130px;
+            left: 100px;
+            /* 좌상단 */
             animation-delay: 0s;
         }
 
         .shape2 {
-            width: 300px;
-            height: 300px;
-            right: -150px;
-            bottom: -80px;
-            animation-delay: 2s;
-        }
-
-        .shape3 {
-            width: 200px;
-            height: 200px;
-            right: 30%;
-            top: 10%;
+            width: 500px;
+            height: 500px;
+            background: #FF69B4;
+            /* 핑크 */
+            top: 20%;
+            right: 10%;
             animation-delay: 4s;
         }
 
@@ -230,7 +246,6 @@
         .indicators {
             display: flex;
             justify-content: center;
-            margin-top: 20px;
         }
 
         .indicator {
@@ -264,6 +279,7 @@
             overflow: hidden;
             text-decoration: none;
             margin-bottom: 40px;
+            margin-top: 30px;
         }
 
         .cta-button:hover {
@@ -415,161 +431,160 @@
 </head>
 
 <body>
-    <div class="container">
-        <div class="background-shapes">
-            <div class="shape shape1"></div>
-            <div class="shape shape2"></div>
-            <div class="shape shape3"></div>
-        </div>
-
-        <div class="intro-header">
-            <div class="logo-icon">
-                <i class="fas fa-film"></i>
+    <div class="scroll-wrapper">
+        <div class="container">
+            <div class="background-shapes">
+                <div class="shape shape1"></div>
+                <div class="shape shape2"></div>
+                <div class="shape shape3"></div>
             </div>
-            <h1>Short-Form Makers</h1>
-            <p>긴 영상을 AI가 분석하여 핵심만 모아 짧은 숏폼으로 자동 변환해드립니다</p>
-        </div>
 
-        <div class="features-showcase">
-            <div class="feature-screen active" id="feature1">
-                <div class="feature-image">
-                    <img src="/api/placeholder/600/340" alt="Upload video process">
-                    <div class="progress-bar"></div>
+            <div class="intro-header">
+                <div class="logo-icon">
+                    <i class="fas fa-film"></i>
                 </div>
-                <div class="feature-content">
-                    <h2>간편한 영상 업로드</h2>
-                    <p>드래그 앤 드롭으로 간단하게 긴 영상을 업로드하세요. 모든 형식의 .mp4 파일을 지원합니다.</p>
-                    <div class="feature-step">
-                        <div class="step-number">1</div>
-                        <div>영상 업로드 (최대 10GB까지 지원)</div>
+                <h1>Short-Form Makers</h1>
+                <p>긴 영상을 AI가 분석하여 핵심만 모아 짧은 숏폼으로 자동 변환해드립니다</p>
+            </div>
+
+            <div class="features-showcase">
+                <div class="feature-screen active" id="feature1">
+                    <div class="feature-image">
+                        <img src="/images/upload.png" alt="Upload video process">
+                    </div>
+                    <div class="feature-content">
+                        <h2>간편한 영상 업로드</h2>
+                        <p>드래그 앤 드롭으로 간단하게 긴 영상을 업로드하세요. 모든 형식의 .mp4 파일을 지원합니다.</p>
+                        <div class="feature-step">
+                            <div class="step-number">1</div>
+                            <div>영상 업로드 (최대 10GB까지 지원)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-screen" id="feature2">
+                    <div class="feature-image">
+                        <img src="/images/ai.png" alt="AI analysis process">
+                    </div>
+                    <div class="feature-content">
+                        <h2>AI 분석 기술</h2>
+                        <p>최첨단 인공지능이 영상의 중요한 순간과 하이라이트를 자동으로 인식합니다.</p>
+                        <div class="feature-step">
+                            <div class="step-number">2</div>
+                            <div>영상 분석 및 중요 구간 자동 추출</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-screen" id="feature3">
+                    <div class="feature-image">
+                        <img src="/images/highlight.png" alt="Short form creation">
+                    </div>
+                    <div class="feature-content">
+                        <h2>최적화된 숏폼 생성</h2>
+                        <p>분석된 결과를 바탕으로 완벽한 숏폼 영상을 제작합니다. 시청자들의 관심을 사로잡는 짧고 강렬한 영상으로 변환됩니다.</p>
+                        <div class="feature-step">
+                            <div class="step-number">3</div>
+                            <div>최적화된 숏폼 영상 생성 완료</div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="feature-screen" id="feature2">
-                <div class="feature-image">
-                    <img src="/api/placeholder/600/340" alt="AI analysis process">
-                    <div class="progress-bar"></div>
-                </div>
-                <div class="feature-content">
-                    <h2>AI 분석 기술</h2>
-                    <p>최첨단 인공지능이 영상의 중요한 순간과 하이라이트를 자동으로 인식합니다.</p>
-                    <div class="feature-step">
-                        <div class="step-number">2</div>
-                        <div>영상 분석 및 중요 구간 자동 추출</div>
-                    </div>
-                </div>
+            <div class="indicators">
+                <div class="indicator active" data-index="0"></div>
+                <div class="indicator" data-index="1"></div>
+                <div class="indicator" data-index="2"></div>
             </div>
 
-            <div class="feature-screen" id="feature3">
-                <div class="feature-image">
-                    <img src="/api/placeholder/600/340" alt="Short form creation">
-                    <div class="progress-bar"></div>
+            <a href="index.html" class="cta-button">
+                <i class="fas fa-rocket"></i> 시작하기
+                <span class="btn-shine"></span>
+            </a>
+        </div>
+
+        <!-- 푸터 추가 -->
+        <footer>
+            <div class="footer-content">
+                <div class="footer-logo">
+                    <i class="fas fa-film"></i> 숏폼 자동 생성
                 </div>
-                <div class="feature-content">
-                    <h2>최적화된 숏폼 생성</h2>
-                    <p>분석된 결과를 바탕으로 완벽한 숏폼 영상을 제작합니다. 시청자들의 관심을 사로잡는 짧고 강렬한 영상으로 변환됩니다.</p>
-                    <div class="feature-step">
-                        <div class="step-number">3</div>
-                        <div>최적화된 숏폼 영상 생성 완료</div>
-                    </div>
+                <div class="footer-links">
+                    <a href="#">이용약관</a>
+                    <a href="#">개인정보처리방침</a>
+                    <a href="https://github.com/HwangCheese/CreateShorts">서비스 소개</a>
+                    <a href="https://github.com/HwangCheese">문의하기</a>
+                </div>
+                <div class="social-links">
+                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
                 </div>
             </div>
-        </div>
+            <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved. | Team. 황치즈</p>
+        </footer>
 
-        <div class="indicators">
-            <div class="indicator active" data-index="0"></div>
-            <div class="indicator" data-index="1"></div>
-            <div class="indicator" data-index="2"></div>
-        </div>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const features = document.querySelectorAll('.feature-screen');
+                const indicators = document.querySelectorAll('.indicator');
+                let currentIndex = 0;
+                let interval;
 
-        <a href="index.html" class="cta-button">
-            <i class="fas fa-rocket"></i> 시작하기
-            <span class="btn-shine"></span>
-        </a>
+                // Function to show a specific feature
+                function showFeature(index) {
+                    features.forEach(feature => feature.classList.remove('active'));
+                    indicators.forEach(indicator => indicator.classList.remove('active'));
+
+                    features[index].classList.add('active');
+                    indicators[index].classList.add('active');
+
+                    // Reset progress bar animation
+                    const progressBars = document.querySelectorAll('.progress-bar');
+                    progressBars.forEach(bar => {
+                        bar.style.width = '0%';
+                    });
+
+                    // Start progress bar animation for the active feature
+                    setTimeout(() => {
+                        features[index].querySelector('.progress-bar').style.width = '100%';
+                    }, 100);
+
+                    currentIndex = index;
+                }
+
+                // Auto cycle through features
+                function startAutoSlide() {
+                    clearInterval(interval);
+                    interval = setInterval(() => {
+                        let nextIndex = (currentIndex + 1) % features.length;
+                        showFeature(nextIndex);
+                    }, 5000); // Change every 5 seconds
+                }
+
+                // Set up click events for indicators
+                indicators.forEach((indicator, index) => {
+                    indicator.addEventListener('click', () => {
+                        showFeature(index);
+                        startAutoSlide(); // Reset timer on manual click
+                    });
+                });
+
+                // Initialize auto-slide
+                startAutoSlide();
+
+                // Add animation to the CTA button
+                const ctaButton = document.querySelector('.cta-button');
+                ctaButton.addEventListener('mousemove', (e) => {
+                    const x = e.pageX - ctaButton.offsetLeft;
+                    const y = e.pageY - ctaButton.offsetTop;
+
+                    ctaButton.style.setProperty('--x', x + 'px');
+                    ctaButton.style.setProperty('--y', y + 'px');
+                });
+            });
+        </script>
     </div>
-
-    <!-- 푸터 추가 -->
-    <footer>
-        <div class="footer-content">
-            <div class="footer-logo">
-                <i class="fas fa-film"></i> 숏폼 자동 생성
-            </div>
-            <div class="footer-links">
-                <a href="#">이용약관</a>
-                <a href="#">개인정보처리방침</a>
-                <a href="https://github.com/HwangCheese/CreateShorts">서비스 소개</a>
-                <a href="https://github.com/HwangCheese">문의하기</a>
-            </div>
-            <div class="social-links">
-                <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-            </div>
-        </div>
-        <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved. | Team. 황치즈</p>
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const features = document.querySelectorAll('.feature-screen');
-            const indicators = document.querySelectorAll('.indicator');
-            let currentIndex = 0;
-            let interval;
-
-            // Function to show a specific feature
-            function showFeature(index) {
-                features.forEach(feature => feature.classList.remove('active'));
-                indicators.forEach(indicator => indicator.classList.remove('active'));
-
-                features[index].classList.add('active');
-                indicators[index].classList.add('active');
-
-                // Reset progress bar animation
-                const progressBars = document.querySelectorAll('.progress-bar');
-                progressBars.forEach(bar => {
-                    bar.style.width = '0%';
-                });
-
-                // Start progress bar animation for the active feature
-                setTimeout(() => {
-                    features[index].querySelector('.progress-bar').style.width = '100%';
-                }, 100);
-
-                currentIndex = index;
-            }
-
-            // Auto cycle through features
-            function startAutoSlide() {
-                clearInterval(interval);
-                interval = setInterval(() => {
-                    let nextIndex = (currentIndex + 1) % features.length;
-                    showFeature(nextIndex);
-                }, 5000); // Change every 5 seconds
-            }
-
-            // Set up click events for indicators
-            indicators.forEach((indicator, index) => {
-                indicator.addEventListener('click', () => {
-                    showFeature(index);
-                    startAutoSlide(); // Reset timer on manual click
-                });
-            });
-
-            // Initialize auto-slide
-            startAutoSlide();
-
-            // Add animation to the CTA button
-            const ctaButton = document.querySelector('.cta-button');
-            ctaButton.addEventListener('mousemove', (e) => {
-                const x = e.pageX - ctaButton.offsetLeft;
-                const y = e.pageY - ctaButton.offsetTop;
-
-                ctaButton.style.setProperty('--x', x + 'px');
-                ctaButton.style.setProperty('--y', y + 'px');
-            });
-        });
-    </script>
 </body>
 
 </html>
