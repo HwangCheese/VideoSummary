@@ -7,7 +7,6 @@ import { showToast, formatTime } from "./uiUtils.js";
  * @param {HTMLVideoElement} finalVideo - 최종(하이라이트) 영상 DOM
  * @param {string} uploadedFileName - 업로드된 비디오 파일명
  */
-
 export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedFileName) {
     let highlightSegments = [];
     let originalDuration = 0;
@@ -117,55 +116,39 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             block.addEventListener("mouseenter", () => (tooltip.style.display = "block"));
             block.addEventListener("mouseleave", () => (tooltip.style.display = "none"));
 
-            // 클릭 시, 편집 모드면 disable/enable
-            block.addEventListener("click", () => {
+            // 클릭 시, 편집 모드에서 해당 구간을 삭제 (ghost 제거)
+            block.addEventListener("click", (e) => {
+                // 이벤트 버블링 방지
+                e.stopPropagation();
                 if (!isEditMode) return;
-                block.classList.toggle("disabled");
-                if (block.classList.contains("disabled")) {
-                    block.style.backgroundColor = "#cccccc";
-                    block.style.opacity = "0.5";
-                } else {
-                    block.style.backgroundColor = "#f72585";
-                    block.style.opacity = "1";
-                }
+                // Remove this segment from the array
+                const segId = parseInt(block.dataset.segmentId, 10);
+                highlightSegments.splice(segId, 1);
+                showHighlightBar();
             });
 
             highlightBarContainer.appendChild(block);
         });
-
-        // 더블클릭 시 새 구간 만들기 (Optional)
-        highlightBarContainer.ondblclick = (e) => {
-            if (!isEditMode) return;
-            const containerRect = highlightBarContainer.getBoundingClientRect();
-            const clickPosition = (e.clientX - containerRect.left) / containerRect.width;
-            const clickTime = clickPosition * originalDuration;
-
-            // “비슷한 길이”로 복제할 만한 기준 구간 찾기
-            if (highlightSegments.length > 0) {
-                let closestSegmentIndex = -1;
-                let minDistance = Infinity;
-                highlightSegments.forEach((seg, idx) => {
-                    const segCenter = (seg.start_time + seg.end_time) / 2;
-                    const distance = Math.abs(segCenter - clickTime);
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        closestSegmentIndex = idx;
-                    }
-                });
-
-                const refSeg = highlightSegments[closestSegmentIndex];
-                const segDuration = refSeg.end_time - refSeg.start_time;
-                const newSegment = {
-                    start_time: Math.max(0, clickTime - segDuration / 2),
-                    end_time: Math.min(originalDuration, clickTime + segDuration / 2),
-                    score: refSeg.score || 0.5,
-                };
-                highlightSegments.push(newSegment);
-                showHighlightBar();
-                showToast("새 하이라이트 구간이 추가되었습니다.", "success");
-            }
-        };
     }
+
+    /**
+     * highlightBarContainer 클릭 시, 새 구간 추가 (편집 모드에서)
+     */
+    highlightBarContainer.addEventListener("click", (e) => {
+        if (!isEditMode) return;
+        // 클릭이 이미 구간 블록에 의해 처리되지 않았으면(버블링 방지됨)
+        const containerRect = highlightBarContainer.getBoundingClientRect();
+        const clickPosition = (e.clientX - containerRect.left) / containerRect.width;
+        const clickTime = clickPosition * originalDuration;
+        // 기본 길이를 5초로 설정하여 새 구간 추가
+        const newSegment = {
+            start_time: Math.max(0, clickTime - 2.5),
+            end_time: Math.min(originalDuration, clickTime + 2.5),
+            score: 0.5
+        };
+        highlightSegments.push(newSegment);
+        showHighlightBar();
+    });
 
     /**
      * 서버에서 JSON으로 받은 { segments, original_duration } 설정
@@ -207,8 +190,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 하이라이트 편집';
     }
 
-
-
+    // setupResizeHandle를 내부 함수로 정의 (스코프 문제 해결)
     function setupResizeHandle(handle, seg, isLeft) {
         let isDragging = false;
         let startX = 0;
@@ -256,17 +238,12 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         }
     }
 
-
     /**
      * 업데이트된 segments 서버에 저장
      */
     async function saveChanges() {
-        // .disabled가 아닌 엘리먼트만 추려낸다
-        const updatedSegments = Array.from(document.querySelectorAll(".highlight-segment:not(.disabled)"))
-            .map(el => {
-                const segmentId = parseInt(el.dataset.segmentId, 10);
-                return highlightSegments[segmentId];
-            });
+        // .disabled가 아닌 엘리먼트만 추려낸다 (이제 삭제된 항목은 배열에서 이미 제거됨)
+        const updatedSegments = highlightSegments;
 
         try {
             const res = await fetch(`/upload/update-highlights`, {
