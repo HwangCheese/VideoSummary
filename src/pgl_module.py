@@ -146,6 +146,6 @@ def run_pgl_module(
         print(f"📄 Sorted segments JSON saved (combined_score): {output_sorted_combined_json}")
         
     max_total_len = int(len(scores) * top_ratio)
-    selected_segments = knapsack_segment_selection(segment_scores, max_total_len, fps)
-
+    selected_segments = knapsack_segment_selection(segment_scores, max_total_len)
+    
     return selected_segments

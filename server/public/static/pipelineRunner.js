@@ -61,6 +61,13 @@ export function initPipelineRunner() {
 
     resetProgressSteps();
     updateProgressStep(1);
+    setTimeout(() => {
+      const progressSection = document.getElementById("progress-section");
+      if (progressSection) {
+        progressSection.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+
     startSSE();
 
     try {
@@ -86,6 +93,14 @@ export function initPipelineRunner() {
           link.download = `highlight_${uploadedFileName}`;
           link.click();
         });
+
+        // ✅ 2단계 스크롤: 1초 후 result-section으로
+        setTimeout(() => {
+          const resultSection = document.getElementById("result-section");
+          if (resultSection) {
+            resultSection.scrollIntoView({ behavior: "smooth" });
+          }
+        }, 1000);
 
       } else {
         statusDiv.textContent = "❌ 숏폼 생성 실패";
