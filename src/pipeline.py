@@ -19,7 +19,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0, alpha
     print("\n🎬 [1/3] 특징 추출 및 장면 분할", flush=True)
     extract_features_pipe(video_path, output_h5, output_scene_json, device=device)
 
-    print("\n🧠 [2/3] 요약약 점수 예측", flush=True)
+    print("\n🧠 [2/3] 요약 점수 예측", flush=True)
     selected_segments = run_pgl_module(
         ckpt_path=ckpt_path,
         feature_h5=output_h5,
@@ -33,13 +33,13 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0, alpha
         top_ratio=top_ratio
     )
 
-    print("\n🎞️ [3/3] 요약약 영상 생성",flush=True)
+    print("\n🎞️ [3/3] 요약 영상 생성",flush=True)
     create_highlight_video(
         selected_segments=selected_segments,
         video_path=video_path,
         output_video=output_highlight_video
     )
-    print(f"\n✅ 파이프라인 완료! 요약약 영상: {output_highlight_video}",flush=True)
+    print(f"\n✅ 파이프라인 완료! 요약 영상: {output_highlight_video}",flush=True)
 
     # 📁 clips 디렉토리에 segments.json 저장 (프론트에서 사용)
     clips_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "clips"))
