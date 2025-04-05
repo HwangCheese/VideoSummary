@@ -185,7 +185,7 @@ router.post("/update-highlights", (req, res) => {
     updated_at: new Date().toISOString()
   }, null, 2), async (err) => {
     if (err) {
-      console.error("하이라이트 JSON 저장 실패:", err);
+      console.error("숏폼 JSON 저장 실패:", err);
       return res.status(500).json({ message: "파일 저장 실패" });
     }
 

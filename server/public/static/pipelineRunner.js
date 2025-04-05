@@ -83,11 +83,11 @@ export function initPipelineRunner() {
         resultCard.style.display = "block";
         showToast("🎉 숏폼 영상이 성공적으로 생성되었습니다!", "success");
 
-        // 2) 원본 영상 & 하이라이트 영상 src 갱신
+        // 2) 원본 영상 & 숏폼 영상 src 갱신
         originalVideo.src = `/uploads/${uploadedFileName}?${Date.now()}`;
         finalVideo.src = `/clips/highlight_${uploadedFileName}?${Date.now()}`;
 
-        // 3) **하이라이트 편집기**는 파이프라인 끝난 뒤에 초기화
+        // 3) **숏폼 편집기**는 파이프라인 끝난 뒤에 초기화
         finalVideo.addEventListener("loadedmetadata", async () => {
           // 여기서 editor 초기화
           highlightEditor = initHighlightEditor(highlightBarContainer, finalVideo, uploadedFileName);
@@ -156,7 +156,7 @@ export function initPipelineRunner() {
 
       highlightEditor.loadHighlightData(segments, original_duration);
     } catch (err) {
-      console.error("하이라이트 정보를 가져오는 중 오류:", err);
+      console.error("숏폼 정보를 가져오는 중 오류:", err);
     }
   }
 }

@@ -2,9 +2,9 @@
 import { showToast, formatTime } from "./uiUtils.js";
 
 /**
- * 하이라이트 편집기(Highlight Editor) 초기화
- * @param {HTMLElement} highlightBarContainer - 하이라이트를 그리는 컨테이너
- * @param {HTMLVideoElement} finalVideo - 최종(하이라이트) 영상 DOM
+ * 숏폼 편집기(Highlight Editor) 초기화
+ * @param {HTMLElement} highlightBarContainer - 숏폼 타임라인 컨테이너
+ * @param {HTMLVideoElement} finalVideo - 최종(숏폼) 영상 DOM
  * @param {string} uploadedFileName - 업로드된 비디오 파일명
  */
 export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedFileName) {
@@ -16,11 +16,11 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     // ------------------------------
     // UI 요소 준비
     // ------------------------------
-    // "하이라이트 편집" / "편집 취소" 버튼
+    // "숏폼 편집" / "편집 취소" 버튼
     const customizeBtn = document.createElement("button");
     customizeBtn.id = "customizeBtn";
     customizeBtn.className = "secondary-btn";
-    customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 하이라이트 편집';
+    customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 숏폼 편집';
 
     // "저장" 버튼
     const saveCustomBtn = document.createElement("button");
@@ -39,7 +39,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     // ------------------------------
 
     /**
-     * 현재 highlightSegments를 바탕으로 하이라이트 바를 그리는 함수
+     * 현재 highlightSegments를 바탕으로 숏폼 바를 그리는 함수
      */
     async function showHighlightBar() {
         // 먼저 기존 내용을 청소
@@ -58,7 +58,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             .join("");
         highlightBarContainer.appendChild(timeMarkers);
 
-        // 하이라이트 구간 Block들
+        // 숏폼 구간 Block들
         highlightSegments.forEach((seg, index) => {
             const start = seg.start_time;
             const end = seg.end_time;
@@ -178,7 +178,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             }
             isEditMode = false;
             saveCustomBtn.style.display = "none";
-            customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 하이라이트 편집';
+            customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 숏폼 편집';
             showHighlightBar(); // 원래 상태로 리렌더링
         }
     }
@@ -187,7 +187,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         backupSegments = null;
         isEditMode = false;
         saveCustomBtn.style.display = "none";
-        customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 하이라이트 편집';
+        customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 숏폼 편집';
     }
 
     // setupResizeHandle를 내부 함수로 정의 (스코프 문제 해결)
@@ -257,7 +257,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 })
             });
             if (res.ok) {
-                showToast("하이라이트 변경사항이 저장되었습니다!", "success");
+                showToast("숏폼 변경사항이 저장되었습니다!", "success");
                 // 저장 성공 후 편집 모드 종료 (백업 버림)
                 exitEditModeAfterSave();
                 finalVideo.src = `/clips/highlight_${uploadedFileName}?` + Date.now();
@@ -265,7 +265,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 showToast("변경사항 저장에 실패했습니다.", "error");
             }
         } catch (err) {
-            console.error("하이라이트 저장 오류:", err);
+            console.error("숏폼 저장 오류:", err);
             showToast("오류가 발생했습니다.", "error");
         }
     }

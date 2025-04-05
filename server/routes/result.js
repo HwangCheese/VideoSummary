@@ -5,7 +5,7 @@ const fs = require("fs");
 
 const router = express.Router();
 
-// 완성된 하이라이트 영상 목록 조회
+// 완성된 숏폼 영상 목록 조회
 router.get("/clips", (req, res) => {
   const clipsDir = path.join(__dirname, "../../clips");  // ✅ 정확한 위치
 
