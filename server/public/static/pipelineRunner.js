@@ -9,7 +9,10 @@ let sseSource;
 // highlightEditor 인스턴스
 let highlightEditor = null;
 
+// pipelineRunner.js
 export function initPipelineRunner() {
+  let highlightEditor = null;  // 상단에서만 선언 (initHighlightEditor는 파이프라인 끝날 때만 호출)
+
   // DOM 요소
   const startBtn = document.getElementById("startBtn");
   const statusDiv = document.getElementById("status");
@@ -22,10 +25,7 @@ export function initPipelineRunner() {
   const newBtn = document.getElementById("newBtn");
   const highlightBarContainer = document.getElementById("highlightBarContainer");
 
-  // 1) highlightEditor 초기화
-  highlightEditor = initHighlightEditor(highlightBarContainer, finalVideo, uploadedFileName);
-
-  // 2) SSE 연결
+  // SSE 연결 세팅
   function startSSE() {
     if (sseSource) sseSource.close();
     sseSource = new EventSource("/upload/progress-sse");
@@ -49,7 +49,7 @@ export function initPipelineRunner() {
     }
   }
 
-  // 3) “숏폼 생성하기” 버튼 클릭 시
+  // "숏폼 생성하기" 버튼
   startBtn.addEventListener("click", async () => {
     if (!uploadedFileName) return;
     startBtn.disabled = true;
@@ -61,6 +61,7 @@ export function initPipelineRunner() {
 
     resetProgressSteps();
     updateProgressStep(1);
+
     setTimeout(() => {
       const progressSection = document.getElementById("progress-section");
       if (progressSection) {
@@ -68,25 +69,34 @@ export function initPipelineRunner() {
       }
     }, 100);
 
+    // SSE 구독 시작
     startSSE();
 
     try {
+      // 파이프라인 실행 요청
       const res = await fetch(`/upload/process?filename=${uploadedFileName}`);
       const data = await res.json();
 
       if (res.ok) {
+        // 1) 진행률 카드 숨김, 결과 카드 표시
         progressCard.style.display = "none";
         resultCard.style.display = "block";
         showToast("🎉 숏폼 영상이 성공적으로 생성되었습니다!", "success");
 
-        // 원본 영상 / 하이라이트 영상
+        // 2) 원본 영상 & 하이라이트 영상 src 갱신
         originalVideo.src = `/uploads/${uploadedFileName}?${Date.now()}`;
         finalVideo.src = `/clips/highlight_${uploadedFileName}?${Date.now()}`;
 
-        // 하이라이트 데이터 받아서 편집기 로드
-        finalVideo.addEventListener("loadedmetadata", loadHighlightDataFromServer, { once: true });
+        // 3) **하이라이트 편집기**는 파이프라인 끝난 뒤에 초기화
+        finalVideo.addEventListener("loadedmetadata", async () => {
+          // 여기서 editor 초기화
+          highlightEditor = initHighlightEditor(highlightBarContainer, finalVideo, uploadedFileName);
 
-        // 다운로드 버튼
+          // 그리고 서버에서 JSON 받아서 세그먼트 로드
+          await loadHighlightDataFromServer();
+        }, { once: true });
+
+        // 4) 다운로드 버튼
         downloadBtn.addEventListener("click", () => {
           const link = document.createElement("a");
           link.href = finalVideo.src;
@@ -94,7 +104,7 @@ export function initPipelineRunner() {
           link.click();
         });
 
-        // ✅ 2단계 스크롤: 1초 후 result-section으로
+        // 5) 완료 후 result-section으로 스크롤 (옵션)
         setTimeout(() => {
           const resultSection = document.getElementById("result-section");
           if (resultSection) {
@@ -115,7 +125,7 @@ export function initPipelineRunner() {
     }
   });
 
-  // 4) "새 영상 만들기"
+  // "새 영상 만들기" 버튼
   newBtn.addEventListener("click", () => {
     resultCard.style.display = "none";
     progressCard.style.display = "none";
@@ -144,9 +154,7 @@ export function initPipelineRunner() {
       const segments = data.segments || [];
       const original_duration = data.original_duration || finalVideo.duration || 60;
 
-      // highlightEditor 내장 함수로 실제 바/로직 불러오기
       highlightEditor.loadHighlightData(segments, original_duration);
-
     } catch (err) {
       console.error("하이라이트 정보를 가져오는 중 오류:", err);
     }

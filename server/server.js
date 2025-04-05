@@ -2,6 +2,9 @@ const express = require("express");
 const path = require("path");
 
 const app = express();
+
+app.use(express.json());
+
 const uploadRouter = require("./routes/upload");
 const resultRouter = require("./routes/result");
 const PORT = 3000;
