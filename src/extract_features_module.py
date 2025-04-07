@@ -3,12 +3,13 @@ import h5py
 import numpy as np
 import torchvision.models as models
 import torchvision.transforms as transforms
-import cv2
-from sklearn.decomposition import PCA
-import json
 import os
+import json
+from sklearn.decomposition import PCA
 from scenedetect import VideoManager, SceneManager
 from scenedetect.detectors import ContentDetector
+from decord import VideoReader, cpu
+from PIL import Image
 
 def load_inception_v3(device):
     print("📦 InceptionV3 모델 로딩 중...", flush=True)
@@ -17,36 +18,38 @@ def load_inception_v3(device):
     return model.to(device).eval()
 
 def extract_features(video_path, model, device):
-    print("🎞️ 프레임 특징 추출 중...", flush=True)
-    cap = cv2.VideoCapture(video_path)
-    fps = cap.get(cv2.CAP_PROP_FPS) or 30
+    print("🎞️ 프레임 특징 추출 중... (Decord + 배치 처리, CPU 고정)", flush=True)
+
+    ctx = cpu(0)  # ✅ GPU 대신 CPU 강제 사용
+    vr = VideoReader(video_path, ctx=ctx)
+    fps = vr.get_avg_fps()
+    frame_idxs = list(range(0, len(vr), int(round(fps))))
+    print(f"📸 추출 프레임 수: {len(frame_idxs)} / 총 {len(vr)}", flush=True)
+
     transform = transforms.Compose([
-        transforms.ToPILImage(),
         transforms.Resize((299, 299)),
         transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225]),
     ])
-    features = []
-    frame_count = 0
-    success, frame = cap.read()
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    print(f"전체 프레임: {total_frames}, 프레임 변환 처리 시작", flush=True)
-    while success:
-        if frame_count % round(fps) == 0:
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            tensor = transform(frame_rgb).unsqueeze(0).to(device)
-            with torch.no_grad():
-                feat = model(tensor).cpu().numpy().squeeze()
-                features.append(feat)
 
-            if frame_count % (round(fps) * 1) == 0:
-                print(f"📸 처리 중... {frame_count}/{total_frames} 프레임", flush=True)
+    frames = []
+    for i, idx in enumerate(frame_idxs):
+        frame = vr[idx].asnumpy()
+        img = Image.fromarray(frame)
+        tensor = transform(img)
+        frames.append(tensor)
 
-        success, frame = cap.read()
-        frame_count += 1
-    cap.release()
+        # ✅ 프레임 처리 진행 상황 출력
+        print(f"📸 처리 중... {idx}/{len(vr)} 프레임", flush=True)
+
+    tensor_batch = torch.stack(frames).to(device)
+
+    with torch.no_grad():
+        feats = model(tensor_batch).cpu().numpy()
+
     print("✅ 프레임 특징 추출 완료", flush=True)
-    return np.array(features)
+    return feats
 
 def apply_pca(features, max_components=1024):
     print("📊 PCA 적용 중...", flush=True)
@@ -105,7 +108,6 @@ def extract_features_pipe(video_path, output_h5, output_json, device="cuda"):
     save_to_h5(pca_features, output_h5)
     
     print("✅ 장면 분할 시작", flush=True)
-
     change_points, fps = detect_scenes(video_path)
     save_segments_to_json(change_points, output_json, fps)
 
