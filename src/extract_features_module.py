@@ -17,10 +17,10 @@ def load_inception_v3(device):
     model.fc = torch.nn.Identity()
     return model.to(device).eval()
 
-def extract_features(video_path, model, device):
-    print("🎞️ 프레임 특징 추출 중... (Decord + 배치 처리, CPU 고정)", flush=True)
+def extract_features(video_path, model, device, batch_size=16):
+    print("🎞️ 프레임 특징 추출 중... (Decord + 배치 처리, 메모리 최적화)", flush=True)
 
-    ctx = cpu(0)  # ✅ GPU 대신 CPU 강제 사용
+    ctx = cpu(0)
     vr = VideoReader(video_path, ctx=ctx)
     fps = vr.get_avg_fps()
     frame_idxs = list(range(0, len(vr), int(round(fps))))
@@ -33,23 +33,28 @@ def extract_features(video_path, model, device):
                              std=[0.229, 0.224, 0.225]),
     ])
 
-    frames = []
+    feats = []
+    batch = []
+
     for i, idx in enumerate(frame_idxs):
         frame = vr[idx].asnumpy()
         img = Image.fromarray(frame)
         tensor = transform(img)
-        frames.append(tensor)
+        batch.append(tensor)
 
         # ✅ 프레임 처리 진행 상황 출력
         print(f"📸 처리 중... {idx}/{len(vr)} 프레임", flush=True)
 
-    tensor_batch = torch.stack(frames).to(device)
-
-    with torch.no_grad():
-        feats = model(tensor_batch).cpu().numpy()
+        if len(batch) == batch_size or i == len(frame_idxs) - 1:
+            tensor_batch = torch.stack(batch).to(device)
+            with torch.no_grad():
+                batch_feats = model(tensor_batch).cpu().numpy()
+                feats.append(batch_feats)
+            batch = []  # 배치 초기화
 
     print("✅ 프레임 특징 추출 완료", flush=True)
-    return feats
+    return np.concatenate(feats, axis=0)
+
 
 def apply_pca(features, max_components=1024):
     print("📊 PCA 적용 중...", flush=True)
