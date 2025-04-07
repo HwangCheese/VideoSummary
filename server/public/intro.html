@@ -192,7 +192,9 @@
 
         .feature-image img {
             width: 100%;
+            height: auto;
             display: block;
+            object-fit: contain;
         }
 
         .feature-image .progress-bar {
@@ -409,19 +411,61 @@
         }
 
         @media (max-width: 992px) {
+
             .features-showcase {
-                height: auto;
+                height: auto !important;
+                min-height: 600px;
             }
 
             .feature-screen {
+                position: absolute !important;
+                /* absolute로 되돌려놓아야함 */
                 flex-direction: column;
-                height: auto;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                top: 0;
+                left: 0;
+                height: 100% !important;
+                opacity: 0;
+                transform: translateX(50px);
+                transition: opacity 0.8s ease, transform 0.8s ease;
+            }
+
+            .feature-screen.active {
+                opacity: 1;
+                transform: translateX(0);
             }
 
             .feature-image,
             .feature-content {
+                width: 100%;
+                max-width: 500px;
+                margin-bottom: 20px;
+            }
+
+            .feature-content h2 {
+                font-size: 1.6rem;
+            }
+
+            .feature-content p {
+                font-size: 1rem;
+            }
+
+            .cta-button {
+                margin-top: 20px;
                 width: 90%;
-                margin-bottom: 30px;
+                max-width: 300px;
+                justify-content: center;
+            }
+
+            .intro-header h1 {
+                font-size: 2.2rem;
+            }
+
+            .intro-header p {
+                font-size: 1rem;
+                padding: 0 10px;
             }
 
             .footer-links {
