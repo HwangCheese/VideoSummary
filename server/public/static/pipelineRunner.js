@@ -127,6 +127,7 @@ export function initPipelineRunner() {
 
   // "새 영상 만들기" 버튼
   newBtn.addEventListener("click", () => {
+    // 기존 UI 초기화 로직
     resultCard.style.display = "none";
     progressCard.style.display = "none";
     progressBarInner.style.width = "0%";
@@ -139,6 +140,11 @@ export function initPipelineRunner() {
     document.querySelector(".card").style.display = "block";
     resetUI();
     startSSE();
+
+    const uploadSection = document.getElementById("upload-section");
+    if (uploadSection) {
+      uploadSection.scrollIntoView({ behavior: "smooth" });
+    }
   });
 
   /**
