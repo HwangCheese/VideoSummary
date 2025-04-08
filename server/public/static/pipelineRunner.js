@@ -126,26 +126,32 @@ export function initPipelineRunner() {
   });
 
   // "새 영상 만들기" 버튼
-  newBtn.addEventListener("click", () => {
-    // 기존 UI 초기화 로직
-    resultCard.style.display = "none";
-    progressCard.style.display = "none";
-    progressBarInner.style.width = "0%";
-    statusDiv.textContent = "";
+newBtn.addEventListener("click", () => {
+  // 기존 UI 초기화 로직
+  resultCard.style.display = "none";
+  progressCard.style.display = "none";
+  progressBarInner.style.width = "0%";
+  statusDiv.textContent = "";
 
-    const steps = document.querySelectorAll("#progressSteps .step");
-    steps.forEach(step => step.classList.remove("active"));
-    if (steps.length > 0) steps[0].classList.add("active");
+  const steps = document.querySelectorAll("#progressSteps .step");
+  steps.forEach(step => step.classList.remove("active"));
+  if (steps.length > 0) steps[0].classList.add("active");
 
-    document.querySelector(".card").style.display = "block";
-    resetUI();
-    startSSE();
+  if (highlightEditor) {
+    highlightEditor.destroy();
+    highlightEditor = null;  
+  }
 
-    const uploadSection = document.getElementById("upload-section");
-    if (uploadSection) {
-      uploadSection.scrollIntoView({ behavior: "smooth" });
-    }
-  });
+  document.querySelector(".card").style.display = "block";
+  resetUI();
+  startSSE();
+
+  // 새 영상 만들기 누르면 업로드 섹션으로 자동 스크롤
+  const uploadSection = document.getElementById("upload-section");
+  if (uploadSection) {
+    uploadSection.scrollIntoView({ behavior: "smooth" });
+  }
+});
 
   /**
    * 서버에서 highlight JSON 불러와서 highlightEditor에 로드

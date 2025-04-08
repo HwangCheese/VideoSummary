@@ -282,5 +282,24 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     return {
         loadHighlightData,  // 서버에서 받은 segments/duration 세팅
         showHighlightBar,   // 필요시 강제 리렌더 (보통 loadHighlightData 내에서 자동)
+
+        destroy() {
+            // 버튼들 제거
+            if (customizeBtn && customizeBtn.parentNode) {
+                customizeBtn.parentNode.removeChild(customizeBtn);
+            }
+            if (saveCustomBtn && saveCustomBtn.parentNode) {
+                saveCustomBtn.parentNode.removeChild(saveCustomBtn);
+            }
+
+            // 하이라이트 타임라인도 초기화
+            highlightBarContainer.innerHTML = "";
+
+            // 상태 초기화
+            highlightSegments = [];
+            originalDuration = 0;
+            isEditMode = false;
+            backupSegments = null;
+        }
     };
 }
