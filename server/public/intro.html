@@ -4,164 +4,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎬 숏폼 생성기 - 소개</title>
+    <title>🚀 AI 숏폼 메이커 - 이미지 잘림 수정</title>
     <link rel="icon" type="image/png" href="/images/head-icon.png" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Pretendard', 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-family: 'Pretendard', sans-serif;
         }
 
         :root {
-            --primary-dark: #1a7a94;
-            --dark-color: #333;
-            --gray-color: #6c757d;
-            --accent-color: #6dd5ed;
+            --bg-gradient-start: #1f263e;
+            --bg-gradient-mid: #3a1c71;
+            --bg-gradient-end: #d76d77;
+            --accent-1: #80ffea;
+            --accent-2: #ffcc70;
+            --text-light: #f0f0f0;
+            --text-dark: #333;
+            --card-bg: rgba(20, 25, 40, 0.8);
+            --card-border: var(--accent-1);
+            --footer-bg: #1a1a2e;
         }
 
         body {
-            font-family: "Apple SD Gothic Neo", "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #35A9FF, #8F43FC);
-            color: #fff;
+            font-family: "Pretendard", sans-serif;
+            color: var(--text-light);
             min-height: 100vh;
-            overflow: hidden;
+            overflow-x: hidden;
+            background: linear-gradient(-45deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end), var(--accent-1));
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+
+        @keyframes gradientBG {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 0;
         }
 
         .scroll-wrapper {
             height: 100vh;
             overflow-y: scroll;
             scrollbar-width: none;
-            /* Firefox */
             -ms-overflow-style: none;
-            /* IE, Edge */
+            scroll-behavior: smooth;
         }
 
         .scroll-wrapper::-webkit-scrollbar {
             display: none;
-            /* Chrome, Safari */
         }
 
         .container {
-            width: 100%;
-            min-height: calc(100vh - 220px);
-            /* Adjusted to accommodate footer */
+            width: 90%;
+            max-width: 1500px;
+            margin: 0 auto;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
             position: relative;
+            padding: 60px 0;
+            z-index: 1;
             overflow: hidden;
-            padding: 40px 0;
+            /* Keep AOS animations working correctly */
         }
 
-        .background-shapes {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: -1;
-        }
-
-        .shape {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(100px);
-            /* 물감 느낌 */
-            opacity: 0.3;
-            /* 은은하게 */
-            animation: float 20s infinite ease-in-out;
-            mix-blend-mode: screen;
-            /* 겹칠 때 부드럽게 */
-        }
-
-        .shape1 {
-            width: 400px;
-            height: 400px;
-            background: #12fab4;
-            /* 민트 */
-            top: 130px;
-            left: 100px;
-            /* 좌상단 */
-            animation-delay: 0s;
-        }
-
-        .shape2 {
-            width: 500px;
-            height: 500px;
-            background: #FF69B4;
-            /* 핑크 */
-            top: 20%;
-            right: 10%;
-            animation-delay: 4s;
-        }
-
-        @keyframes float {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-
-            50% {
-                transform: translate(20px, 20px) rotate(5deg);
-            }
-
-            100% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-        }
-
-        .intro-header {
+        .site-logo {
             text-align: center;
-            padding: 20px;
             margin-bottom: 40px;
-        }
-
-        .intro-header h1 {
-            font-size: 3.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-            animation: fadeInDown 1s;
-        }
-
-        .intro-header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 700px;
-            margin: 0 auto;
-            animation: fadeIn 1s 0.3s both;
         }
 
         .logo-icon {
-            font-size: 3rem;
-            margin-bottom: 15px;
-            animation: pulse 2s infinite;
+            font-size: 3.5rem;
+            color: var(--accent-1);
             display: inline-block;
+            text-shadow: 0 0 10px var(--accent-1), 0 0 20px var(--accent-1), 0 0 30px rgba(128, 255, 234, 0.5);
+            transition: transform 0.3s ease;
         }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
+        .logo-icon:hover {
+            transform: scale(1.1) rotate(-5deg);
+        }
 
-            50% {
-                transform: scale(1.1);
-            }
+        /* --- 메인 컨텐츠 그리드 --- */
+        .main-content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 50px;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 40px;
+        }
 
-            100% {
-                transform: scale(1);
-            }
+        /* --- 왼쪽 컨텐츠 영역 --- */
+        .content-left {
+            text-align: left;
+        }
+
+        .content-left h1 {
+            font-size: clamp(2.5rem, 6vw, 3.8rem);
+            font-weight: 700;
+            margin-bottom: 20px;
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            line-height: 1.3;
+        }
+
+        .content-left p {
+            font-size: clamp(1rem, 2.5vw, 1.2rem);
+            opacity: 0.9;
+            margin-bottom: 35px;
+            line-height: 1.7;
+            max-width: 550px;
+        }
+
+        /* --- 오른쪽 컨텐츠 영역 (기능 슬라이더) --- */
+        .content-right {
+            width: 100%;
+            height: 580px;
+            /* 데스크탑 높이 */
+            position: relative;
         }
 
         .features-showcase {
-            width: 90%;
-            max-width: 1200px;
+            width: 100%;
+            height: 100%;
             position: relative;
-            height: 450px;
-            margin-bottom: 40px;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+
+        .feature-slider {
+            position: relative;
+            width: 100%;
+            height: 100%;
         }
 
         .feature-screen {
@@ -169,468 +165,615 @@
             width: 100%;
             height: 100%;
             opacity: 0;
-            transform: translateX(50px);
-            transition: all 0.8s ease;
+            background: var(--card-bg);
+            border-radius: 15px;
+            border-top: 4px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            padding: 30px;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 20px;
+            text-align: center;
+            transition: opacity 0.6s ease-in-out, transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform: translateX(100%);
+            visibility: hidden;
+        }
+
+        /* 데스크탑 가로 배치 */
+        @media (min-width: 650px) {
+            .feature-screen {
+                flex-direction: column !important;
+                /* 가로 배치 대신 세로로 */
+                text-align: center;
+                align-items: center;
+                justify-content: center;
+                gap: 30px;
+                padding: 40px 30px;
+            }
+
+            .feature-image-wrapper {
+                order: 1;
+                width: 80%;
+                max-width: 400px;
+                height: auto;
+            }
+
+            .feature-content {
+                order: 2;
+                width: 100%;
+                max-width: 700px;
+                text-align: center;
+            }
+        }
+
+        .feature-screen.is-leaving {
+            transform: translateX(-100%);
+            opacity: 0;
+            visibility: hidden;
         }
 
         .feature-screen.active {
             opacity: 1;
             transform: translateX(0);
+            visibility: visible;
+            z-index: 1;
         }
 
-        .feature-image {
-            width: 55%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        /* 이미지 래퍼 스타일 */
+        .feature-image-wrapper {
+            width: 90%;
+            max-width: 300px;
+            height: 220px;
+            border-radius: 10px;
             overflow: hidden;
-            position: relative;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0;
+            /* contain 사용 시 빈 공간 배경색 (선택 사항) */
+            background-color: rgba(0, 0, 0, 0.2);
         }
 
-        .feature-image img {
+        @media (min-width: 650px) {
+            .feature-image-wrapper {
+                width: 50%;
+                height: 90%;
+                max-width: none;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .feature-image-wrapper {
+                width: 52%;
+                height: 45%;
+            }
+        }
+
+        .feature-image-wrapper img {
             width: 100%;
-            height: auto;
+            height: 100%;
             display: block;
+            /* cover -> contain 으로 변경하여 이미지 전체가 보이도록 함 */
             object-fit: contain;
+            /* <<-- 수정됨 */
         }
 
-        .feature-image .progress-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 5px;
-            background: #fff;
-            width: 0%;
-            transition: width 4s linear;
-        }
-
-        .feature-screen.active .progress-bar {
+        /* 컨텐츠 영역 스타일 */
+        .feature-content {
+            max-width: none;
             width: 100%;
         }
 
-        .feature-content {
-            width: 40%;
-            padding: 20px;
+        @media (min-width: 650px) {
+            .feature-content {
+                width: 45%;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .feature-content {
+                width: 43%;
+            }
         }
 
         .feature-content h2 {
-            font-size: 2rem;
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
             margin-bottom: 15px;
-            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            color: var(--accent-1);
+            text-shadow: 0 0 8px rgba(128, 255, 234, 0.6);
         }
 
         .feature-content p {
-            font-size: 1.1rem;
+            font-size: clamp(0.85rem, 2vw, 1rem);
             margin-bottom: 20px;
             line-height: 1.6;
+            opacity: 0.9;
         }
 
         .feature-step {
             display: flex;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-2);
+            font-size: 0.9rem;
         }
 
         .step-number {
-            width: 40px;
-            height: 40px;
+            flex-shrink: 0;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
+            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            margin-right: 15px;
-            font-size: 1.2rem;
+            margin-right: 10px;
+            font-size: 1rem;
+            color: var(--bg-gradient-start);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
+        /* --- 인디케이터 --- */
         .indicators {
             display: flex;
             justify-content: center;
+            gap: 10px;
+            margin-bottom: 50px;
+            margin-top: -20px;
+            position: relative;
+            z-index: 2;
         }
 
         .indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            margin: 0 5px;
+            width: 35px;
+            height: 5px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.2);
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.4s ease, width 0.4s ease;
+            border: none;
+            padding: 0;
         }
 
         .indicator.active {
-            background: #fff;
+            background: var(--accent-1);
+            width: 50px;
         }
 
+        .indicator:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.5);
+        }
+
+        /* --- CTA 버튼 --- */
         .cta-button {
-            background: #fff;
-            color: #2193b0;
+            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+            color: var(--bg-gradient-start);
             border: none;
-            padding: 15px 35px;
-            border-radius: 30px;
+            padding: 16px 40px;
+            border-radius: 50px;
             font-size: 1.2rem;
-            font-weight: bold;
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background-position 0.4s ease;
+            display: inline-flex;
             align-items: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            justify-content: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            text-decoration: none;
             position: relative;
             overflow: hidden;
-            text-decoration: none;
-            margin-bottom: 40px;
-            margin-top: 30px;
+            background-size: 200% auto;
         }
 
         .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+            background-position: right center;
+            transform: translateY(-5px) scale(1.03);
+            box-shadow: 0 12px 25px rgba(128, 255, 234, 0.4);
         }
 
         .cta-button:active {
-            transform: translateY(1px);
+            transform: translateY(-2px) scale(0.98);
+            box-shadow: 0 5px 15px rgba(128, 255, 234, 0.3);
         }
 
         .cta-button i {
-            margin-right: 10px;
-            font-size: 1.2rem;
+            margin-right: 12px;
+            font-size: 1.3rem;
         }
 
-        .cta-button .btn-shine {
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(45deg);
-            animation: shine 3s infinite;
-        }
-
-        @keyframes shine {
-            0% {
-                left: -50%;
-                top: -50%;
-            }
-
-            100% {
-                left: 150%;
-                top: 150%;
-            }
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInDown {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ========= Footer ========= */
+        /* --- 푸터 --- */
         footer {
-            background-color: #f5f7fa;
-            padding: 2rem 1rem;
+            background-color: var(--footer-bg);
+            padding: 3rem 1rem;
             text-align: center;
-            border-top: 1px solid #dee2e6;
-            color: #333;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--text-light);
+            width: 100%;
+            position: relative;
+            z-index: 1;
+            margin-top: auto;
         }
 
         .footer-content {
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
         .footer-logo {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 1rem;
-            color: #2193b0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--accent-1);
         }
 
         .footer-logo i {
-            margin-right: 0.5rem;
+            color: var(--accent-2);
+            margin-right: 0.6rem;
         }
 
         .footer-links {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 1.5rem;
-            margin-bottom: 1rem;
+            gap: 1rem 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .footer-links a {
-            color: var(--dark-color);
+            color: var(--text-light);
+            opacity: 0.8;
             text-decoration: none;
-            transition: color 0.3s ease;
+            transition: opacity 0.3s ease;
+            font-size: 0.95rem;
         }
 
         .footer-links a:hover {
-            color: var(--primary-dark);
+            opacity: 1;
         }
 
         .social-links {
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .social-icon {
-            color: var(--dark-color);
-            margin: 0 0.5rem;
-            font-size: 1.2rem;
-            transition: color 0.3s ease;
+            color: rgba(255, 255, 255, 0.6);
+            margin: 0 0.8rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease, transform 0.3s ease;
         }
 
         .social-icon:hover {
-            color: var(--accent-color);
+            color: var(--accent-1);
+            transform: translateY(-4px);
         }
 
         footer p.copyright {
             font-size: 0.9rem;
-            color: var(--gray-color);
+            color: rgba(255, 255, 255, 0.5);
         }
 
+        /* --- 반응형 조정 --- */
         @media (max-width: 992px) {
+            .container {
+                width: 95%;
+                padding: 40px 0;
+            }
+
+            .main-content-grid {
+                gap: 40px;
+                text-align: center;
+            }
+
+            .content-left {
+                order: 1;
+                text-align: center;
+            }
+
+            .content-left p {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            .content-right {
+                order: 2;
+                height: auto;
+            }
 
             .features-showcase {
-                height: auto !important;
-                min-height: 600px;
+                height: auto;
             }
 
             .feature-screen {
-                position: absolute !important;
-                /* absolute로 되돌려놓아야함 */
-                flex-direction: column;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                top: 0;
-                left: 0;
-                height: 100% !important;
-                opacity: 0;
-                transform: translateX(50px);
-                transition: opacity 0.8s ease, transform 0.8s ease;
+                padding: 25px;
             }
 
             .feature-screen.active {
-                opacity: 1;
+                position: relative;
+                height: auto;
+                z-index: 1;
                 transform: translateX(0);
+                opacity: 1;
+                visibility: visible;
             }
 
-            .feature-image,
-            .feature-content {
-                width: 100%;
-                max-width: 500px;
-                margin-bottom: 20px;
+            /* 비활성 슬라이드는 여전히 absolute 유지 */
+            .feature-screen:not(.active):not(.is-leaving) {
+                position: absolute;
             }
 
-            .feature-content h2 {
-                font-size: 1.6rem;
+            .feature-image-wrapper {
+                height: 220px;
+                width: 85%;
+                max-width: 320px;
             }
 
-            .feature-content p {
-                font-size: 1rem;
+            .indicators {
+                margin-top: 30px;
             }
 
             .cta-button {
-                margin-top: 20px;
-                width: 90%;
-                max-width: 300px;
-                justify-content: center;
+                padding: 16px 35px;
+                font-size: 1.15rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .site-logo {
+                margin-bottom: 30px;
             }
 
-            .intro-header h1 {
+            .logo-icon {
+                font-size: 3rem;
+            }
+
+            .content-left h1 {
                 font-size: 2.2rem;
             }
 
-            .intro-header p {
-                font-size: 1rem;
-                padding: 0 10px;
+            .content-left p {
+                font-size: 0.95rem;
+                margin-bottom: 30px;
             }
 
-            .footer-links {
-                flex-direction: column;
-                gap: 0.8rem;
+            .main-content-grid {
+                gap: 30px;
+            }
+
+            .feature-screen {
+                gap: 15px;
+                padding: 20px;
+            }
+
+            .feature-image-wrapper {
+                height: 180px;
+                width: 90%;
+                max-width: 280px;
+            }
+
+            .feature-content h2 {
+                font-size: 1.3rem;
+            }
+
+            .feature-content p {
+                font-size: 0.85rem;
+                margin-bottom: 15px;
+            }
+
+            .feature-step {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+            }
+
+            .step-number {
+                width: 25px;
+                height: 25px;
+                font-size: 0.9rem;
+                margin-right: 8px;
+            }
+
+            .indicator {
+                width: 25px;
+            }
+
+            .indicator.active {
+                width: 40px;
+            }
+
+            .cta-button {
+                padding: 14px 30px;
+                font-size: 1.05rem;
+            }
+
+            .cta-button i {
+                font-size: 1.1rem;
             }
         }
     </style>
 </head>
 
 <body>
+    <div id="particles-js"></div>
+
     <div class="scroll-wrapper">
         <div class="container">
-            <div class="background-shapes">
-                <div class="shape shape1"></div>
-                <div class="shape shape2"></div>
-                <div class="shape shape3"></div>
-            </div>
 
-            <div class="intro-header">
+            <div class="site-logo" data-aos="fade-down" data-aos-duration="800">
                 <div class="logo-icon">
-                    <i class="fas fa-film"></i>
-                </div>
-                <h1>Short-Form Makers</h1>
-                <p>긴 영상을 AI가 분석하여 핵심만 모아 짧은 숏폼으로 자동 변환해드립니다</p>
-            </div>
-
-            <div class="features-showcase">
-                <div class="feature-screen active" id="feature1">
-                    <div class="feature-image">
-                        <img src="/images/upload.png" alt="Upload video process">
-                    </div>
-                    <div class="feature-content">
-                        <h2>간편한 영상 업로드</h2>
-                        <p>드래그 앤 드롭으로 간단하게 긴 영상을 업로드하세요. 모든 형식의 .mp4 파일을 지원합니다.</p>
-                        <div class="feature-step">
-                            <div class="step-number">1</div>
-                            <div>영상 업로드 (최대 10GB까지 지원)</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="feature-screen" id="feature2">
-                    <div class="feature-image">
-                        <img src="/images/ai.png" alt="AI analysis process">
-                    </div>
-                    <div class="feature-content">
-                        <h2>AI 분석 기술</h2>
-                        <p>최첨단 인공지능이 영상의 중요한 순간과 하이라이트를 자동으로 인식합니다.</p>
-                        <div class="feature-step">
-                            <div class="step-number">2</div>
-                            <div>영상 분석 및 중요 구간 자동 추출</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="feature-screen" id="feature3">
-                    <div class="feature-image">
-                        <img src="/images/highlight.png" alt="Short form creation">
-                    </div>
-                    <div class="feature-content">
-                        <h2>최적화된 숏폼 생성</h2>
-                        <p>분석된 결과를 바탕으로 완벽한 숏폼 영상을 제작합니다. 시청자들의 관심을 사로잡는 짧고 강렬한 영상으로 변환됩니다.</p>
-                        <div class="feature-step">
-                            <div class="step-number">3</div>
-                            <div>최적화된 숏폼 영상 생성 완료</div>
-                        </div>
-                    </div>
+                    <i class="fas fa-meteor"></i>
                 </div>
             </div>
 
+            <div class="main-content-grid">
+                <!-- 왼쪽 컨텐츠: 제목, 설명, CTA -->
+                <div class="content-left" data-aos="fade-right" data-aos-duration="1000">
+                    <h1>쇼츠 메이커</h1>
+                    <p>긴 영상 속 '보물' 찾기, 쇼츠 메이커가 해결합니다.</p>
+                    <a href="index.html" class="cta-button">
+                        <i class="fas fa-rocket"></i> 지금 바로 쇼츠 제작
+                    </a>
+                </div>
+
+                <!-- 오른쪽 컨텐츠: 기능 슬라이더 -->
+                <div class="content-right" data-aos="fade-left" data-aos-duration="1000">
+                    <section class="features-showcase">
+                        <div class="feature-slider">
+                            <!-- Feature 1 -->
+                            <div class="feature-screen active" id="feature1">
+                                <div class="feature-image-wrapper"> <img src="/images/upload.png" alt="간편한 영상 업로드">
+                                </div>
+                                <div class="feature-content">
+                                    <h2>1. 영상 업로드</h2>
+                                    <p>변환하고 싶은 긴 영상 파일을 드래그하거나 클릭하여 손쉽게 업로드하세요.</p>
+                                    <div class="feature-step">
+                                        <div class="step-number">🚀</div> <span>클릭 & 드롭으로 간편하게 시작</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Feature 2 -->
+                            <div class="feature-screen" id="feature2">
+                                <div class="feature-image-wrapper"> <img src="/images/ai.png" alt="AI 영상 분석"> </div>
+                                <div class="feature-content">
+                                    <h2>2. AI 스마트 분석 & 추출</h2>
+                                    <p>수많은 유튜브 영상의 실제 시청 패턴 빅데이터를 학습하여, 장면 전환, 시각 정보 등을 종합 분석하고
+                                        사람들이 가장 주목하는 진짜 '핵심'만 지능적으로 포착합니다.</p>
+                                    <div class="feature-step">
+                                        <div class="step-number">✨</div> <span>AI가 핵심만 스마트하게 추출</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Feature 3 -->
+                            <div class="feature-screen" id="feature3">
+                                <div class="feature-image-wrapper"> <img src="/images/highlight.png" alt="숏폼 생성 완료">
+                                </div>
+                                <div class="feature-content">
+                                    <h2>3. 쇼츠 즉시 생성</h2>
+                                    <p>몇 시간 짜리 영상도 빠르게! 바로 다운로드하여 SNS, 마케팅 등 어디든 활용하세요.</p>
+                                    <div class="feature-step">
+                                        <div class="step-number">🎬</div> <span>시간 절약! 바로 쓰는 고품질 쇼츠</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div> <!-- .main-content-grid 끝 -->
+
+            <!-- 인디케이터 (슬라이더 아래 중앙) -->
             <div class="indicators">
-                <div class="indicator active" data-index="0"></div>
-                <div class="indicator" data-index="1"></div>
-                <div class="indicator" data-index="2"></div>
+                <button class="indicator active" data-index="0" aria-label="1번 기능 보기"></button>
+                <button class="indicator" data-index="1" aria-label="2번 기능 보기"></button>
+                <button class="indicator" data-index="2" aria-label="3번 기능 보기"></button>
             </div>
 
-            <a href="index.html" class="cta-button">
-                <i class="fas fa-rocket"></i> 시작하기
-                <span class="btn-shine"></span>
-            </a>
-        </div>
+        </div> <!-- .container 끝 -->
 
-        <!-- 푸터 추가 -->
+        <!-- 푸터 -->
         <footer>
             <div class="footer-content">
                 <div class="footer-logo">
-                    <i class="fas fa-film"></i> 숏폼 자동 생성
+                    <i class="fas fa-film"></i> AI 숏폼 메이커
                 </div>
-                <div class="footer-links">
+                <nav class="footer-links" aria-label="푸터 메뉴">
                     <a href="#">이용약관</a>
                     <a href="#">개인정보처리방침</a>
-                    <a href="https://github.com/HwangCheese/CreateShorts">서비스 소개</a>
-                    <a href="https://github.com/HwangCheese">문의하기</a>
-                </div>
+                    <a href="https://github.com/HwangCheese/CreateShorts" target="_blank" rel="noopener noreferrer">서비스
+                        소개</a>
+                    <a href="https://github.com/HwangCheese" target="_blank" rel="noopener noreferrer">문의하기</a>
+                </nav>
                 <div class="social-links">
-                    <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="social-icon" aria-label="유튜브 (새 창)" target="_blank" rel="noopener noreferrer"><i
+                            class="fab fa-youtube"></i></a>
+                    <a href="#" class="social-icon" aria-label="인스타그램 (새 창)" target="_blank"
+                        rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon" aria-label="트위터 (새 창)" target="_blank" rel="noopener noreferrer"><i
+                            class="fab fa-twitter"></i></a>
                 </div>
+                <p class="copyright">© 2025 AI Short-Form Maker. All rights reserved. | Team. HwangCheese</p>
             </div>
-            <p class="copyright">© 2025 숏폼 자동 생성 서비스. All rights reserved. | Team. 황치즈</p>
         </footer>
+    </div> <!-- .scroll-wrapper 끝 -->
 
-        <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const features = document.querySelectorAll('.feature-screen');
-                const indicators = document.querySelectorAll('.indicator');
-                let currentIndex = 0;
-                let interval;
+    <!-- JS 라이브러리 추가 -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
-                // Function to show a specific feature
-                function showFeature(index) {
-                    features.forEach(feature => feature.classList.remove('active'));
-                    indicators.forEach(indicator => indicator.classList.remove('active'));
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            AOS.init({
+                once: true, duration: 800, easing: 'ease-in-out'
+            });
 
-                    features[index].classList.add('active');
-                    indicators[index].classList.add('active');
+            particlesJS('particles-js', {
+                "particles": { "number": { "value": 50, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#ffffff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.4, "random": true }, "size": { "value": 2.5, "random": true }, "line_linked": { "enable": true, "distance": 160, "color": "#ffffff", "opacity": 0.3, "width": 1 }, "move": { "enable": true, "speed": 1.5, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" }, "resize": true }, "modes": { "repulse": { "distance": 80, "duration": 0.4 }, "push": { "particles_nb": 4 } } }, "retina_detect": true
+            });
 
-                    // Reset progress bar animation
-                    const progressBars = document.querySelectorAll('.progress-bar');
-                    progressBars.forEach(bar => {
-                        bar.style.width = '0%';
-                    });
+            const featuresContainer = document.querySelector('.feature-slider');
+            if (!featuresContainer) {
+                console.error("Feature slider container not found!");
+                return;
+            }
+            const features = Array.from(featuresContainer.querySelectorAll('.feature-screen'));
+            const indicators = document.querySelectorAll('.indicator');
+            let currentIndex = 0;
+            let interval;
+            const cycleTime = 7000;
 
-                    // Start progress bar animation for the active feature
-                    setTimeout(() => {
-                        features[index].querySelector('.progress-bar').style.width = '100%';
-                    }, 100);
+            function showFeature(index) {
+                if (index === currentIndex || index < 0 || index >= features.length || !features[currentIndex] || !features[index]) return;
 
-                    currentIndex = index;
-                }
+                const currentFeature = features[currentIndex];
+                const nextFeature = features[index];
 
-                // Auto cycle through features
-                function startAutoSlide() {
-                    clearInterval(interval);
-                    interval = setInterval(() => {
-                        let nextIndex = (currentIndex + 1) % features.length;
-                        showFeature(nextIndex);
-                    }, 5000); // Change every 5 seconds
-                }
+                currentFeature.classList.add('is-leaving');
+                currentFeature.classList.remove('active');
 
-                // Set up click events for indicators
+                if (indicators[currentIndex]) indicators[currentIndex].classList.remove('active');
+
+                setTimeout(() => {
+                    currentFeature.classList.remove('is-leaving');
+                }, 700);
+
+                nextFeature.classList.add('active');
+
+                if (indicators[index]) indicators[index].classList.add('active');
+
+                currentIndex = index;
+            }
+
+            function startAutoSlide() {
+                clearInterval(interval);
+                interval = setInterval(() => {
+                    let nextIndex = (currentIndex + 1) % features.length;
+                    showFeature(nextIndex);
+                }, cycleTime);
+            }
+
+            if (features.length > 0 && indicators.length > 0) {
                 indicators.forEach((indicator, index) => {
                     indicator.addEventListener('click', () => {
                         showFeature(index);
-                        startAutoSlide(); // Reset timer on manual click
+                        startAutoSlide();
                     });
                 });
 
-                // Initialize auto-slide
+                showFeature(0);
                 startAutoSlide();
+            } else {
+                if (features.length === 0) console.error("No feature screens found!");
+                if (indicators.length === 0) console.warn("No indicators found!");
+            }
 
-                // Add animation to the CTA button
-                const ctaButton = document.querySelector('.cta-button');
-                ctaButton.addEventListener('mousemove', (e) => {
-                    const x = e.pageX - ctaButton.offsetLeft;
-                    const y = e.pageY - ctaButton.offsetTop;
-
-                    ctaButton.style.setProperty('--x', x + 'px');
-                    ctaButton.style.setProperty('--y', y + 'px');
-                });
-            });
-        </script>
-    </div>
+            const showcase = document.querySelector('.features-showcase');
+            if (showcase) {
+                showcase.addEventListener('mouseenter', () => clearInterval(interval));
+                showcase.addEventListener('mouseleave', startAutoSlide);
+            }
+        });
+    </script>
 </body>
 
 </html>
