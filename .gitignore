@@ -13,3 +13,5 @@
 __pycache__
 
 node_modules
+
+srcTransNetV2/build/lib/transnetv2-weights
