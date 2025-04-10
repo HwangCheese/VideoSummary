@@ -66,6 +66,21 @@
                 <i class="fas fa-times"></i>
               </button>
             </div>
+            <div class="summary-options">
+              <h3><i class="fas fa-sliders-h"></i> 영상 요약 설정</h3>
+              <div class="option-buttons">
+                <button id="highlightBtn" class="summary-option-btn active">
+                  <i class="fas fa-star"></i> 하이라이트 기반
+                </button>
+                <button id="storyBtn" class="summary-option-btn">
+                  <i class="fas fa-book-open"></i> 스토리 기반 요약
+                </button>
+              </div>
+              <div class="summary-duration">
+                <label for="durationInput"><i class="fas fa-clock"></i> 요약 영상 길이</label>
+                <input type="number" id="durationInput" placeholder="sec 단위">
+              </div>
+            </div>
             <button id="startBtn" disabled>
               <i class="fas fa-magic"></i> 숏폼 생성하기
               <span class="btn-shine"></span>

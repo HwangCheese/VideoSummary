@@ -1,5 +1,5 @@
 /*
-server/public/css/components.css 
+server/public/css/components.css
 버튼, 아이콘, 유틸 컴포넌트
 */
 
@@ -79,4 +79,63 @@ button:not(:disabled):hover .btn-shine {
 
 .accent-btn:hover {
     background: linear-gradient(135deg, var(--accent-dark), #9c1485);
+}
+
+/* --- 영상 요약 옵션 버튼 스타일 추가 --- */
+.option-buttons {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.summary-option-btn {
+    flex: 1;
+    background-color: var(--light-gray);
+    color: var(--dark-color);
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    cursor: pointer;
+    transition: var(--transition);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+/* 활성화 및 호버 효과 */
+.summary-option-btn.active,
+.summary-option-btn:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* --- 요약 영상 길이 입력창 --- */
+.summary-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-duration label {
+    font-size: 1rem;
+    color: var(--gray-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-duration input {
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--light-gray);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.summary-duration input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
 }
