@@ -59,6 +59,10 @@ export function initPipelineRunner() {
     statusDiv.textContent = "🧠 생성 시작 중...";
     progressBarInner.style.width = "0%";
 
+    // 타이머 시작
+    startElapsedTime();
+
+
     resetProgressSteps();
     updateProgressStep(1);
 
@@ -79,7 +83,7 @@ export function initPipelineRunner() {
 
       if (res.ok) {
         // 1) 진행률 카드 숨김, 결과 카드 표시
-        progressCard.style.display = "none";
+        // progressCard.style.display = "none";
         resultCard.style.display = "block";
         showToast("🎉 숏폼 영상이 성공적으로 생성되었습니다!", "success");
 
@@ -122,36 +126,37 @@ export function initPipelineRunner() {
       showToast("처리 중 오류가 발생했습니다.", "error");
     } finally {
       startBtn.disabled = false;
+      stopElapsedTime(); // ⏹️ 타이머 정지
     }
   });
 
   // "새 영상 만들기" 버튼
-newBtn.addEventListener("click", () => {
-  // 기존 UI 초기화 로직
-  resultCard.style.display = "none";
-  progressCard.style.display = "none";
-  progressBarInner.style.width = "0%";
-  statusDiv.textContent = "";
+  newBtn.addEventListener("click", () => {
+    // 기존 UI 초기화 로직
+    resultCard.style.display = "none";
+    progressCard.style.display = "none";
+    progressBarInner.style.width = "0%";
+    statusDiv.textContent = "";
 
-  const steps = document.querySelectorAll("#progressSteps .step");
-  steps.forEach(step => step.classList.remove("active"));
-  if (steps.length > 0) steps[0].classList.add("active");
+    const steps = document.querySelectorAll("#progressSteps .step");
+    steps.forEach(step => step.classList.remove("active"));
+    if (steps.length > 0) steps[0].classList.add("active");
 
-  if (highlightEditor) {
-    highlightEditor.destroy();
-    highlightEditor = null;  
-  }
+    if (highlightEditor) {
+      highlightEditor.destroy();
+      highlightEditor = null;
+    }
 
-  document.querySelector(".card").style.display = "block";
-  resetUI();
-  startSSE();
+    document.querySelector(".card").style.display = "block";
+    resetUI();
+    startSSE();
 
-  // 새 영상 만들기 누르면 업로드 섹션으로 자동 스크롤
-  const uploadSection = document.getElementById("upload-section");
-  if (uploadSection) {
-    uploadSection.scrollIntoView({ behavior: "smooth" });
-  }
-});
+    // 새 영상 만들기 누르면 업로드 섹션으로 자동 스크롤
+    const uploadSection = document.getElementById("upload-section");
+    if (uploadSection) {
+      uploadSection.scrollIntoView({ behavior: "smooth" });
+    }
+  });
 
   /**
    * 서버에서 highlight JSON 불러와서 highlightEditor에 로드
@@ -171,4 +176,27 @@ newBtn.addEventListener("click", () => {
       console.error("숏폼 정보를 가져오는 중 오류:", err);
     }
   }
+
+  // 타이머 관련 코드
+  let elapsedInterval = null;
+  let startTime = null;
+
+  function startElapsedTime() {
+    startTime = Date.now();
+    const display = document.getElementById("elapsedTime");
+    if (!display) return;
+
+    elapsedInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const mins = String(Math.floor(elapsed / 60000)).padStart(2, '0');
+      const secs = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
+      display.textContent = `${mins}:${secs}`;
+    }, 1000);
+  }
+
+  function stopElapsedTime() {
+    if (elapsedInterval) clearInterval(elapsedInterval);
+    elapsedInterval = null;
+  }
+
 }

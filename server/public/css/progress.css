@@ -124,3 +124,19 @@ server/public/css/progress.css
 .step.completed i {
     color: white;
 }
+
+#elapsedTimeContainer {
+    margin-top: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+#elapsedTimeContainer i {
+    color: #333;
+}
