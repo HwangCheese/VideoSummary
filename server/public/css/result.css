@@ -1,52 +1,78 @@
+/*
+server/public/css/result.css 
+결과 영상, 하이라이트 구간 시각화 (수정본)
+*/
+
+/* --- 카드 크기 조정 --- */
 #resultCard {
-    max-width: 1600px; /* Adjust as needed, default is 1000px in layout.css */
-    /* Ensure it doesn't exceed viewport width on smaller screens */
-    width: 95%;
+    /* max-width: 1100px; */ /* 이전 값, 필요시 조절 */
+    max-width: 1600px; /* 사용자가 제공한 값 유지 */
+    width: 95%; /* 뷰포트 너비 대비 */
 }
 
+/* --- 비디오 컨테이너 그룹 --- */
 .video-container-group {
     display: flex;
-    flex-direction: row; /* Keep side-by-side layout */
-    flex-wrap: nowrap; /* Prevent wrapping */
-    justify-content: center; /* Center the boxes */
-    align-items: flex-start; /* Align tops */
-    gap: 2rem; /* Increase gap slightly for visual separation */
-    margin-bottom: 2.5rem; /* Add space before buttons */
+    flex-direction: row; /* 가로 배치 */
+    flex-wrap: nowrap; /* 줄 바꿈 없음 */
+    justify-content: center; /* 가운데 정렬 (내용물 기준) */
+    align-items: flex-start; /* 상단 정렬 */
+    gap: 2rem; /* 비디오 박스 사이 기본 간격 */
+    margin-bottom: 2.5rem; /* 하단 여백 */
+    width: 100%; /* 중요: 부모(.card-body) 너비를 넘지 않도록 */
+    box-sizing: border-box; /* 패딩/테두리 포함하여 너비 계산 */
+    transition: gap 0.4s ease-out; /* gap 변경 시 부드러운 효과 */
 }
 
+/* --- 개별 비디오 박스 --- */
 .video-box {
-    /* Use flex-basis for better control */
-    flex-basis: 48%; /* Each box takes roughly half the space */
-    flex-shrink: 1; /* Allow shrinking if needed */
-    flex-grow: 0; /* Don't allow growing beyond basis */
-    /* Remove fixed width and max-width to rely on flex-basis */
-    /* width: 480px; */
-    /* max-width: 48%; */
+    /* 기본 너비 설정 */
+    flex-basis: 48%; /* 기본적으로 절반 가까이 차지 */
+    flex-shrink: 1; /* 공간 부족 시 줄어듦 허용 */
+    flex-grow: 0; /* 추가 공간 있어도 늘어나지 않음 */
+
+    /* 애니메이션 설정 */
+    transition:
+        flex-basis 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        /* 너비 변경 */ opacity 0.4s ease-out 0.1s,
+        /* 투명도 변경 (약간 딜레이) */ min-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        /* 최소 너비 변경 */ width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        /* 너비 변경 */ max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        /* 최대 너비 변경 */ padding 0.4s ease-out,
+        /* 패딩 변경 */ margin 0.4s ease-out; /* 마진 변경 */
+
+    /* 기본 상태 */
+    opacity: 1;
+    overflow: hidden; /* 내부 요소 넘침 방지 */
+    min-width: auto; /* 기본 최소 너비 */
+    width: auto; /* 기본 너비 */
+    max-width: 100%; /* 부모 너비 초과 방지 */
+    box-sizing: border-box;
 }
 
 .video-box video {
-    width: 100%; /* Make video fill the box width */
-    border-radius: var(--border-radius); /* Use variable */
-    box-shadow: var(--shadow-sm); /* Use variable */
-    display: block; /* Prevent extra space below video */
+    width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    display: block; /* 비디오 아래 불필요한 공간 제거 */
 }
 
 .video-box h3 {
-    margin-bottom: 0.8rem; /* Space between title and video/highlight */
-    font-size: 1.3rem; /* Slightly larger title */
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
     color: var(--dark-color);
     display: flex;
     align-items: center;
     gap: 0.6rem;
 }
 
-/* Styling for the highlight section now inside the first video box */
+/* --- 하이라이트 섹션 (원본 비디오 박스 내부) --- */
 .video-box .highlight-section {
-    margin-top: 1.5rem; /* Space between original video and highlight bar */
+    margin-top: 1.5rem;
 }
 
 .video-box .highlight-section h3 {
-    font-size: 1.1rem; /* Adjust subtitle size */
+    font-size: 1.1rem;
     margin-bottom: 0.8rem;
     color: var(--gray-color);
 }
@@ -58,28 +84,26 @@
     border-radius: 8px;
     position: relative;
     margin-bottom: 0.5rem;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); /* Subtle depth */
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* Remove time markers styling from here if it's defined elsewhere,
-     keep it if it's only in result.css */
+/* --- 타임 마커 & 범례 --- */
 .time-markers {
     position: absolute;
     width: 100%;
-    height: 20px; /* Doesn't need height */
-    top: -20px; /* Position above the bar */
+    top: -20px;
     left: 0;
     z-index: 1;
+    height: auto; /* 불필요한 높이 제거 */
 }
 
 .time-marker {
     position: absolute;
-    font-size: 0.75rem; /* Smaller text */
+    font-size: 0.75rem;
     color: var(--gray-color);
-    top: 0; /* Align with the top */
+    top: 0;
     transform: translateX(-50%);
 }
-/* Adjust marker positions if needed (example) */
 .time-marker:first-child {
     transform: translateX(0);
 }
@@ -89,16 +113,16 @@
 
 .highlight-legend {
     display: flex;
-    gap: 1rem; /* Reduced gap */
+    gap: 1rem;
     margin-top: 1rem;
-    justify-content: center; /* Center the legend items */
+    justify-content: center;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.85rem; /* Slightly smaller legend text */
+    font-size: 0.85rem;
     color: var(--gray-color);
 }
 
@@ -107,30 +131,22 @@
     height: 14px;
     border-radius: 3px;
 }
-
 .legend-color.original {
     background-color: #e0e0e0;
 }
-
 .legend-color.highlight {
     background-color: var(--accent-color);
 }
 
-/* Remove styles that might conflict if they exist */
-/* #finalVideo { margin-bottom: 1.5rem; } */ /* Handled by video-box */
-
-/* Ensure resize handles (if used) are styled correctly */
+/* --- 리사이즈 핸들 --- */
 .resize-handle {
-    /* Keep your existing styles if you implement resizing */
     position: absolute;
     width: 10px;
     height: 100%;
     top: 0;
     z-index: 5;
-    /* background-color: rgba(0,0,255,0.1); */ /* For debugging */
     cursor: ew-resize;
 }
-
 .resize-handle.left {
     left: -5px;
 }
@@ -138,19 +154,97 @@
     right: -5px;
 }
 
-/* Responsive adjustments if needed */
+/* ====================================== */
+/* ========= 편집 모드 스타일 ========= */
+/* ====================================== */
+
+/* 편집 모드일 때 컨테이너 gap 제거 */
+#resultCard.editing-mode .video-container-group {
+    gap: 0;
+}
+
+/* 편집 모드일 때 원본 영상 영역 확장 (부모 박스) */
+#resultCard.editing-mode .original-video-box {
+    flex-basis: 70%;
+    opacity: 1;
+    min-width: auto;
+    margin: 0 auto; /* 중앙 정렬 */
+}
+
+/* 🔑편집 모드일 때 원본 영상 크기 제한 (video 태그 직접) */
+#resultCard.editing-mode .original-video-box video {
+    width: 100%; /* 너비는 박스 100%로 유지하되 */
+    height: auto; /* 비율 유지 필수 */
+    max-height: 50vh; /* 영상 최대 높이를 화면 높이의 40%로 제한 */
+    margin: 0 auto; /* 중앙 정렬 */
+    display: block;
+    object-fit: cover; /* 빈 공간 없이 꽉 채움 (일부 잘림 가능) */
+    aspect-ratio: 16/9; /* 세로 길이 확보에 도움 */
+}
+
+/* 편집 모드일 때 숏폼 영상 영역 축소 및 숨김 */
+#resultCard.editing-mode .shortform-video-box {
+    flex-basis: 0%; /* 너비 비율 0 */
+    width: 0; /* 실제 너비 0 강제 */
+    max-width: 0; /* 최대 너비 0 강제 */
+    min-width: 0; /* 중요: 최소 너비 0 강제 */
+    opacity: 0; /* 투명하게 */
+    pointer-events: none; /* 이벤트 비활성화 */
+    padding: 0; /* 내부 여백 제거 */
+    margin: 0; /* 외부 여백 제거 */
+    border: none; /* 테두리 제거 */
+    overflow: hidden; /* 내용 숨김 (중복이지만 확실히) */
+}
+
+/* ====================================== */
+/* ========= 반응형 스타일 ========= */
+/* ====================================== */
 @media (max-width: 768px) {
+    /* 작은 화면: 세로 배치, gap 유지 */
     .video-container-group {
-        flex-direction: column; /* Stack vertically on smaller screens */
-        align-items: center; /* Center items when stacked */
-        gap: 2rem;
+        flex-direction: column;
+        align-items: center; /* 세로 중앙 정렬 */
+        gap: 2rem; /* 원래 gap 복원 */
     }
+
+    /* 작은 화면: 비디오 박스 너비 자동, 최대 너비 제한 */
     .video-box {
-        flex-basis: auto; /* Reset basis */
-        width: 100%; /* Take full width when stacked */
-        max-width: 500px; /* Optional max width for stacked items */
+        flex-basis: auto; /* 너비 자동 */
+        width: 100%; /* 부모 너비만큼 */
+        max-width: 500px; /* 너무 커지지 않게 제한 (조절 가능) */
+        min-width: auto; /* 최소 너비 초기화 */
+        /* 작은 화면에서는 편집 모드 애니메이션 비활성화 */
+        transition: none;
+        opacity: 1 !important; /* 강제로 보이게 */
+        pointer-events: auto !important; /* 강제로 이벤트 활성화 */
+        /* 원래 패딩/마진/테두리 복원 (값이 있다면) */
+        padding: 0; /* 예시: 원래 패딩이 없었다면 0 */
+        margin: 0; /* 예시: 원래 마진이 없었다면 0 */
+        border: none; /* 예시: 원래 테두리가 없었다면 none */
     }
-    #resultCard {
-        max-width: 95%; /* Adjust card width for mobile */
+
+    /* 작은 화면: 편집 모드 시 레이아웃 변경 무효화 */
+    #resultCard.editing-mode .video-container-group {
+        gap: 2rem; /* gap 제거 효과 무효화 */
     }
+    #resultCard.editing-mode .original-video-box,
+    #resultCard.editing-mode .shortform-video-box {
+        flex-basis: auto; /* flex-basis 변경 무효화 */
+        width: 100%; /* 너비 100%로 설정 (세로 배치이므로) */
+        max-width: 500px; /* 반응형 최대 너비 적용 */
+        min-width: auto; /* min-width 강제 해제 */
+        opacity: 1; /* 숨김 효과 제거 */
+        pointer-events: auto; /* 이벤트 활성화 */
+        padding: 0; /* 원래 패딩 복원 (필요시 수정) */
+        margin: 0; /* 원래 마진 복원 (필요시 수정) */
+        border: none; /* 원래 테두리 복원 (필요시 수정) */
+    }
+
+    /* 작은 화면: 편집 관련 버튼 숨김 처리 (선택 사항) */
+    /*
+    #resultCard.editing-mode #customizeBtn,
+    #resultCard.editing-mode #saveCustomBtn {
+        display: none;
+    }
+    */
 }
