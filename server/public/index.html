@@ -126,40 +126,49 @@
 
     <!-- 결과 섹션 -->
     <section id="result-section" class="scroll-section result-section">
+      <!-- Add an ID to the card for specific styling -->
       <div id="resultCard" class="card">
         <div class="card-header">
           <h2><i class="fas fa-play-circle"></i> 숏폼 결과 영상</h2>
         </div>
         <div class="card-body">
           <div class="video-container-group">
-            <div class="video-box">
+
+            <!-- Original Video Box - NOW CONTAINS HIGHLIGHT SECTION -->
+            <div class="video-box original-video-box">
               <h3><i class="fas fa-film"></i> 원본 영상</h3>
               <video id="originalVideo" controls></video>
+
+              <!-- Highlight section MOVED HERE -->
+              <div class="highlight-section">
+                <h3><i class="fas fa-search"></i> 원본 대비 요약 구간</h3>
+                <div id="highlightBarContainer">
+                  <div class="time-markers">
+                    <span class="time-marker" style="left: 0%">00:00</span>
+                    <span class="time-marker" style="left: 25%">25%</span>
+                    <span class="time-marker" style="left: 50%">50%</span>
+                    <span class="time-marker" style="left: 75%">75%</span>
+                    <span class="time-marker" style="left: 100%">100%</span>
+                  </div>
+                  <!-- Highlight blocks will be added here dynamically -->
+                </div>
+                <div class="highlight-legend">
+                  <span class="legend-item"><span class="legend-color original"></span> 원본 영상</span>
+                  <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
+                </div>
+              </div>
+              <!-- End of moved highlight section -->
             </div>
 
-            <div class="video-box">
+            <!-- Short-form Video Box -->
+            <div class="video-box shortform-video-box">
               <h3><i class="fas fa-star"></i> 숏폼 영상</h3>
               <video id="finalVideo" controls></video>
             </div>
+
           </div>
 
-          <div class="highlight-section">
-            <h3><i class="fas fa-search"></i> 원본 대비 요약 구간</h3>
-            <div id="highlightBarContainer">
-              <div class="time-markers">
-                <span class="time-marker" style="left: 0%">00:00</span>
-                <span class="time-marker" style="left: 25%">25%</span>
-                <span class="time-marker" style="left: 50%">50%</span>
-                <span class="time-marker" style="left: 75%">75%</span>
-                <span class="time-marker" style="left: 100%">100%</span>
-              </div>
-            </div>
-            <div class="highlight-legend">
-              <span class="legend-item"><span class="legend-color original"></span> 원본 영상</span>
-              <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
-            </div>
-          </div>
-
+          <!-- Button Group remains at the bottom -->
           <div class="button-group">
             <button id="newBtn" class="primary-btn">
               <i class="fas fa-plus"></i> 새 영상 만들기
