@@ -1,5 +1,5 @@
 // public/static/uploadHandler.js
-import { showToast, formatFileSize } from './uiUtils.js';
+import { showToast, formatFileSize } from "./uiUtils.js";
 
 export let uploadedFileName = "";
 
@@ -9,20 +9,21 @@ export function initUploadHandler() {
   const fileName = document.getElementById("fileName");
   const fileSize = document.getElementById("fileSize");
   const uploadInfo = document.getElementById("uploadInfo");
+  const removeFileBtn = document.getElementById("removeFileBtn");
   const startBtn = document.getElementById("startBtn");
   const statusDiv = document.getElementById("status");
   const progressBarInner = document.getElementById("progressBarInner");
 
-  // 드래그 & 드롭 UI
-  ["dragenter", "dragover"].forEach(eventName =>
-    dropZone.addEventListener(eventName, e => {
+  /* ----------------------------- Drag & Drop ----------------------------- */
+  ["dragenter", "dragover"].forEach((eventName) =>
+    dropZone.addEventListener(eventName, (e) => {
       e.preventDefault();
       dropZone.classList.add("hover");
     })
   );
 
-  ["dragleave", "drop"].forEach(eventName =>
-    dropZone.addEventListener(eventName, e => {
+  ["dragleave", "drop"].forEach((eventName) =>
+    dropZone.addEventListener(eventName, (e) => {
       e.preventDefault();
       dropZone.classList.remove("hover");
     })
@@ -34,15 +35,19 @@ export function initUploadHandler() {
     if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
   });
 
-  dropZone.addEventListener("drop", e => {
+  dropZone.addEventListener("drop", (e) => {
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
   });
 
+  /* ----------------------------- File logic ----------------------------- */
   function handleFile(file) {
     fileName.textContent = file.name;
     fileSize.textContent = formatFileSize(file.size);
+
     uploadInfo.style.display = "block";
+    dropZone.classList.add("uploaded"); // 📌 shrink dropZone for better UX
+    dropZone.scrollIntoView({ behavior: "smooth" });
 
     uploadFile(file);
   }
@@ -73,5 +78,23 @@ export function initUploadHandler() {
       statusDiv.textContent = "❌ 업로드 중 오류 발생";
       showToast("업로드 중 오류가 발생했습니다.", "error");
     }
+  }
+
+  /* --------------------------- Remove / Reset --------------------------- */
+  removeFileBtn.addEventListener("click", resetUpload);
+
+  function resetUpload() {
+    // 초기화
+    fileInput.value = "";
+    uploadedFileName = "";
+
+    uploadInfo.style.display = "none";
+    dropZone.classList.remove("uploaded");
+
+    statusDiv.textContent = "";
+    progressBarInner.style.width = "0%";
+    startBtn.disabled = true;
+
+    dropZone.scrollIntoView({ behavior: "smooth" });
   }
 }

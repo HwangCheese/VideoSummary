@@ -1,26 +1,71 @@
 /*
-server/public/css/responsive.css 
+server/public/css/responsive.css
 반응형 미디어 쿼리
 */
 
 @media (max-width: 600px) {
+    /* 업로드 섹션을 화면 위쪽에 붙이기 */
+    .upload-section.scroll-section {
+        justify-content: flex-start; /* 중앙 -> 상단 정렬 */
+        padding-top: 4vh; /* 약간 띄워줌 */
+    }
+
+    header {
+        margin-bottom: 0.6rem; /* <<< 기존 3rem → 모바일은 1rem로 확 줄이기 */
+    }
+
     .container {
         padding: 1rem;
     }
 
     h1 {
-        font-size: 2rem;
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
     }
 
     .subtitle {
-        font-size: 1rem;
+        font-size: 0.7rem;
+        margin-bottom: 1rem;
+    }
+
+    /* 카드 간격 축소 */
+    .card-body {
+        padding: 1.2rem;
+    }
+
+    .card-header {
+        padding: 0.9rem 1.2rem;
+    }
+
+    .card-header h2 {
+        font-size: 1.3rem;
+    }
+
+    #dropZone {
+        min-height: 140px; /* 'auto'로 두는 것보다 최소 높이를 주는게 깔끔함 */
+        padding: 1.2rem;
+    }
+
+    #dropZone.uploaded {
+        height: 80px;
+        min-height: 0;
     }
 
     .button-group {
         flex-direction: column;
+        gap: 0.8rem; /* 버튼 간 간격 추가 */
     }
 
-    #dropZone {
-        height: 160px;
+    /* 요약 옵션 버튼, 입력창 폰트 사이즈 조정 */
+    .option-buttons {
+        gap: 0.6rem;
+    }
+
+    .summary-option-btn {
+        font-size: 0.85rem;
+    }
+
+    .summary-duration input {
+        font-size: 0.85rem;
     }
 }
