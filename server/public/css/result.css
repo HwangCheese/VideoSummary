@@ -1,6 +1,6 @@
 /*
-server/public/css/result.css 
-결과 영상, 하이라이트 구간 시각화 (수정본)
+server/public/css/result.css
+결과 영상, 하이라이트 구간 시각화 (통합 및 수정본)
 */
 
 /* --- 카드 크기 조정 --- */
@@ -34,12 +34,12 @@ server/public/css/result.css
     /* 애니메이션 설정 */
     transition:
         flex-basis 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        /* 너비 변경 */ opacity 0.4s ease-out 0.1s,
-        /* 투명도 변경 (약간 딜레이) */ min-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        /* 최소 너비 변경 */ width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        /* 너비 변경 */ max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-        /* 최대 너비 변경 */ padding 0.4s ease-out,
-        /* 패딩 변경 */ margin 0.4s ease-out; /* 마진 변경 */
+        opacity 0.4s ease-out 0.1s,
+        min-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.4s ease-out,
+        margin 0.4s ease-out;
 
     /* 기본 상태 */
     opacity: 1;
@@ -78,13 +78,14 @@ server/public/css/result.css
 }
 
 #highlightBarContainer {
+    position: relative;
     width: 100%;
     height: 25px;
     background: #e0e0e0;
     border-radius: 8px;
-    position: relative;
     margin-bottom: 0.5rem;
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
 }
 
 /* --- 타임 마커 & 범례 --- */
@@ -94,7 +95,7 @@ server/public/css/result.css
     top: -20px;
     left: 0;
     z-index: 1;
-    height: auto; /* 불필요한 높이 제거 */
+    height: auto;
 }
 
 .time-marker {
@@ -163,88 +164,108 @@ server/public/css/result.css
     gap: 0;
 }
 
-/* 편집 모드일 때 원본 영상 영역 확장 (부모 박스) */
+/* 편집 모드일 때 원본 영상 영역 크기 유지 */
 #resultCard.editing-mode .original-video-box {
-    flex-basis: 70%;
+    flex-basis: 48%; /* 기본 비율과 동일하게 */
+    max-width: 800px; /* 필요시 최대폭 제한 */
     opacity: 1;
     min-width: auto;
-    margin: 0 auto; /* 중앙 정렬 */
+    margin: 0 auto;
 }
 
-/* 🔑편집 모드일 때 원본 영상 크기 제한 (video 태그 직접) */
+/* 편집 모드일 때 원본 영상 높이 제한 */
 #resultCard.editing-mode .original-video-box video {
-    width: 100%; /* 너비는 박스 100%로 유지하되 */
-    height: auto; /* 비율 유지 필수 */
-    max-height: 50vh; /* 영상 최대 높이를 화면 높이의 40%로 제한 */
-    margin: 0 auto; /* 중앙 정렬 */
+    width: 100%;
+    height: auto;
+    max-height: 40vh; /* 화면 높이 대비 40% */
+    margin: 0 auto;
     display: block;
-    object-fit: cover; /* 빈 공간 없이 꽉 채움 (일부 잘림 가능) */
-    aspect-ratio: 16/9; /* 세로 길이 확보에 도움 */
+    object-fit: cover;
+    aspect-ratio: 16/9;
 }
 
 /* 편집 모드일 때 숏폼 영상 영역 축소 및 숨김 */
 #resultCard.editing-mode .shortform-video-box {
-    flex-basis: 0%; /* 너비 비율 0 */
-    width: 0; /* 실제 너비 0 강제 */
-    max-width: 0; /* 최대 너비 0 강제 */
-    min-width: 0; /* 중요: 최소 너비 0 강제 */
-    opacity: 0; /* 투명하게 */
-    pointer-events: none; /* 이벤트 비활성화 */
-    padding: 0; /* 내부 여백 제거 */
-    margin: 0; /* 외부 여백 제거 */
-    border: none; /* 테두리 제거 */
-    overflow: hidden; /* 내용 숨김 (중복이지만 확실히) */
+    flex-basis: 0%;
+    width: 0;
+    max-width: 0;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+    overflow: hidden;
+}
+
+/* 편집모드 진입하면 기본 버튼 사라짐 */
+#resultCard.editing-mode .default-action {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    visibility: hidden;
+    display: none !important;
+}
+
+#resultCard.editing-mode .button-group {
+    justify-content: center;
+}
+
+/* 편집모드일 때 저장 버튼 자연스럽게 등장 */
+#resultCard.editing-mode #saveCustomBtn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* 4) 편집 모드에서 highlight 바를 원본 박스 바깥까지 풀 너비로 늘리기 */
+#resultCard.editing-mode .highlight-section {
+    width: 100%;
+    max-width: none; /* 필요시 px 단위 최대폭도 지정 가능 (예: 1200px) */
+    padding: 0; /* 좌우 여백 없애기 */
+    box-sizing: border-box;
+}
+
+/* 5) highlightBarContainer가 100% 너비를 쓰도록 보장 */
+#resultCard.editing-mode #highlightBarContainer {
+    width: 100%;
 }
 
 /* ====================================== */
 /* ========= 반응형 스타일 ========= */
 /* ====================================== */
 @media (max-width: 768px) {
-    /* 작은 화면: 세로 배치, gap 유지 */
     .video-container-group {
         flex-direction: column;
-        align-items: center; /* 세로 중앙 정렬 */
-        gap: 2rem; /* 원래 gap 복원 */
+        align-items: center;
+        gap: 2rem;
     }
-
-    /* 작은 화면: 비디오 박스 너비 자동, 최대 너비 제한 */
     .video-box {
-        flex-basis: auto; /* 너비 자동 */
-        width: 100%; /* 부모 너비만큼 */
-        max-width: 500px; /* 너무 커지지 않게 제한 (조절 가능) */
-        min-width: auto; /* 최소 너비 초기화 */
-        /* 작은 화면에서는 편집 모드 애니메이션 비활성화 */
+        flex-basis: auto;
+        width: 100%;
+        max-width: 500px;
+        min-width: auto;
         transition: none;
-        opacity: 1 !important; /* 강제로 보이게 */
-        pointer-events: auto !important; /* 강제로 이벤트 활성화 */
-        /* 원래 패딩/마진/테두리 복원 (값이 있다면) */
-        padding: 0; /* 예시: 원래 패딩이 없었다면 0 */
-        margin: 0; /* 예시: 원래 마진이 없었다면 0 */
-        border: none; /* 예시: 원래 테두리가 없었다면 none */
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        padding: 0;
+        margin: 0;
+        border: none;
     }
-
-    /* 작은 화면: 편집 모드 시 레이아웃 변경 무효화 */
     #resultCard.editing-mode .video-container-group {
-        gap: 2rem; /* gap 제거 효과 무효화 */
+        gap: 2rem;
     }
     #resultCard.editing-mode .original-video-box,
     #resultCard.editing-mode .shortform-video-box {
-        flex-basis: auto; /* flex-basis 변경 무효화 */
-        width: 100%; /* 너비 100%로 설정 (세로 배치이므로) */
-        max-width: 500px; /* 반응형 최대 너비 적용 */
-        min-width: auto; /* min-width 강제 해제 */
-        opacity: 1; /* 숨김 효과 제거 */
-        pointer-events: auto; /* 이벤트 활성화 */
-        padding: 0; /* 원래 패딩 복원 (필요시 수정) */
-        margin: 0; /* 원래 마진 복원 (필요시 수정) */
-        border: none; /* 원래 테두리 복원 (필요시 수정) */
+        flex-basis: auto;
+        width: 100%;
+        max-width: 500px;
+        min-width: auto;
+        opacity: 1;
+        pointer-events: auto;
+        padding: 0;
+        margin: 0;
+        border: none;
     }
-
-    /* 작은 화면: 편집 관련 버튼 숨김 처리 (선택 사항) */
-    /*
-    #resultCard.editing-mode #customizeBtn,
-    #resultCard.editing-mode #saveCustomBtn {
-        display: none;
-    }
-    */
 }

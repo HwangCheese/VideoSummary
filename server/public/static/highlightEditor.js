@@ -196,7 +196,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             resultCard.classList.add('editing-mode'); // <<< 레이아웃 변경 클래스 추가
             showHighlightBar(); // 바 다시 그려서 핸들 등 표시
             highlightBarContainer.style.cursor = "crosshair"; // 새 구간 추가 가능 표시
-            showToast("편집 모드 활성화. 구간 클릭/드래그/크기조절 가능.", "info");
+            showToast("편집 모드 활성화. 구간을 드래그 하세요.", "info");
         } else {
             // 편집 취소
             if (backupSegments) {
@@ -246,6 +246,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             ghostElement.style.opacity = '0.5';
             ghostElement.style.pointerEvents = 'none';
             ghostElement.style.backgroundColor = 'var(--primary-color)'; // 색상 변경으로 구분
+            ghostElement.style.height = '100%';
             highlightBarContainer.appendChild(ghostElement);
 
             const onMouseMove = (moveEvent) => {

@@ -17,8 +17,8 @@ def load_inception_v3(device):
     model.fc = torch.nn.Identity()
     return model.to(device).eval()
 
-# 특징 추출
-def extract_features(video_path, model, device, batch_size=16):
+# 특징 추출 batch_size를 늘리면 훨씬 속도가 빨라질것 2^n 값으로 유지
+def extract_features(video_path, model, device, batch_size=32):
     print("🎞️ 프레임 특징 추출 중... (Decord + 배치 처리, 메모리 최적화)")
     ctx = cpu(0)
     vr = VideoReader(video_path, ctx=ctx)

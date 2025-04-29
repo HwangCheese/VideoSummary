@@ -61,31 +61,6 @@ button:not(:disabled):hover .btn-shine {
     margin-top: 2rem;
 }
 
-/* ✅ 오직 편집모드일 때만 버튼 정렬 */
-#resultCard.editing-mode .button-group {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1rem;
-    max-width: 600px;
-    margin: 2rem auto 0 auto;
-}
-
-#resultCard.editing-mode .button-group button {
-    flex: 1;
-    min-width: 200px;
-    max-width: 260px;
-    height: 56px; /* ✅ 높이 고정 */
-    padding: 0 1.2rem;
-    font-size: 1.05rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    line-height: 1; /* ✅ 텍스트 수직 정렬 */
-}
-
 /* ---------------------- */
 /* 기본 버튼 (새 영상, 공유, 다운로드) - 기본 보이게 */
 .default-action {
@@ -95,14 +70,6 @@ button:not(:disabled):hover .btn-shine {
         opacity 0.4s ease,
         transform 0.4s ease;
     visibility: visible;
-}
-
-/* 편집모드 진입하면 기본 버튼 사라짐 */
-#resultCard.editing-mode .default-action {
-    opacity: 0;
-    transform: translateY(10px);
-    pointer-events: none;
-    visibility: hidden;
 }
 
 /* ---------------------- */
@@ -127,14 +94,6 @@ button:not(:disabled):hover .btn-shine {
         transform 0.4s ease;
     pointer-events: none;
     visibility: hidden;
-}
-
-/* 편집모드일 때 저장 버튼 자연스럽게 등장 */
-#resultCard.editing-mode #saveCustomBtn {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-    visibility: visible;
 }
 
 /* ---------------------- */
