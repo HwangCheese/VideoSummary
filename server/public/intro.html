@@ -2,14 +2,15 @@
 <html lang="ko">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI 숏폼 메이커</title>
     <link rel="icon" type="image/png" href="/images/head-icon.png" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/aos@2.3.1/dist/aos.css" />
     <style>
+        /* Reset & 기본변수 */
         * {
             margin: 0;
             padding: 0;
@@ -18,31 +19,27 @@
         }
 
         :root {
-            --bg-gradient-start: #1f263e;
-            --bg-gradient-mid: #3a1c71;
-            --bg-gradient-end: #d76d77;
-            --accent-1: #80ffea;
-            --accent-2: #ffcc70;
+            --bg-start: #1f263e;
+            --bg-mid: #3a1c71;
+            --bg-end: #6d77d7;
+            --accent1: #80ffea;
+            --accent2: #ffcc70;
             --text-light: #f0f0f0;
-            --text-dark: #333;
             --card-bg: rgba(20, 25, 40, 0.8);
-            --card-border: var(--accent-1);
-            --footer-bg: #1a1a2e;
+            --border-light: rgba(255, 255, 255, 0.3);
         }
 
         body {
-            font-family: "Pretendard", sans-serif;
-            color: var(--text-light);
-            min-height: 100vh;
-            overflow-x: hidden;
-            background: linear-gradient(-45deg, var(--bg-gradient-start), var(--bg-gradient-mid), var(--bg-gradient-end), var(--accent-1));
+            background: linear-gradient(-45deg, var(--bg-start), var(--bg-mid), var(--bg-end), var(--accent1));
             background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
+            animation: grad 15s ease infinite;
+            color: var(--text-light);
+            overflow-x: hidden;
         }
 
-        @keyframes gradientBG {
+        @keyframes grad {
             0% {
-                background-position: 0% 50%;
+                background-position: 0 50%;
             }
 
             50% {
@@ -50,509 +47,260 @@
             }
 
             100% {
-                background-position: 0% 50%;
+                background-position: 0 50%;
             }
         }
 
         #particles-js {
             position: fixed;
-            width: 100%;
-            height: 100%;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
             z-index: 0;
         }
 
-        .scroll-wrapper {
+        /* Hero */
+        .hero {
+            position: relative;
+            z-index: 1;
             height: 100vh;
-            overflow-y: scroll;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            scroll-behavior: smooth;
-        }
-
-        .scroll-wrapper::-webkit-scrollbar {
-            display: none;
-        }
-
-        .container {
-            width: 90%;
-            /* 데스크탑 기본 너비 */
-            max-width: 1500px;
-            margin: 0 auto;
-            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            position: relative;
-            padding: 60px 0;
-            z-index: 1;
-            overflow: hidden;
-        }
-
-        /* 로고 스타일 */
-        .site-logo {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .logo-icon {
-            font-size: 3.5rem;
-            color: var(--accent-1);
-            display: inline-block;
-            text-shadow: 0 0 10px var(--accent-1), 0 0 20px var(--accent-1), 0 0 30px rgba(128, 255, 234, 0.5);
-            transition: transform 0.3s ease;
-        }
-
-        .logo-icon:hover {
-            transform: scale(1.1) rotate(-5deg);
-        }
-
-        /* 메인 컨텐츠 그리드 (데스크탑 기본) */
-        .main-content-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 50px;
             align-items: center;
-            width: 100%;
-            margin-bottom: 40px;
+            text-align: center;
             padding: 0 20px;
         }
 
-        /* 왼쪽 컨텐츠 (제목, 설명, CTA - 데스크탑 기본) */
-        .content-left {
-            text-align: left;
-            padding-left: 20px;
-        }
-
-        .content-left h1 {
-            font-size: clamp(2.5rem, 6vw, 3.8rem);
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 4rem);
             font-weight: 700;
-            margin-bottom: 20px;
-            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            line-height: 1.3;
-            padding-left: 15px;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.8s ease forwards;
-            animation-delay: 0.3s;
+            margin-bottom: 1rem;
         }
 
-        .content-left p {
+        .hero h1 .pink {
+            color: #ff88b7;
+        }
+
+        .hero p {
             font-size: clamp(1rem, 2.5vw, 1.2rem);
-            opacity: 0;
-            margin-bottom: 35px;
-            line-height: 1.7;
-            max-width: 550px;
-            padding-left: 15px;
-            transform: translateY(20px);
-            animation: fadeInUp 0.8s ease forwards;
-            animation-delay: 0.8s;
+            line-height: 1.5;
+            margin-bottom: 2rem;
+            opacity: .9;
         }
 
-        /* 인트로 텍스트 애니메이션 */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* CTA 버튼 스타일 및 애니메이션 */
-        .cta-button {
-            background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
-            color: var(--bg-gradient-start);
-            border: none;
+        .hero .btn {
+            background: linear-gradient(90deg, var(--accent1), var(--accent2));
+            color: var(--bg-start);
             padding: 16px 40px;
+            border: none;
             border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-size: 1.1rem;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, background-position 0.4s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+            transition: transform .3s, background-position .4s;
+            background-size: 200% auto;
             display: inline-flex;
             align-items: center;
-            justify-content: center;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-            text-decoration: none;
-            position: relative;
-            overflow: hidden;
-            background-size: 200% auto;
-            opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.8s ease forwards;
-            animation-delay: 1.3s;
         }
 
-        .cta-button:hover {
+        .hero .btn:hover {
             background-position: right center;
-            transform: translateY(-5px) scale(1.03);
-            box-shadow: 0 12px 25px rgba(128, 255, 234, 0.4);
+            transform: translateY(-3px);
         }
 
-        .cta-button:active {
-            transform: translateY(-2px) scale(0.98);
-            box-shadow: 0 5px 15px rgba(128, 255, 234, 0.3);
+        .hero .btn i {
+            margin-right: 8px;
+            font-size: 1.2rem;
         }
 
-        .cta-button i {
-            margin-right: 12px;
-            font-size: 1.3rem;
-        }
-
-        /* 오른쪽 컨텐츠 (기능 슬라이더 - 데스크탑 기본) */
-        .content-right {
-            width: 100%;
-            height: 580px;
-            /* 데스크탑 높이 고정 */
+        /* Features */
+        .features {
             position: relative;
-            padding-right: 20px;
-        }
-
-        .features-showcase {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-slider {
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-
-        /* 슬라이드 아이템 (데스크탑 기본: 절대 위치) */
-        .feature-screen {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            opacity: 0;
-            background: var(--card-bg);
-            border-radius: 15px;
-            border-top: 4px solid var(--card-border);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-            padding: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 20px;
-            text-align: center;
-            transition: opacity 0.6s ease-in-out, transform 0.7s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            transform: translateX(100%);
-            visibility: hidden;
-            box-sizing: border-box;
-        }
-
-        /* 활성 슬라이드 (데스크탑 기본) */
-        .feature-screen.active {
-            opacity: 1;
-            transform: translateX(0);
-            visibility: visible;
             z-index: 1;
+            padding: 80px 20px;
+            max-width: 1200px;
+            margin: 0 auto 60px auto;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
         }
 
-        /* 이미지 컨테이너 (데스크탑 기본) */
-        .feature-image-wrapper {
-            width: 52%;
-            height: 45%;
-            max-width: none;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            flex-shrink: 0;
-            background-color: rgba(0, 0, 0, 0.2);
+        .features h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            margin-bottom: 2rem;
+        }
+
+        .grid {
             display: flex;
-            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
             justify-content: center;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            flex: 1 1 320px;
+            max-width: 900px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            transition: transform .3s;
+            color: var(--text-light);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            margin-bottom: .8rem;
+        }
+
+        .card p {
+            font-size: 1rem;
+            line-height: 1.4;
+            opacity: .9;
+        }
+
+        @media(max-width:768px) {
+            .card {
+                flex: 1 1 100%;
+                max-width: 360px;
+            }
+        }
+
+        /* FAQ */
+        .faq {
+            max-width: 800px;
+            margin: 0 auto 40px auto;
             padding: 20px;
         }
 
-        /* 이미지 스타일 (잘림 방지) */
-        .feature-image-wrapper img {
-            width: 100%;
-            height: 100%;
-            display: block;
-            object-fit: contain;
-            /* 이미지 비율 유지하며 컨테이너에 맞춤 */
-            max-height: 100%;
-            max-width: 100%;
-        }
-
-        /* 슬라이드 컨텐츠 (텍스트 - 데스크탑 기본) */
-        .feature-content {
-            width: 60%;
-            /* 데스크탑 기본 너비 */
-            max-width: none;
-        }
-
-        .feature-content h2 {
-            font-size: clamp(1.4rem, 3vw, 1.8rem);
-            margin-bottom: 15px;
-            color: var(--accent-1);
-            text-shadow: 0 0 8px rgba(128, 255, 234, 0.6);
-        }
-
-        .feature-content p {
-            font-size: clamp(0.85rem, 2vw, 1rem);
-            margin-bottom: 20px;
-            line-height: 1.6;
-            opacity: 0.9;
-        }
-
-        /* 단계 표시 스타일 (데스크탑 기본) */
-        .feature-step {
-            display: flex;
-            align-items: center;
-            margin-bottom: 10px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            border-radius: 8px;
-            border-left: 3px solid var(--accent-2);
-            font-size: 1.1rem;
-            width: 150%;
-            position: relative;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .step-number {
-            flex-shrink: 0;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 10px;
-            font-size: 1rem;
-            color: var(--bg-gradient-start);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-        }
-
-        /* 인디케이터 (슬라이더 네비게이션 - 데스크탑 기본) */
-        .indicators {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 50px;
-            margin-top: -20px;
-
-            position: relative;
-            z-index: 2;
-        }
-
-        .indicator {
-            width: 35px;
-            height: 5px;
-            border-radius: 3px;
-            background: rgba(255, 255, 255, 0.2);
-            cursor: pointer;
-            transition: background 0.4s ease, width 0.4s ease;
-            border: none;
-            padding: 0;
-        }
-
-        .indicator.active {
-            background: var(--accent-1);
-            width: 50px;
-        }
-
-        .indicator:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.5);
-        }
-
-        /* 푸터 스타일 */
-        footer {
-            background-color: var(--footer-bg);
-            padding: 3rem 1rem;
+        .faq h2 {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
             text-align: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 1rem;
             color: var(--text-light);
-            width: 100%;
+        }
+
+        .faq details {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin-bottom: 10px;
+            padding: 10px 15px;
+            border: 1px solid var(--border-light);
+        }
+
+        .faq summary {
+            cursor: pointer;
+            font-weight: 600;
             position: relative;
-            z-index: 1;
-            margin-top: auto;
+            list-style: none;
+            padding-right: 20px;
+            color: var(--text-light);
+        }
+
+        .faq summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .faq summary::after {
+            content: '▼';
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: .9rem;
+            transition: transform .2s;
+        }
+
+        .faq details[open] summary::after {
+            content: '▲';
+        }
+
+        .faq p {
+            margin-top: 8px;
+            font-size: .95rem;
+            line-height: 1.4;
+            color: var(--text-light);
+        }
+
+        footer {
+            background-color: #1a1a2e;
+            color: #fff;
+            padding: 40px 20px;
         }
 
         .footer-content {
-            max-width: 900px;
+            max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
         }
 
         .footer-logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1.5rem;
-            color: var(--accent-1);
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         .footer-logo i {
-            color: var(--accent-2);
-            margin-right: 0.6rem;
+            font-size: 1.5rem;
         }
 
         .footer-links {
             display: flex;
             flex-wrap: wrap;
-            justify-content: center;
-            gap: 1rem 2rem;
-            margin-bottom: 1.5rem;
+            gap: 1.2rem;
         }
 
         .footer-links a {
-            color: var(--text-light);
-            opacity: 0.8;
+            color: rgba(255, 255, 255, 0.7);
             text-decoration: none;
-            transition: opacity 0.3s ease;
             font-size: 0.95rem;
+            transition: color .2s;
         }
 
         .footer-links a:hover {
-            opacity: 1;
+            color: #ffffff;
         }
 
         .social-links {
-            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.8rem;
         }
 
         .social-icon {
-            color: rgba(255, 255, 255, 0.6);
-            margin: 0 0.8rem;
-            font-size: 1.5rem;
-            transition: color 0.3s ease, transform 0.3s ease;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            transition: color .2s;
         }
 
         .social-icon:hover {
-            color: var(--accent-1);
-            transform: translateY(-4px);
+            color: #ffffff;
         }
 
-        footer p.copyright {
-            font-size: 0.9rem;
+        .copyright {
+            flex-basis: 100%;
+            text-align: center;
+            font-size: 0.85rem;
+            margin-top: 1rem;
             color: rgba(255, 255, 255, 0.5);
-        }
-
-        /*  반응형 디자인 */
-        @media (max-width: 991px) {
-            .container {
-                width: 95%;
-                padding: 40px 0;
-            }
-
-            .main-content-grid {
-                display: block;
-                gap: 40px;
-                text-align: center;
-                padding: 0 20px;
-            }
-
-            .content-left {
-                order: 1;
-                text-align: center;
-                padding-left: 0;
-                margin-bottom: 40px;
-            }
-
-            .content-left h1,
-            .content-left p {
-                padding-left: 0;
-            }
-
-            .content-left p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .cta-button {
-                padding: 14px 30px;
-                font-size: 1.05rem;
-            }
-
-            .cta-button i {
-                font-size: 1.1rem;
-            }
-
-            .content-right {
-                order: 2;
-                height: auto;
-                padding-right: 0;
-            }
-
-            .features-showcase {
-                height: auto;
-            }
-
-            .feature-screen {
-                position: absolute;
-                padding: 25px;
-            }
-
-            .feature-screen.active {
-                position: relative;
-                height: auto;
-            }
-
-            .feature-image-wrapper {
-                width: 85%;
-                max-width: 320px;
-                height: 200px;
-                padding: 10px;
-            }
-
-            /* 슬라이드 컨텐츠 (텍스트 - 모바일) */
-            .feature-content {
-                width: 100%;
-            }
-
-            .feature-content h2 {
-                font-size: 1.3rem;
-            }
-
-            .feature-content p {
-                font-size: 0.85rem;
-                margin-bottom: 15px;
-            }
-
-            .feature-step {
-                width: 100%;
-                position: static;
-                left: auto;
-                transform: none;
-                padding: 8px 12px;
-                font-size: 0.8rem;
-            }
-
-            .step-number {
-                width: 25px;
-                height: 25px;
-                font-size: 0.9rem;
-                margin-right: 8px;
-            }
-
-            /* 인디케이터 (모바일) */
-            .indicators {
-                margin-top: 30px;
-                margin-bottom: 30px;
-            }
-
-            .indicator {
-                width: 25px;
-                height: 4px;
-            }
-
-            .indicator.active {
-                width: 40px;
-            }
         }
     </style>
 </head>
@@ -560,185 +308,93 @@
 <body>
     <div id="particles-js"></div>
 
-    <div class="scroll-wrapper">
-        <div class="container">
+    <!-- Hero -->
+    <section class="hero">
+        <h1><span class="pink">AI 숏폼 메이커</span></h1>
+        <p>
+            누구나 <i class="fab fa-youtube"></i> YouTube Shorts와
+            <i class="fab fa-instagram"></i> Instagram 릴스를<br />
+            AI가 핵심 장면만 골라주니까, 클릭 한 번이면 숏폼 제작 끝!
+        </p>
+        <button class="btn">
+            <i class="fas fa-rocket"></i> 바로 생성하기
+        </button>
+    </section>
 
-            <div class="site-logo" data-aos="fade-down" data-aos-duration="800">
-                <div class="logo-icon">
-                    <i class="fas fa-film"></i>
-                </div>
+    <!-- Features -->
+    <section class="features" data-aos="fade-up" data-aos-duration="1000">
+        <h2>왜 AI 숏폼 메이커인가?</h2>
+        <div class="grid">
+            <div class="card">
+                <img src="/images/feature1.png" alt="핵심 장면 자동 분석" />
+                <h3>핵심 장면 자동 분석</h3>
+                <p>
+                    AI가 영상 속 중요한 순간을 빠르게 포착해,<br />
+                    누구보다 쉽게 숏폼을 완성할 수 있습니다.
+                </p>
             </div>
-
-            <div class="main-content-grid">
-                <!-- 왼쪽 컨텐츠: 제목, 설명, CTA -->
-                <div class="content-left" data-aos="fade-right" data-aos-duration="1000">
-                    <h1>쇼츠 메이커</h1>
-                    <p>긴 영상 속 '보물' 찾기, 쇼츠 메이커가 해결합니다.</p>
-                    <a href="index.html" class="cta-button">
-                        <i class="fas fa-rocket"></i> 지금 바로 쇼츠 제작
-                    </a>
-                </div>
-
-                <!-- 오른쪽 컨텐츠: 기능 슬라이더 -->
-                <div class="content-right" data-aos="fade-left" data-aos-duration="1000">
-                    <section class="features-showcase">
-                        <div class="feature-slider">
-                            <!-- Feature 1 -->
-                            <div class="feature-screen active" id="feature1">
-                                <div class="feature-image-wrapper"> <img src="/images/upload.png" alt="간편한 영상 업로드">
-                                </div>
-                                <div class="feature-content">
-                                    <h2>1. AI 기반 핵심 장면 추출 </h2>
-                                    <p>수많은 유튜브 영상의 실제 시청 패턴 빅데이터를 학습하여, 장면 전환, 시각 정보 등을 종합 분석하고 사람들이 가장 주목하는 진짜 '핵심'만
-                                        지능적으로 포착합니다.</p>
-                                    <div class="feature-step">
-                                        <div class="step-number">🚀</div> <span>AI가 핵심만 스마트하게 추출</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Feature 2 -->
-                            <div class="feature-screen" id="feature2">
-                                <div class="feature-image-wrapper"> <img src="/images/ai.png" alt="AI 영상 분석"> </div>
-                                <div class="feature-content">
-                                    <h2>2. 긴 영상을 클릭 한번으로 요약</h2>
-                                    <p>변환하고 싶은 긴 영상 파일을 드래그하거나 클릭하여 손쉽게 업로드하세요.</p>
-                                    <div class="feature-step">
-                                        <div class="step-number">✨</div> <span>스토리 기반 숏폼 생성</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Feature 3 -->
-                            <div class="feature-screen" id="feature3">
-                                <div class="feature-image-wrapper"> <img src="/images/highlight.png" alt="숏폼 생성 완료">
-                                </div>
-                                <div class="feature-content">
-                                    <h2>3. 쇼츠 즉시 생성</h2>
-                                    <p>몇 시간 짜리 영상도 빠르게! 바로 다운로드하여 SNS, 마케팅 등 어디든 활용하세요.</p>
-                                    <div class="feature-step">
-                                        <div class="step-number">🎬</div> <span>시간 절약! 바로 쓰는 고품질 쇼츠</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-            </div>
-
-            <div class="indicators">
-                <button class="indicator active" data-index="0" aria-label="1번 기능 보기"></button>
-                <button class="indicator" data-index="1" aria-label="2번 기능 보기"></button>
-                <button class="indicator" data-index="2" aria-label="3번 기능 보기"></button>
-            </div>
-
+            <!-- 추가 카드 가능 -->
         </div>
+    </section>
 
-        <footer>
-            <div class="footer-content">
-                <div class="footer-logo">
-                    <i class="fas fa-film"></i> AI 숏폼 메이커
-                </div>
-                <nav class="footer-links" aria-label="푸터 메뉴">
-                    <a href="#">이용약관</a>
-                    <a href="#">개인정보처리방침</a>
-                    <a href="https://github.com/HwangCheese/CreateShorts" target="_blank" rel="noopener noreferrer">서비스
-                        소개</a>
-                    <a href="https://github.com/HwangCheese" target="_blank" rel="noopener noreferrer">문의하기</a>
-                </nav>
-                <div class="social-links">
-                    <a href="#" class="social-icon" aria-label="유튜브 (새 창)" target="_blank" rel="noopener noreferrer"><i
-                            class="fab fa-youtube"></i></a>
-                    <a href="#" class="social-icon" aria-label="인스타그램 (새 창)" target="_blank"
-                        rel="noopener noreferrer"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon" aria-label="트위터 (새 창)" target="_blank" rel="noopener noreferrer"><i
-                            class="fab fa-twitter"></i></a>
-                </div>
-                <p class="copyright">© 2025 AI Short-Form Maker. All rights reserved. | Team. HwangCheese</p>
+    <!-- FAQ -->
+    <section class="faq" data-aos="fade-up" data-aos-duration="1000">
+        <h2>자주 묻는 질문</h2>
+        <details>
+            <summary>어떤 종류의 영상이 어울리나요?</summary>
+            <p>인터뷰, 강연, 브이로그, 게임 플레이 등 대부분의 MP4 형식 영상에서 잘 작동합니다.</p>
+        </details>
+        <details>
+            <summary>자막이나 제목을 자유롭게 수정 가능한가요?</summary>
+            <p>가능합니다. 높은 정확도로 자막 및 제목을 자동 생성하며 이를 자유롭게 수정할 수 있습니다.</p>
+        </details>
+        <!-- 더 많은 FAQ 추가 가능 -->
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-logo">
+                <i class="fas fa-film"></i> AI 숏폼 메이커
             </div>
-        </footer>
-    </div>
+            <nav class="footer-links" aria-label="푸터 메뉴">
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="https://github.com/HwangCheese/CreateShorts" target="_blank" rel="noopener">서비스 소개</a>
+                <a href="https://github.com/HwangCheese" target="_blank" rel="noopener">문의하기</a>
+            </nav>
+            <div class="social-links">
+                <a href="#" class="social-icon" aria-label="유튜브 (새 창)" target="_blank" rel="noopener"><i
+                        class="fab fa-youtube"></i></a>
+                <a href="#" class="social-icon" aria-label="인스타그램 (새 창)" target="_blank" rel="noopener"><i
+                        class="fab fa-instagram"></i></a>
+                <a href="#" class="social-icon" aria-label="트위터 (새 창)" target="_blank" rel="noopener"><i
+                        class="fab fa-twitter"></i></a>
+            </div>
+            <p class="copyright">
+                © 2025 AI Short-Form Maker. All rights reserved. | Team. HwangCheese
+            </p>
+        </div>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            AOS.init({
-                once: true, duration: 800, easing: 'ease-in-out'
-            });
-
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({ once: true, duration: 800, easing: 'ease-in-out' });
             particlesJS('particles-js', {
-                "particles": { "number": { "value": 50, "density": { "enable": true, "value_area": 800 } }, "color": { "value": "#ffffff" }, "shape": { "type": "circle" }, "opacity": { "value": 0.4, "random": true }, "size": { "value": 2.5, "random": true }, "line_linked": { "enable": true, "distance": 160, "color": "#ffffff", "opacity": 0.3, "width": 1 }, "move": { "enable": true, "speed": 1.5, "direction": "none", "random": false, "straight": false, "out_mode": "out", "bounce": false } }, "interactivity": { "detect_on": "canvas", "events": { "onhover": { "enable": true, "mode": "repulse" }, "onclick": { "enable": true, "mode": "push" }, "resize": true }, "modes": { "repulse": { "distance": 80, "duration": 0.4 }, "push": { "particles_nb": 4 } } }, "retina_detect": true
-            });
-
-            const featuresContainer = document.querySelector('.feature-slider');
-            if (!featuresContainer) {
-                console.error("Feature slider container not found!");
-                return;
-            }
-            const features = Array.from(featuresContainer.querySelectorAll('.feature-screen'));
-            const indicators = document.querySelectorAll('.indicator');
-            let currentIndex = 0;
-            let interval;
-            const cycleTime = 7000;
-
-            function showFeature(index) {
-                if ((features[currentIndex] && features[currentIndex].classList.contains('is-leaving')) || index === currentIndex || index < 0 || index >= features.length || !features[index]) {
-                    return;
-                }
-
-                const currentFeature = features[currentIndex];
-                const nextFeature = features[index];
-
-                if (currentFeature) {
-                    currentFeature.classList.add('is-leaving');
-                    currentFeature.classList.remove('active');
-                    currentFeature.addEventListener('transitionend', function handler() {
-                        currentFeature.classList.remove('is-leaving');
-                        currentFeature.removeEventListener('transitionend', handler);
-                    });
-                }
-
-                if (indicators[currentIndex]) indicators[currentIndex].classList.remove('active');
-                if (indicators[index]) indicators[index].classList.add('active');
-
-                nextFeature.classList.add('active');
-
-                currentIndex = index;
-            }
-
-            function startAutoSlide() {
-                clearInterval(interval);
-                interval = setInterval(() => {
-                    let nextIndex = (currentIndex + 1) % features.length;
-                    showFeature(nextIndex);
-                }, cycleTime);
-            }
-
-            if (features.length > 0 && indicators.length > 0) {
-                features[0].classList.add('active');
-                indicators[0].classList.add('active');
-                currentIndex = 0;
-                startAutoSlide();
-
-                indicators.forEach((indicator, index) => {
-                    indicator.addEventListener('click', () => {
-                        showFeature(index);
-                        startAutoSlide();
-                    });
-                });
-
-            } else {
-                if (features.length === 0) console.error("Feature screens not found!");
-                if (indicators.length === 0) console.warn("Indicators not found!");
-            }
-
-            const showcase = document.querySelector('.features-showcase');
-            if (showcase) {
-                showcase.addEventListener('mouseenter', () => clearInterval(interval));
-                showcase.addEventListener('mouseleave', startAutoSlide);
-            }
-            document.querySelector('.scroll-wrapper').addEventListener('scroll', function () {
-                AOS.refresh();
+                particles: {
+                    number: { value: 50, density: { enable: true, value_area: 800 } },
+                    color: { value: '#fff' }, shape: { type: 'circle' },
+                    opacity: { value: 0.4, random: true }, size: { value: 2.5, random: true },
+                    line_linked: { enable: true, distance: 160, color: '#fff', opacity: 0.3, width: 1 },
+                    move: { enable: true, speed: 1.5, out_mode: 'out' }
+                },
+                interactivity: {
+                    detect_on: 'canvas',
+                    events: { onhover: { enable: true, mode: 'repulse' }, onclick: { enable: true, mode: 'push' }, resize: true },
+                    modes: { repulse: { distance: 80, duration: 0.4 }, push: { particles_nb: 4 } }
+                },
+                retina_detect: true
             });
         });
     </script>
