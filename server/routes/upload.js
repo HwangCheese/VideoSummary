@@ -42,48 +42,44 @@ router.post("/", upload.single("video"), (req, res) => {
 
 router.get("/process", (req, res) => {
   const filename = req.query.filename;
-  const pipelinePath = path.resolve(__dirname, "..", "..", "src", "pipeline.py");
+  const mode = req.query.mode || "story"; // ⭐ 기본은 story
   const inputPath = path.resolve(__dirname, "..", "uploads", filename);
-  // 파이썬 스크립트의 --fine_ckpt 경로가 정확한지 확인 필요
-  // 예시 경로: const ckptPath = path.resolve(__dirname, "..", "src", "models", "pgl_sum1_best_f1.pkl");
-  const ckptPath = path.resolve(__dirname, "..", "..", "dataset", "pgl_sum1_best_f1.pkl"); // 사용자 경로 확인
-
+  const ckptPath = path.resolve(__dirname, "..", "..", "dataset", "pgl_sum1_best_f1.pkl");
   const outputDir = path.resolve(__dirname, "..", "..", "clips");
 
+  // ⭐ mode에 따라 실행할 파이썬 스크립트 선택
+  const pipelinePath = mode === "highlight"
+    ? path.resolve(__dirname, "..", "..", "src", "pipeline_clip.py")
+    : path.resolve(__dirname, "..", "..", "src", "pipeline.py");
+
   if (!fs.existsSync(inputPath)) {
-    // 파일이 존재하지 않으면 404 에러 응답
     broadcastProgressUpdate({ step: 0, message: "❌ 파일 없음", done: true, percent: 0 });
     return res.status(404).json({ message: "파일 없음", path: inputPath });
   }
 
-  // 파이프라인 상태 추적 변수 초기화
   const progressState = { step: 0, message: "파이프라인 시작 중...", done: false, percent: 0 };
-  broadcastProgressUpdate(progressState); // 시작 상태 전송
+  broadcastProgressUpdate(progressState);
 
-  let currentStep = 0; // 파이썬 스크립트의 [1/3], [2/3], [3/3]에 대응
-  let currentPhase = 'initial_extract'; // 'initial_extract', 'transnet_process', 'score_predict', 'video_generate'
-
-  // 초기 특징 추출 단계 진행률 추적
-  let totalFrames_initial = 0;
-  let processedFrames_initial = 0;
-
-  // TransNetV2 처리 단계 진행률 추적
-  let totalFrames_transnet = 0;
-  let processedFrames_transnet = 0;
-  let transnetTotalDetected = false; // TransNetV2 전체 프레임 수를 한 번만 감지하기 위한 플래그
-
-  // 최종 영상 생성 단계 진행률 추적
-  let totalSegments_final = 0;
-  let madeSegments_final = 0;
-
-  const pipeline = spawn("conda", [
-    "run", "-n", "mrhisum", "--live-stream", "python", "-u", // PYTHONUNBUFFERED 대신 --live-stream 사용
+  // ⭐ mode에 따라 다른 인자 구성
+  const pipelineArgs = mode === "highlight" ? [
     pipelinePath,
     "--video_path", inputPath,
     "--fine_ckpt", ckptPath,
-    "--output_dir", outputDir,
-    "--device", "cpu" // 실제 배포 환경에서는 'cuda' 사용 고려
-  ], { env: { ...process.env } }); // PYTHONUNBUFFERED 환경변수는 --live-stream으로 대체
+    "--clips_dir", outputDir,          // highlight에서는 clips_dir 사용
+    "--device", "cpu"
+  ] : [
+    pipelinePath,
+    "--video_path", inputPath,
+    "--fine_ckpt", ckptPath,
+    "--output_dir", outputDir,          // story에서는 output_dir 사용
+    "--device", "cpu"
+  ];
+
+  const pipeline = spawn("conda", [
+    "run", "-n", "mrhisum", "--live-stream", "python", "-u",
+    ...pipelineArgs   // ⭐ 핵심: 분기된 인자 적용
+  ], { env: { ...process.env } });
+
 
   pipeline.stdout.on("data", (data) => {
     const text = data.toString().trim(); // 앞뒤 공백 제거

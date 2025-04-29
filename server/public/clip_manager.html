@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>하이라이트 기반 클립</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+        :root {
+            --primary: #4361ee;
+            --gray: #7c7c7c;
+            --light: #f5f6f7;
+            --radius: 12px;
+            --shadow: 0 4px 12px rgba(0, 0, 0, .06);
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            font-family: 'Pretendard', 'sans-serif';
+            background: #fff;
+            overflow: hidden
+        }
+
+        aside,
+        main,
+        section {
+            padding: 1rem;
+            overflow: auto
+        }
+
+        aside {
+            width: 280px;
+            border-right: 1px solid #eee;
+            background: var(--light);
+            display: flex;
+            /* Flexbox to stack list and controls */
+            flex-direction: column;
+        }
+
+        #clipList {
+            flex-grow: 1;
+            /* Allow list to take available space */
+            overflow-y: auto;
+            /* Make list scrollable */
+            padding-bottom: 1rem;
+            /* Add some padding before controls */
+        }
+
+
+        .clip-card {
+            display: flex;
+            gap: .8rem;
+            padding: .6rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: .2s;
+            background: #fff;
+            box-shadow: var(--shadow);
+            align-items: center
+        }
+
+        .clip-card+.clip-card {
+            margin-top: .6rem
+        }
+
+        .clip-card.active {
+            outline: 3px solid var(--primary)
+        }
+
+        .clip-card input[type="checkbox"] {
+            margin: 0;
+            /* Remove default margin */
+            flex-shrink: 0;
+            /* Prevent checkbox from shrinking */
+            cursor: pointer;
+            width: 20px;
+            /* Set size */
+            height: 20px;
+        }
+
+        .thumb {
+            width: 80px;
+            height: 45px;
+            object-fit: cover;
+            border-radius: 6px
+        }
+
+        .meta {
+            flex-grow: 1;
+            /* Allow meta to take space */
+        }
+
+        .meta small {
+            color: var(--gray)
+        }
+
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center
+        }
+
+        video#player {
+            width: 360px;
+            height: 640px;
+            background: #000;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow)
+        }
+
+        .btn-group {
+            margin-top: 1rem;
+            display: flex;
+            gap: .8rem
+        }
+
+        .btn {
+            flex: 1;
+            padding: .6rem 1rem;
+            border: none;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600
+        }
+
+        .primary {
+            background: var(--primary);
+            color: #fff
+        }
+
+        .secondary {
+            background: #e1e5ea
+        }
+
+        section {
+            width: 320px;
+            border-left: 1px solid #eee;
+            background: #fafafa;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem
+        }
+
+        .info-box {
+            background: #fff;
+            padding: 1rem;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow)
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: .6rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: inherit;
+            resize: vertical
+        }
+
+        #combineControls {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            /* Space between button and status */
+        }
+
+        #combineControls button {
+            width: 100%;
+        }
+
+        #combineStatus {
+            font-size: 0.9em;
+            color: var(--gray);
+            text-align: center;
+        }
+
+        /* Optionally improve layout on small screens if needed */
+        @media(max-width:900px) {
+            aside {
+                display: none
+            }
+
+            section {
+                display: none
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <aside id="clipListContainer">
+        <div id="clipList"></div>
+        <div id="combineControls">
+            <button id="combineBtn" class="btn primary" disabled>선택된 클립 합치기</button>
+            <div id="combineStatus"></div>
+        </div>
+    </aside>
+    <main>
+        <video id="player" controls></video>
+        <div class="btn-group">
+            <button id="downloadBtn" class="btn secondary"><i class="fas fa-download"></i> 다운로드</button>
+        </div>
+    </main>
+    <section>
+        <div class="info-box">
+            <h3 style="margin-top:0">클립 정보</h3>
+            <p id="scoreP" style="margin:.2rem 0"></p>
+            <label>제목</label>
+            <input id="titleInput" type="text"
+                style="width:100%;padding:.5rem;border:1px solid #ddd;border-radius:6px" />
+            <label style="margin-top:.6rem">설명 / 자막</label>
+            <textarea id="captionArea"></textarea>
+            <button id="saveMeta" class="btn primary" style="margin-top:.8rem">메타 저장 (Mock)</button>
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            /** util **/
+            function qs(key) { return new URLSearchParams(location.search).get(key) }
+            function secToStr(s) { const m = Math.floor(s / 60); const sec = Math.floor(s % 60).toString().padStart(2, '0'); return m + ':' + sec }
+
+            const file = qs('file');
+            if (!file) { alert('file 파라미터가 없습니다'); return; }
+            const listEl = document.getElementById('clipList');
+            const player = document.getElementById('player');
+            const scoreP = document.getElementById('scoreP');
+            const titleInput = document.getElementById('titleInput');
+            const captionArea = document.getElementById('captionArea');
+            const downloadBtn = document.getElementById('downloadBtn');
+            const combineBtn = document.getElementById('combineBtn'); // New: Combine button
+            const combineStatusDiv = document.getElementById('combineStatus'); // New: Status area
+
+            let clips = [];
+            let activeIndex = 0;
+            // New: Set to store indices of selected clips for combining
+            const selectedClipIndices = new Set();
+
+            fetch(`/clips/${file}/clips_meta.json`)
+                .then(r => r.json())
+                .then(meta => { clips = meta.clips; renderList(); loadClip(0); })
+                .catch(e => { console.error(e); alert('메타 정보를 불러오지 못했습니다'); });
+
+            function renderList() {
+                listEl.innerHTML = '';
+                clips.forEach((c, i) => {
+                    const card = document.createElement('div');
+                    card.className = 'clip-card';
+                    card.dataset.index = i; // Store index on the card
+
+                    // New: Checkbox for selection
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.dataset.index = i; // Store index on the checkbox
+                    checkbox.checked = selectedClipIndices.has(i); // Maintain state on re-render
+                    checkbox.addEventListener('change', handleCheckboxChange); // Add listener
+
+                    const videoThumbnailHTML = `<video class="thumb" src="/clips/${file}/${c.file}" preload="metadata" muted playsinline></video>`;
+
+                    // Calculate and floor the score * 100
+                    const displayedScore = Math.floor(c.score * 100);
+                    const metaHTML = `<div class="meta"><strong>${displayedScore}점</strong><br/><small>${secToStr(c.end_time - c.start_time)}</small></div>`;
+
+                    // Append checkbox, video, and meta to the card
+                    card.appendChild(checkbox);
+                    // Add a div to wrap video and meta so clicking *them* doesn't toggle checkbox
+                    const contentDiv = document.createElement('div');
+                    contentDiv.style.display = 'flex';
+                    contentDiv.style.gap = '.8rem';
+                    contentDiv.style.alignItems = 'center';
+                    contentDiv.style.flexGrow = '1'; // Allow content to take space
+                    contentDiv.innerHTML = videoThumbnailHTML + metaHTML;
+                    card.appendChild(contentDiv);
+
+
+                    // Add click listener to the *card* (or contentDiv) to load the clip
+                    // Make sure clicking the checkbox *itself* doesn't also load the clip
+                    contentDiv.onclick = (event) => {
+                        // Prevent the click from doing anything if the target is the checkbox
+                        if (event.target.type !== 'checkbox') {
+                            loadClip(i);
+                        }
+                    };
+
+
+                    if (i === activeIndex) card.classList.add('active');
+                    listEl.appendChild(card);
+                });
+                updateCombineButtonState(); // Update button state after rendering
+            }
+
+            // New: Handle checkbox state changes
+            function handleCheckboxChange(event) {
+                const index = parseInt(event.target.dataset.index, 10);
+                if (event.target.checked) {
+                    selectedClipIndices.add(index);
+                } else {
+                    selectedClipIndices.delete(index);
+                }
+                updateCombineButtonState();
+            }
+
+            // New: Update combine button enabled/disabled state
+            function updateCombineButtonState() {
+                combineBtn.disabled = selectedClipIndices.size < 2; // Need at least 2 clips to combine
+                combineBtn.textContent = selectedClipIndices.size > 0 ? `선택된 클립 합치기 (${selectedClipIndices.size})` : '선택된 클립 합치기';
+            }
+
+            // New: Handle combine button click
+            combineBtn.addEventListener('click', async () => {
+                if (selectedClipIndices.size < 2) return;
+
+                combineBtn.disabled = true;
+                combineStatusDiv.textContent = '클립 합치는 중... 잠시만 기다려주세요.';
+                combineStatusDiv.style.color = 'var(--gray)'; // Indicate ongoing process
+
+                // Get selected clip file names in order of their indices
+                const indicesToCombine = Array.from(selectedClipIndices).sort((a, b) => a - b);
+                const filesToCombine = indicesToCombine.map(index => clips[index].file);
+
+                console.log('Combining files:', filesToCombine);
+
+                // --- Mock API Call Start ---
+                // In a real application, you would send filesToCombine to your server
+                // Example using fetch POST request:
+                try {
+                    const response = await fetch('/api/combine-clips', { // Replace with your actual server endpoint
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            originalFileName: file, // May need original file context
+                            clipFiles: filesToCombine // List of clip files to combine
+                            // Or send indices: indicesToCombine
+                        }),
+                    });
+
+                    if (!response.ok) {
+                        throw new Error(`서버 응답 오류: ${response.status}`);
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success && result.combinedFileUrl) {
+                        combineStatusDiv.innerHTML = `클립 합치기 완료! <a href="${result.combinedFileUrl}" download="combined_${file}.mp4">다운로드</a>`;
+                        combineStatusDiv.style.color = 'green';
+                        // Optionally clear selection after combining
+                        selectedClipIndices.clear();
+                        renderList(); // Re-render list to clear checkboxes
+                    } else {
+                        // Handle server-side errors returned in the body
+                        combineStatusDiv.textContent = `합치기 실패: ${result.error || '알 수 없는 오류'}`;
+                        combineStatusDiv.style.color = 'red';
+                    }
+
+                } catch (error) {
+                    console.error('Error combining clips:', error);
+                    combineStatusDiv.textContent = `합치기 요청 실패: ${error.message}`;
+                    combineStatusDiv.style.color = 'red';
+                } finally {
+                    combineBtn.disabled = false; // Re-enable button
+                }
+                // --- Mock API Call End ---
+
+                // --- Example of client-side "mock" success after a delay ---
+                /*
+                await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate server work
+                const mockCombinedUrl = `/path/to/your/combined/video.mp4`; // Replace with a real URL if testing a mock server
+                combineStatusDiv.innerHTML = `클립 합치기 완료! <a href="${mockCombinedUrl}" download="combined_${file}.mp4">다운로드</a>`;
+                combineStatusDiv.style.color = 'green';
+                combineBtn.disabled = false;
+                // Optional: Clear selection after "successful" mock combine
+                selectedClipIndices.clear();
+                renderList();
+                */
+            });
+
+
+            function loadClip(idx) {
+                activeIndex = idx;
+                const c = clips[idx];
+                player.src = `/clips/${file}/${c.file}`;
+
+                // Calculate and floor the score * 100 for the detail view
+                const displayedScore = Math.floor(c.score * 100);
+                scoreP.textContent = `점수 : ${displayedScore}점  |  길이 : ${secToStr(c.end_time - c.start_time)}`;
+
+                titleInput.value = c.title || '';
+                captionArea.value = c.caption || '';
+                downloadBtn.onclick = () => {
+                    const a = document.createElement('a'); a.href = player.src; a.download = c.file; document.body.appendChild(a); a.click(); a.remove();
+                };
+                // Update active class on cards
+                Array.from(document.querySelectorAll('.clip-card')).forEach((el, i) => {
+                    el.classList.toggle('active', i === idx);
+                });
+            }
+        })();
+    </script>
+</body>
+
+</html>

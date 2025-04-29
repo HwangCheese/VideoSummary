@@ -1,35 +1,43 @@
+/*
+summaryOptions.js – 요약 모드 선택 UI
+------------------------------------
+• highlight / story 두 옵션을 토글하며, 현재 선택값을 다른 모듈이 가져갈 수 있도록
+  `currentSummaryType` 과 `getSummaryType()` 을 export.
+*/
+
+export let currentSummaryType = "highlight"; // 기본값
+
+export function getSummaryType() {
+    return currentSummaryType;
+}
+
 export function initSummaryOptions() {
-    const highlightBtn = document.getElementById('highlightBtn');
-    const storyBtn = document.getElementById('storyBtn');
-    const durationInput = document.getElementById('durationInput');
-    const startBtn = document.getElementById('startBtn');
+    const highlightBtn = document.getElementById("highlightBtn");
+    const storyBtn = document.getElementById("storyBtn");
+    const durationInput = document.getElementById("durationInput");
+    const startBtn = document.getElementById("startBtn");
 
-    let summaryType = 'highlight'; // 기본값 설정
-
-    highlightBtn.addEventListener('click', () => {
-        summaryType = 'highlight';
-        highlightBtn.classList.add('active');
-        storyBtn.classList.remove('active');
-        // 기존 하이라이트 방식은 uploadHandler.js에 연결됨
+    // --- 버튼 토글 ---
+    highlightBtn.addEventListener("click", () => {
+        currentSummaryType = "highlight";
+        highlightBtn.classList.add("active");
+        storyBtn.classList.remove("active");
     });
 
-    storyBtn.addEventListener('click', () => {
-        summaryType = 'story';
-        highlightBtn.classList.remove('active');
-        storyBtn.classList.add('active');
-        // 스토리 기반 방식 구현 예정
+    storyBtn.addEventListener("click", () => {
+        currentSummaryType = "story";
+        storyBtn.classList.add("active");
+        highlightBtn.classList.remove("active");
     });
 
-    durationInput.addEventListener('input', () => {
-        startBtn.disabled = durationInput.value.trim() === '';
+    // --- 길이 입력 유효성 ---
+    durationInput.addEventListener("input", () => {
+        startBtn.disabled = durationInput.value.trim() === "";
     });
 
-    startBtn.addEventListener('click', () => {
-        if (summaryType === 'highlight') {
-            console.log("하이라이트 기반 요약 시작");
-        } else {
-            console.log("스토리 기반 요약 (준비 중)");
-        }
-        console.log(`영상 길이 설정: ${durationInput.value}`);
+    // --- 디버깅용 콘솔 ---
+    startBtn.addEventListener("click", () => {
+        console.log(`선택된 요약 타입: ${currentSummaryType}`);
+        console.log(`요약 길이: ${durationInput.value || "default"}`);
     });
 }
