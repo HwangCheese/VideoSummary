@@ -1,8 +1,5 @@
-/*
-server/public/css/components.css
-버튼, 아이콘, 유틸 컴포넌트
-*/
-
+/* ---------------------- */
+/* 기본 버튼 스타일 */
 button {
     background-color: var(--primary-color);
     color: white;
@@ -34,6 +31,8 @@ button:not(:disabled):hover {
     transform: translateY(-2px);
 }
 
+/* ---------------------- */
+/* 버튼 Shine 효과 */
 .btn-shine {
     position: absolute;
     top: 0;
@@ -54,12 +53,92 @@ button:not(:disabled):hover .btn-shine {
     left: 100%;
 }
 
+/* ---------------------- */
+/* 버튼 그룹 */
 .button-group {
     display: flex;
     gap: 1rem;
     margin-top: 2rem;
 }
 
+/* ✅ 오직 편집모드일 때만 버튼 정렬 */
+#resultCard.editing-mode .button-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 600px;
+    margin: 2rem auto 0 auto;
+}
+
+#resultCard.editing-mode .button-group button {
+    flex: 1;
+    min-width: 200px;
+    max-width: 260px;
+    height: 56px; /* ✅ 높이 고정 */
+    padding: 0 1.2rem;
+    font-size: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    line-height: 1; /* ✅ 텍스트 수직 정렬 */
+}
+
+/* ---------------------- */
+/* 기본 버튼 (새 영상, 공유, 다운로드) - 기본 보이게 */
+.default-action {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+    visibility: visible;
+}
+
+/* 편집모드 진입하면 기본 버튼 사라짐 */
+#resultCard.editing-mode .default-action {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* ---------------------- */
+/* 편집 버튼 (customizeBtn) 항상 보임 */
+#customizeBtn {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+}
+
+/* (편집모드일 때도 커스터마이즈 버튼 안 숨김! 단 텍스트만 JS로 변경) */
+
+/* ---------------------- */
+/* 저장 버튼 (saveCustomBtn) 기본 숨김 */
+#saveCustomBtn {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* 편집모드일 때 저장 버튼 자연스럽게 등장 */
+#resultCard.editing-mode #saveCustomBtn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* ---------------------- */
+/* 버튼 타입별 스타일 */
 .primary-btn {
     background: var(--gradient);
 }
@@ -81,7 +160,8 @@ button:not(:disabled):hover .btn-shine {
     background: linear-gradient(135deg, var(--accent-dark), #9c1485);
 }
 
-/* --- 영상 요약 옵션 버튼 스타일 추가 --- */
+/* ---------------------- */
+/* 옵션 버튼 스타일 */
 .option-buttons {
     display: flex;
     gap: 1rem;
@@ -104,14 +184,15 @@ button:not(:disabled):hover .btn-shine {
     gap: 0.5rem;
 }
 
-/* 활성화 및 호버 효과 */
+/* 옵션 버튼 활성화 */
 .summary-option-btn.active,
 .summary-option-btn:hover {
     background-color: var(--primary-color);
     color: white;
 }
 
-/* --- 요약 영상 길이 입력창 --- */
+/* ---------------------- */
+/* 영상 요약 길이 입력 */
 .summary-duration {
     display: flex;
     flex-direction: column;
