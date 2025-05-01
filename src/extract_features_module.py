@@ -108,5 +108,3 @@ def extract_features_pipe(video_path, output_h5, output_json, device="cuda"):
     scene_changes, total_frames = detect_scenes_transnetv2(video_path)
     fps = VideoReader(video_path, cpu(0)).get_avg_fps()
     save_segments_to_json(scene_changes, output_json, total_frames, fps)
-
-    print("✅ 전체 파이프라인 완료")

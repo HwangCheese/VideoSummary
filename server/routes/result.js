@@ -7,7 +7,7 @@ const router = express.Router();
 
 // 완성된 숏폼 영상 목록 조회
 router.get("/clips", (req, res) => {
-  const clipsDir = path.join(__dirname, "../../clips");  // ✅ 정확한 위치
+  const clipsDir = path.join(__dirname, "../../clips");
 
   if (!fs.existsSync(clipsDir)) return res.json({ clips: [] });
 
@@ -18,7 +18,7 @@ router.get("/clips", (req, res) => {
   res.json({ clips: files });
 });
 
-// 특정 영상의 세그먼트 정보 조회
+// 특정 영상의 세그먼트 정보 조회 (highlight_*.json)
 router.get("/segments/:filename", (req, res) => {
   const filename = req.params.filename;
   const baseName = filename.split('.')[0].replace('highlight_', '');
@@ -53,7 +53,6 @@ router.get("/original/:filename", (req, res) => {
     });
   }
 
-  // 파일 정보 반환
   const stats = fs.statSync(uploadPath);
   return res.json({
     filename,

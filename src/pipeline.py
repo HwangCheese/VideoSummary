@@ -9,7 +9,7 @@ from whisper_segmentor import process as whisper_process
 from refine_selected_segments import refine_selected_segments
 
 def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
-                 alpha=0.7, std_weight=0.3, top_ratio=0.2, model_size="base"):
+                 alpha=0.7, std_weight=0.3, top_ratio=0.2, model_size="base", importance_weight=0.8, budget_time=None):
     os.makedirs(output_dir, exist_ok=True)
 
     base = os.path.splitext(os.path.basename(video_path))[0]
@@ -48,8 +48,11 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         device=device,
         alpha=alpha,
         std_weight=std_weight,
-        top_ratio=top_ratio
+        top_ratio=top_ratio,
+        importance_weight=importance_weight,
+        budget_time=None # 예산 지정.
     )
+
     # 저장해두기
     with open(selected_json, 'w', encoding='utf-8') as f:
         import json
@@ -78,6 +81,10 @@ if __name__ == "__main__":
     parser.add_argument("--top_ratio", type=float, default=0.2)
     parser.add_argument("--model_size", default="base", help="Whisper 모델 크기")
 
+    # Knapsack 선택 관련 인자 
+    parser.add_argument("--importance_weight", default=1.0, type=float, help="중요도 가중치 (0.0 ~ 1.0) for knapsack selection 0에 가까울 수록 전반적인 요약")  
+    parser.add_argument("--budget_time", type=float, default=None, help="요약에 사용할 총 예산 시간(초). 지정하지 않으면 전체 길이의 20% 사용")   
+
     args = parser.parse_args()
 
     run_pipeline(
@@ -89,5 +96,7 @@ if __name__ == "__main__":
         alpha=args.alpha,
         std_weight=args.std_weight,
         top_ratio=args.top_ratio,
-        model_size=args.model_size
+        model_size=args.model_size,
+        importance_weight=args.importance_weight,
+        budget_time=args.budget_time
     )
