@@ -2,14 +2,14 @@
 import { uploadedFileName } from "./uploadHandler.js";
 import { showToast, resetProgressSteps, updateProgressStep, resetUI } from "./uiUtils.js";
 import { initHighlightEditor } from "./highlightEditor.js";
-import { getSummaryType } from "./summaryOptions.js"; // ⭐ mode 가져오기 추가
+import { getSummaryType } from "./summaryOptions.js";
 
 // SSE 관리
 let sseSource;
 let highlightEditor = null;
 
 export function initPipelineRunner() {
-  // ---------------- DOM 요소 ----------------
+  /* ───────────────────────── DOM 요소 ───────────────────────── */
   const startBtn = document.getElementById("startBtn");
   const statusDiv = document.getElementById("status");
   const progressBarInner = document.getElementById("progressBarInner");
@@ -22,13 +22,16 @@ export function initPipelineRunner() {
   const highlightBarContainer = document.getElementById("highlightBarContainer");
   const elapsedTimeDisplay = document.getElementById("elapsedTime");
 
-  // ------------- SSE 연결 ---------------
+  /* ───────────────────────── SSE 연결 ───────────────────────── */
   function startSSE() {
     if (sseSource) sseSource.close();
     sseSource = new EventSource("/upload/progress-sse");
+
     sseSource.addEventListener("message", (e) => {
-      try { updateProgressUI(JSON.parse(e.data)); } catch (err) { console.error(err); }
+      try { updateProgressUI(JSON.parse(e.data)); }
+      catch (err) { console.error(err); }
     });
+
     sseSource.addEventListener("error", () => {
       if (sseSource) sseSource.close();
       sseSource = null;
@@ -38,11 +41,53 @@ export function initPipelineRunner() {
     });
   }
 
+  /* ───────────────────────── 진행률 UI 업데이트 ───────────────────────── */
   function updateProgressUI(state) {
     progressBarInner.style.width = `${state.percent}%`;
-    const icon = state.done ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-sync fa-spin"></i>';
-    statusDiv.innerHTML = `${icon} ${state.percent}% - ${state.message || "처리 중..."}`;
+    const icon = state.done
+      ? '<i class="fas fa-check-circle"></i>'
+      : '<i class="fas fa-sync fa-spin"></i>';
+    statusDiv.innerHTML =
+      `${icon} ${state.percent}% - ${state.message || "처리 중..."}`;
+
+    /* 1) 백엔드가 step 숫자를 주면 그대로 사용 */
     if (state.step) updateProgressStep(state.step);
+
+    /* 2) ★ 메시지 기반 매핑 (6-단계) */
+    if (state.message) {
+      const msg = state.message;
+
+      // step 2  : 장면 분할(TransNetV2)
+      if (msg.includes("TransNetV2") || msg.includes("장면 분할")) {
+        updateProgressStep(2);
+      }
+      // step 3  : 오디오 추출
+      else if (msg.includes("오디오 추출")) {
+        updateProgressStep(3);
+      }
+      // step 4  : 문장 추출 (Whisper 자막)
+      else if (msg.includes("Whisper 자막") || msg.includes("문장 세그먼트")) {
+        updateProgressStep(4);
+      }
+      // step 5  : AI 분석 (PGL-SUM, 경계 보정 등)
+      else if (
+        msg.includes("상위 세그먼트") ||
+        msg.includes("PGL-SUM") ||
+        msg.includes("중요도") ||
+        msg.includes("경계 보정")
+      ) {
+        updateProgressStep(5);
+      }
+      // step 6  : 숏폼(하이라이트) 영상 생성
+      else if (
+        msg.includes("하이라이트 영상 생성") ||
+        msg.includes("숏폼 영상")
+      ) {
+        updateProgressStep(6);
+      }
+    }
+
+    /* 완료 처리 */
     if (state.done && sseSource) {
       sseSource.close();
       sseSource = null;
@@ -50,60 +95,77 @@ export function initPipelineRunner() {
     }
   }
 
-  // ------------- 숏폼 생성 버튼 클릭 ---------------
+  /* ───────────────────────── '생성' 버튼 클릭 ───────────────────────── */
   startBtn.addEventListener("click", async () => {
     if (!uploadedFileName) {
       showToast("먼저 파일을 업로드해주세요.", "warning");
       return;
     }
 
-    const mode = getSummaryType(); // ⭐ highlight | story 모드 가져오기
+    const mode = getSummaryType();            // story | highlight
 
-    // UI 초기화
+    /* 초기화 */
     startBtn.disabled = true;
     startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
     if (highlightEditor) { highlightEditor.destroy(); highlightEditor = null; }
     progressCard.style.display = "block";
     resultCard.style.display = "none";
-    statusDiv.innerHTML = '<i class="fas fa-hourglass-start"></i> 0% - 생성 시작 중...';
+    statusDiv.innerHTML =
+      '<i class="fas fa-hourglass-start"></i> 0% - 생성 시작 중...';
     progressBarInner.style.width = "0%";
     startElapsedTime();
-    resetProgressSteps();
-    updateProgressStep(1);
-    setTimeout(() => document.getElementById("progress-section")?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
+    resetProgressSteps();          // 단계 전체 초기화
+    updateProgressStep(1);         // step 1 활성
+    setTimeout(() => document
+      .getElementById("progress-section")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" }), 100);
     startSSE();
 
     try {
-      // ⭐ 서버 요청 시 mode 추가
-      const res = await fetch(`/upload/process?filename=${uploadedFileName}&mode=${mode}`);
+      /* ───── 서버 호출 ───── */
+      const res = await fetch(
+        `/upload/process?filename=${uploadedFileName}&mode=${mode}`
+      );
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || res.statusText);
 
-      const baseName = uploadedFileName.split('.').slice(0, -1).join('.');
+      /* ───── 영상 경로 세팅 ───── */
       originalVideo.src = `/uploads/${uploadedFileName}?t=${Date.now()}`;
 
-      // ⭐ 결과 경로 분기
       if (mode === "story") {
-        finalVideo.src = `/clips/highlight_${uploadedFileName}?t=${Date.now()}`;
+        finalVideo.src =
+          `/clips/highlight_${uploadedFileName}?t=${Date.now()}`;
       }
       if (mode === "highlight") {
-        const baseName = uploadedFileName.split('.').slice(0, -1).join('.');
-        window.location.href = `/clip_manager.html?file=${baseName}`;
+        const base = uploadedFileName.split(".").slice(0, -1).join(".");
+        window.location.href = `/clip_manager.html?file=${base}`;
         return;
       }
 
+      /* story 모드: 하이라이트 로드 후 UI 전환 */
+      finalVideo.addEventListener(
+        "loadedmetadata",
+        async () => {
+          if (mode === "story") {
+            highlightEditor = initHighlightEditor(
+              highlightBarContainer,
+              finalVideo,
+              uploadedFileName,
+              resultCard
+            );
+            if (highlightEditor) await loadHighlightDataFromServer();
+          }
+          progressCard.style.display = "none";
+          resultCard.style.display = "block";
+          setTimeout(() => resultCard.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          }), 400);
+        },
+        { once: true }
+      );
 
-      finalVideo.addEventListener("loadedmetadata", async () => {
-        if (mode === "story") {
-          highlightEditor = initHighlightEditor(highlightBarContainer, finalVideo, uploadedFileName, resultCard);
-          if (highlightEditor) await loadHighlightDataFromServer();
-        }
-        progressCard.style.display = "none";
-        resultCard.style.display = "block";
-        setTimeout(() => resultCard.scrollIntoView({ behavior: "smooth", block: "center" }), 400);
-      }, { once: true });
-
-      // ⭐ 다운로드 버튼 설정
+      /* 다운로드 버튼 */
       downloadBtn.onclick = () => {
         const link = document.createElement("a");
         link.href = finalVideo.src;
@@ -115,7 +177,8 @@ export function initPipelineRunner() {
 
     } catch (err) {
       console.error(err);
-      statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> 오류: ${err.message}`;
+      statusDiv.innerHTML =
+        `<i class="fas fa-times-circle"></i> 오류: ${err.message}`;
       showToast(`오류: ${err.message}`, "error");
       stopElapsedTime();
     } finally {
@@ -124,7 +187,7 @@ export function initPipelineRunner() {
     }
   });
 
-  // ------------- newBtn 클릭 ---------------
+  /* ───────────────────────── newBtn → 초기 상태 ───────────────────────── */
   newBtn.addEventListener("click", () => {
     resultCard.style.display = "none";
     progressCard.style.display = "none";
@@ -136,21 +199,25 @@ export function initPipelineRunner() {
     if (highlightEditor) { highlightEditor.destroy(); highlightEditor = null; }
     resetUI();
     if (sseSource) { sseSource.close(); sseSource = null; }
-    const uploadSection = document.getElementById("upload-section");
-    if (uploadSection) uploadSection.scrollIntoView({ behavior: "smooth", block: "start" });
+    document
+      .getElementById("upload-section")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // ------------- highlight JSON 로드 함수 (story 모드 전용) ---------------
+  /* ───────────────────────── story 모드 하이라이트 JSON 로드 ───────────────────────── */
   async function loadHighlightDataFromServer() {
     if (!highlightEditor) return;
-    const baseName = uploadedFileName.split('.').slice(0, -1).join('.');
-    const jsonName = `highlight_${baseName}.json`;
+    const base = uploadedFileName.split(".").slice(0, -1).join(".");
+    const jsonName = `highlight_${base}.json`;
+
     try {
       const res = await fetch(`/clips/${jsonName}?t=${Date.now()}`);
       if (!res.ok) throw new Error(`Fetch 실패: ${res.statusText}`);
       const data = await res.json();
       const segments = data.segments || [];
-      const originalDuration = data.original_duration || finalVideo.duration || 60;
+      const originalDuration = data.original_duration
+        || finalVideo.duration
+        || 60;
       highlightEditor.loadHighlightData(segments, originalDuration);
       showToast("숏폼 구간 정보 로드 완료", "info");
     } catch (err) {
@@ -159,7 +226,7 @@ export function initPipelineRunner() {
     }
   }
 
-  // ------------- 타이머 ---------------
+  /* ───────────────────────── 타이머 ───────────────────────── */
   let elapsedInterval = null;
   let startTime = null;
 
@@ -167,6 +234,7 @@ export function initPipelineRunner() {
     if (elapsedInterval) return;
     startTime = Date.now();
     if (!elapsedTimeDisplay) return;
+
     elapsedInterval = setInterval(() => {
       const elapsed = Date.now() - startTime;
       const mins = String(Math.floor(elapsed / 60000)).padStart(2, "0");
