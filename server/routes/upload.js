@@ -97,28 +97,28 @@ router.get("/process", (req, res) => {
       currentStep = 2;
       progressState.step = 2;
       progressState.message = "🎬 장면 분할 중...";
-      progressState.percent = 20;
+      progressState.percent = 25;
       broadcastProgressUpdate(progressState);
     } else if (text.includes("[2/6]")) {
       currentPhase = 'audio_extract';
       currentStep = 3;
       progressState.step = 3;
       progressState.message = "🔊 오디오 추출 중...";
-      progressState.percent = 30;
+      progressState.percent = 60;
       broadcastProgressUpdate(progressState);
     } else if (text.includes("[3/6]")) {
       currentPhase = 'sentence_segment';
       currentStep = 4;
       progressState.step = 4;
       progressState.message = "🧠 문장 추출 중...";
-      progressState.percent = 50;
+      progressState.percent = 65;
       broadcastProgressUpdate(progressState);
     } else if (text.includes("[4/6]")) {
       currentPhase = 'ai_score';
       currentStep = 5;
       progressState.step = 5;
       progressState.message = "🎯 AI 분석 중...";
-      progressState.percent = 70;
+      progressState.percent = 80;
       broadcastProgressUpdate(progressState);
     } else if (text.includes("[6/6]")) {
       currentPhase = 'video_generate';
@@ -127,6 +127,16 @@ router.get("/process", (req, res) => {
       progressState.message = "🎞️ 숏폼 영상 생성 중...";
       progressState.percent = 85;
       broadcastProgressUpdate(progressState);
+
+      // ⏳ 영상 생성 중일 때 천천히 percent 증가 (max 99까지)
+      const slowInterval = setInterval(() => {
+        if (progressState.percent < 99) {
+          progressState.percent += 1;
+          broadcastProgressUpdate(progressState);
+        } else {
+          clearInterval(slowInterval);
+        }
+      }, 1000); // 1초마다 1% 증가
     } else if (text.includes("✅ 파이프라인 완료!")) {
       progressState.percent = 100;
       progressState.message = "✅ 숏폼 영상 생성 완료!";
@@ -140,7 +150,7 @@ router.get("/process", (req, res) => {
         processedFrames_initial = parseInt(frameMatch[1], 10);
         totalFrames_initial = parseInt(frameMatch[2], 10);
         if (totalFrames_initial > 0) {
-          const percent = Math.floor(20 * (processedFrames_initial / totalFrames_initial));
+          const percent = Math.floor(25 * (processedFrames_initial / totalFrames_initial));
           progressState.percent = Math.max(progressState.percent, percent);
           progressState.message = `🎬 특징 추출 중... (${processedFrames_initial}/${totalFrames_initial} 프레임)`;
           broadcastProgressUpdate(progressState);
@@ -152,7 +162,7 @@ router.get("/process", (req, res) => {
         processedFrames_transnet = parseInt(frameMatch[1], 10);
         totalFrames_transnet = parseInt(frameMatch[2], 10);
         if (totalFrames_transnet > 0) {
-          const percent = 20 + Math.floor(30 * (processedFrames_transnet / totalFrames_transnet));
+          const percent = 25 + Math.floor(35 * (processedFrames_transnet / totalFrames_transnet));
           progressState.percent = Math.max(progressState.percent, percent);
           progressState.message = `🎬 장면 분할 중... (${processedFrames_transnet}/${totalFrames_transnet} 프레임)`;
           broadcastProgressUpdate(progressState);
