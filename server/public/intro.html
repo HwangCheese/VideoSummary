@@ -162,6 +162,79 @@
             animation: shine 3s infinite;
         }
 
+        /* 스크롤 다운 화살표 */
+        .scroll-down {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 10;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .scroll-down:hover {
+            opacity: 0.8;
+        }
+
+        .scroll-down span {
+            display: block;
+            width: 30px;
+            height: 30px;
+            border-bottom: 3px solid var(--text-light);
+            border-right: 3px solid var(--text-light);
+            transform: rotate(45deg);
+            margin: -10px 0;
+            animation: scrollDown 2s infinite;
+        }
+
+        .scroll-down span:nth-child(2) {
+            animation-delay: -0.2s;
+        }
+
+        .scroll-down span:nth-child(3) {
+            animation-delay: -0.4s;
+        }
+
+        .scroll-text {
+            margin-top: 20px;
+            font-size: 1rem;
+            letter-spacing: 1px;
+            color: var(--text-light);
+            animation: fadeInOut 2s infinite;
+        }
+
+        @keyframes scrollDown {
+            0% {
+                opacity: 0;
+                transform: rotate(45deg) translate(-20px, -20px);
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0;
+                transform: rotate(45deg) translate(20px, 20px);
+            }
+        }
+
+        @keyframes fadeInOut {
+
+            0%,
+            100% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+        }
+
         /* Features */
         .features {
             position: relative;
@@ -454,10 +527,17 @@
         <a href="index.html" class="cta-button">
             <i class="fas fa-rocket"></i> 바로 생성하기
         </a>
+
+        <!-- 스크롤 다운 화살표 추가 -->
+        <div class="scroll-down" onclick="scrollToFeatures()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
     </section>
 
     <!-- Features -->
-    <section class="features" data-aos="fade-up" data-aos-duration="1000">
+    <section class="features" data-aos="fade-up" data-aos-duration="1000" id="features-section">
         <h2>AI가 핵심 장면 추출</h2>
         <div class="grid">
             <div class="card">
@@ -561,7 +641,23 @@
                 },
                 retina_detect: true
             });
+
+            // 스크롤 화살표 표시 제어
+            window.addEventListener('scroll', function () {
+                const scrollDown = document.querySelector('.scroll-down');
+                if (window.scrollY > 100) {
+                    scrollDown.style.opacity = '0';
+                } else {
+                    scrollDown.style.opacity = '1';
+                }
+            });
         });
+
+        // 스크롤 다운 화살표 클릭 시 Features 섹션으로 스무스 스크롤
+        function scrollToFeatures() {
+            const featuresSection = document.getElementById('features-section');
+            featuresSection.scrollIntoView({ behavior: 'smooth' });
+        }
     </script>
 </body>
 
