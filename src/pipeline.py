@@ -1,8 +1,4 @@
-
-import argparse
-import os
-import subprocess
-import json
+import argparse, os, subprocess, json
 from extract_features_module import extract_features_pipe
 from pgl_module import run_pgl_module
 from video_module import create_highlight_video
@@ -10,37 +6,54 @@ from whisper_segmentor import process as whisper_process
 from refine_selected_segments import refine_selected_segments
 from visualize_module import run_visualize_pipeline
 
+
 def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
-                 alpha=0.7, std_weight=0.3, top_ratio=0.2, model_size="base", importance_weight=0.8, budget_time=None):
+                 alpha=0.7, std_weight=0.3, top_ratio=0.2,
+                 model_size="base", importance_weight=0.8, budget_time=None):
+
     os.makedirs(output_dir, exist_ok=True)
-
     base = os.path.splitext(os.path.basename(video_path))[0]
-    h5_path = os.path.join(output_dir, f"{base}.h5")
-    scene_json = os.path.join(output_dir, f"{base}_scenes.json")
-    segment_json = os.path.join(output_dir, f"{base}_segment_scores.json")
-    sorted_json = os.path.join(output_dir, f"{base}_sorted_combined.json")
-    selected_json = os.path.join(output_dir, f"{base}_selected_segments.json")
-    whisper_json = os.path.join(output_dir, f"{base}_whisper_segments.json")
-    refined_json = os.path.join(output_dir, f"{base}_refined_segments.json")
-    audio_wav = os.path.join(output_dir, f"{base}.wav")
-    highlight_video = os.path.join(output_dir, f"highlight_{base}.mp4")
-    visualize_png = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
 
-    print("\n🎬 [1/6] 특징 추출", flush=True)
-    extract_features_pipe(video_path, h5_path, scene_json, device=device)
+    # ────────── 파일 경로 정의 ──────────
+    h5_path        = os.path.join(output_dir, f"{base}.h5")
+    scene_json     = os.path.join(output_dir, f"{base}_scenes.json")
+    segment_json   = os.path.join(output_dir, f"{base}_segment_scores.json")
+    sorted_json    = os.path.join(output_dir, f"{base}_sorted_combined.json")
+    selected_json  = os.path.join(output_dir, f"{base}_selected_segments.json")
+    whisper_json   = os.path.join(output_dir, f"{base}_whisper_segments.json")
+    refined_json   = os.path.join(output_dir, f"{base}_refined_segments.json")
+    audio_wav      = os.path.join(output_dir, f"{base}.wav")
+    highlight_video= os.path.join(output_dir, f"highlight_{base}.mp4")
+    visualize_png  = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
 
-    print("\n🔊 [2/6] Whisper용 오디오 추출", flush=True)
-    subprocess.run([
-        "ffmpeg", "-y", "-i", video_path,
-        "-vn", "-acodec", "pcm_s16le",
-        "-ar", "16000", "-ac", "1",
-        audio_wav
-    ])
+    # ────────── 1. 특징 추출 ──────────
+    if os.path.exists(h5_path) and os.path.exists(scene_json):
+        print("\n🎬 [1/6] 특징 추출 - 기존 파일 발견, 스킵", flush=True)
+    else:
+        print("\n🎬 [1/6] 특징 추출", flush=True)
+        extract_features_pipe(video_path, h5_path, scene_json, device=device)
 
-    print("\n🧠 [3/6] Whisper 자막 기반 문장 세그먼트 생성", flush=True)
-    whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
+    # ────────── 2. 오디오 추출 ──────────
+    if os.path.exists(audio_wav):
+        print("\n🔊 [2/6] Whisper용 오디오 추출 - 기존 파일 발견, 스킵", flush=True)
+    else:
+        print("\n🔊 [2/6] Whisper용 오디오 추출", flush=True)
+        subprocess.run([
+            "ffmpeg", "-y", "-i", video_path,
+            "-vn", "-acodec", "pcm_s16le",
+            "-ar", "16000", "-ac", "1",
+            audio_wav
+        ], check=True)
 
-    print("\n🎯 [4/6] 중요도 기반 상위 세그먼트 선택 (PGL-SUM)", flush=True)
+    # ────────── 3. Whisper 세그먼트 ──────────
+    if os.path.exists(whisper_json):
+        print("\n🧠 [3/6] Whisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
+    else:
+        print("\n🧠 [3/6] Whisper 자막 기반 문장 세그먼트 생성", flush=True)
+        whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
+
+    # ────────── 4. 중요도 기반 세그먼트 선택 ──────────
+    print("\n🎯 [4/6] 중요도 기반 상위 세그먼트 선택 (PGL‑SUM)", flush=True)
     selected_segments = run_pgl_module(
         ckpt_path=ckpt_path,
         feature_h5=h5_path,
@@ -53,23 +66,22 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         std_weight=std_weight,
         top_ratio=top_ratio,
         importance_weight=importance_weight,
-        budget_time=None # 예산 지정.
+        budget_time=budget_time
     )
-
-    # 저장해두기
-    with open(selected_json, 'w', encoding='utf-8') as f:
+    with open(selected_json, "w", encoding="utf-8") as f:
         json.dump(selected_segments, f, indent=2, ensure_ascii=False)
 
-
+    # ────────── 5. 경계 보정 ──────────
     print("\n✂️ [5/6] Whisper 기반으로 경계 보정", flush=True)
     refine_selected_segments(selected_json, whisper_json, refined_json)
 
-    print("진행")
+    # 시각화 PNG
     run_visualize_pipeline(segment_json, selected_json, visualize_png)
 
+    # ────────── 6. 하이라이트 영상 생성 ──────────
     print("\n🎞️ [6/6] 하이라이트 영상 생성", flush=True)
     create_highlight_video(
-        selected_segments=json.load(open(refined_json, encoding='utf-8')),
+        selected_segments=json.load(open(refined_json, encoding="utf-8")),
         video_path=video_path,
         output_video=highlight_video
     )
