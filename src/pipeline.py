@@ -2,11 +2,13 @@
 import argparse
 import os
 import subprocess
+import json
 from extract_features_module import extract_features_pipe
 from pgl_module import run_pgl_module
 from video_module import create_highlight_video
 from whisper_segmentor import process as whisper_process
 from refine_selected_segments import refine_selected_segments
+from visualize_module import run_visualize_pipeline
 
 def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
                  alpha=0.7, std_weight=0.3, top_ratio=0.2, model_size="base", importance_weight=0.8, budget_time=None):
@@ -22,6 +24,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     refined_json = os.path.join(output_dir, f"{base}_refined_segments.json")
     audio_wav = os.path.join(output_dir, f"{base}.wav")
     highlight_video = os.path.join(output_dir, f"highlight_{base}.mp4")
+    visualize_png = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
 
     print("\n🎬 [1/6] 특징 추출", flush=True)
     extract_features_pipe(video_path, h5_path, scene_json, device=device)
@@ -55,15 +58,18 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
 
     # 저장해두기
     with open(selected_json, 'w', encoding='utf-8') as f:
-        import json
-        json.dump({"segments": selected_segments}, f, indent=2, ensure_ascii=False)
+        json.dump(selected_segments, f, indent=2, ensure_ascii=False)
+
 
     print("\n✂️ [5/6] Whisper 기반으로 경계 보정", flush=True)
     refine_selected_segments(selected_json, whisper_json, refined_json)
 
+    print("진행")
+    run_visualize_pipeline(segment_json, selected_json, visualize_png)
+
     print("\n🎞️ [6/6] 하이라이트 영상 생성", flush=True)
     create_highlight_video(
-        selected_segments=json.load(open(refined_json, encoding='utf-8'))["segments"],
+        selected_segments=json.load(open(refined_json, encoding='utf-8')),
         video_path=video_path,
         output_video=highlight_video
     )
