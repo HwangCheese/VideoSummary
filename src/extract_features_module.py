@@ -23,6 +23,7 @@ def extract_features(video_path, model, device, batch_size=32):
     ctx = cpu(0)
     vr = VideoReader(video_path, ctx=ctx)
     fps = vr.get_avg_fps()
+    print(f"📌 평균 FPS: {fps}")
     frame_idxs = list(range(0, len(vr), int(round(fps))))
 
     transform = transforms.Compose([

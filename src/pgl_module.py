@@ -33,45 +33,80 @@ def load_model_checkpoint(model, ckpt_path, device):
         model.load_state_dict(checkpoint, strict=False)
     return model
 
-def load_scene_segments(scene_json, fps):
-    """세그먼트 JSON 파일을 로드하고 프레임 번호를 계산"""
-    
+
+def load_scene_segments(scene_json, fps, thr=0.5):
+    """
+    중복 없는 세그먼트 로드 (비정상 세그먼트는 invalid로 처리)
+    """
     with open(scene_json, "r") as f:
         segments = json.load(f)
+
     for seg in segments:
         seg["start_frame"] = int(seg["start_time"] * fps)
-        seg["end_frame"] = int(seg["end_time"] * fps)
+
+    for i, seg in enumerate(segments):
+        if i < len(segments) - 1:
+            next_seg = segments[i + 1]
+            boundary_frame = next_seg["start_frame"]
+
+            frac = seg["end_time"] - int(seg["end_time"])
+            
+            if frac < thr:
+                seg["end_frame"] = boundary_frame - 1
+            else:
+                seg["end_frame"] = boundary_frame
+                next_seg["start_frame"] = boundary_frame + 1
+        else:
+            seg["end_frame"] = int(seg["end_time"] * fps) - 1
+
+        # 🔥 보정 대신 비정상 세그먼트는 제거 대상(invalid) 마킹
+        seg["invalid"] = seg["end_frame"] < seg["start_frame"]
+
     return segments
+
 
 def save_segment_frame_scores_json(scores, scene_segments, output_json, fps):
     """
-    각 세그먼트 내 프레임 점수의 통계치(평균, 최대, 표준편차)를 JSON 파일로 저장합니다.
-    
-    여기서는 프레임 번호별 점수 목록은 저장하지 않고, 통계치만 기록하며,
-    최종 결과는 리스트 형태로 저장됩니다.
+    프레임 점수 JSON 저장 (invalid 세그먼트 제외)
     """
     segment_scores = []
+
     for seg in scene_segments:
-        start_frame = int(seg["start_time"] * fps)
-        end_frame = min(int(seg["end_time"] * fps), len(scores) - 1)
-        # 선택된 구간의 frame score 배열 추출
+        if seg.get("invalid", False):
+            print(f"⚠️ Invalid segment_id={seg['segment_id']} (start_frame={seg['start_frame']} end_frame={seg['end_frame']}) Skipped.")
+            continue  # invalid 세그먼트 제외
+
+        start_frame = seg["start_frame"]
+        end_frame = min(seg["end_frame"], len(scores) - 1)
+
+        if start_frame >= len(scores):
+            continue
+
         frame_scores = scores[start_frame: end_frame + 1]
+        if len(frame_scores) == 0:
+            continue
+
         avg_score = float(np.mean(frame_scores))
         max_score = float(np.max(frame_scores))
         std_score = float(np.std(frame_scores))
+
         segment_scores.append({
             "segment_id": seg["segment_id"],
             "start_time": seg["start_time"],
             "end_time": seg["end_time"],
-            "frame_scores": frame_scores.tolist(),  # 수정: 프레임 점수 목록 저장
+            "frame_scores": frame_scores.tolist(),
             "avg_score": avg_score,
             "max_score": max_score,
             "std_score": std_score
         })
-    with open(output_json, "w") as f:
+
+    with open(output_json, "w", encoding="utf-8") as f:
         json.dump(segment_scores, f, indent=2, ensure_ascii=False)
+
     print(f"📄 Segment scores JSON saved: {output_json}")
     return segment_scores
+
+# 아래 나머지 코드는 기존 코드 유지 (변경 없음)
 
 def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_json):
     """
@@ -109,6 +144,7 @@ def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_wei
 #     return frame_ranges
 
 # def run_pgl_pipeline(
+
 def run_pgl_module(
     ckpt_path,
     feature_h5,
@@ -122,13 +158,10 @@ def run_pgl_module(
     top_ratio=0.2,
     importance_weight=0.8,
     budget_time=None):
-    """
-    PGL_SUM을 사용하여 하이라이트 점수를 예측하고
-    여러 JSON 파일을 생성하는 파이프라인 함수.
-    """
+
     print(f"🚀 디바이스: {device}")
 
-    # video_path로부터 base_filename (예: "shortbox") 결정
+# video_path로부터 base_filename (예: "shortbox") 결정
     # base_filename = os.path.splitext(os.path.basename(args.video_path))[0]
     # os.makedirs(f"./{base_filename}", exist_ok=True)
 
@@ -140,21 +173,18 @@ def run_pgl_module(
     # scene_json_path = f"./{base_filename}/{base_filename}_scenes.json"
 
     # 모델 초기화 및 체크포인트 로드
+    
     model = PGL_SUM(input_size=1024, output_size=1024, num_segments=4, heads=8, fusion="add", pos_enc="absolute")
     model = load_model_checkpoint(model, ckpt_path, device)
     model.to(device).eval()
 
-    # 특징 로드 및 예측
-    # output_h5_path = f"./features/{base_filename}.h5"
-
     features = load_h5_features(feature_h5)
     scores = predict_scores(model, features, device=device)
 
-    # scene 세그먼트 로드 및 JSON 저장
-    scene_segments = load_scene_segments(scene_json, fps)
+    # 여기에 수정된 함수 호출 (thr=0.5로 명확히 주어서 사용)
+    scene_segments = load_scene_segments(scene_json, fps, thr=0.5)
     segment_scores = save_segment_frame_scores_json(scores, scene_segments, output_json, fps)
     save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_sorted_combined_json)
-    
-    # Knapsack 기반 세그먼트 선택 실행 (선택된 세그먼트 ID를 계산, 메모리 내 리스트 반환. json 저장은 하지 않음)
-    selected_segments = run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combined_json, importance_weight, top_ratio,budget_time)
+
+    selected_segments = run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combined_json, importance_weight, top_ratio, budget_time)
     return selected_segments
