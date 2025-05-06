@@ -1,4 +1,6 @@
 import argparse, os, subprocess, json
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
 from extract_features_module import extract_features_pipe
 from pgl_module import run_pgl_module
 from video_module import create_highlight_video
@@ -76,7 +78,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     refine_selected_segments(selected_json, whisper_json, refined_json)
 
     # 시각화 PNG
-    run_visualize_pipeline(segment_json, selected_json, visualize_png)
+    #run_visualize_pipeline(segment_json, selected_json, visualize_png)
 
     # ────────── 6. 하이라이트 영상 생성 ──────────
     print("\n🎞️ [6/6] 하이라이트 영상 생성", flush=True)
