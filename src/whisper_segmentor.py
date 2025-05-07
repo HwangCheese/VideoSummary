@@ -14,6 +14,7 @@ def process(audio_path, scene_json_path, output_json_path, model_size="small"):
         model='silero_vad',
         trust_repo=True
     )
+    vad_model.to(device)
     get_speech_timestamps, _, read_audio, *_ = utils
     audio_tensor = read_audio(audio_path, sampling_rate=16000).to(device)
 
