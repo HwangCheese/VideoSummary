@@ -62,4 +62,44 @@ router.get("/original/:filename", (req, res) => {
   });
 });
 
+// result.js 내 특정 영상의 점수 조회
+router.get("/score/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const baseName = filename.split('.')[0].replace('highlight_', '');
+  const scorePath = path.join(__dirname, "../../clips", `${baseName}_score.json`);
+  console.log("[📁 SCORE PATH]", scorePath);
+
+  if (!fs.existsSync(scorePath)) {
+    console.warn("[⚠️ SCORE NOT FOUND]", scorePath);
+    return res.status(404).json({ message: "점수 파일 없음" });
+  }
+
+  try {
+    const scoreData = JSON.parse(fs.readFileSync(scorePath, 'utf8'));
+    return res.json(scoreData);
+  } catch (error) {
+    console.error("[❌ SCORE PARSE ERROR]", error);
+    return res.status(500).json({ message: "점수 파싱 오류", error: error.message });
+  }
+});
+
+// 요약 리포트 정보 제공
+router.get("/report/:filename", (req, res) => {
+  const filename = req.params.filename;
+  const baseName = filename.split('.')[0].replace('highlight_', '');
+  const reportPath = path.join(__dirname, "../../clips", `${baseName}_report.json`);
+
+  if (!fs.existsSync(reportPath)) {
+    return res.status(404).json({ message: "요약 리포트 없음" });
+  }
+
+  try {
+    const reportData = JSON.parse(fs.readFileSync(reportPath, 'utf8'));
+    return res.json(reportData);
+  } catch (err) {
+    return res.status(500).json({ message: "리포트 파싱 오류", error: err.message });
+  }
+});
+
+
 module.exports = router;

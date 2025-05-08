@@ -88,6 +88,61 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         output_video=highlight_video
     )
     print(f"\n✅ 파이프라인 완료! 최종 하이라이트 영상: {highlight_video}", flush=True)
+    
+    # ────────── 7. 프레임 max 기반 순수 품질 점수 계산 ──────────
+    print("\n📊 프레임 max 기반 품질 점수 계산 중...", flush=True)
+    with open(refined_json, encoding="utf-8") as f:
+        refined_segments = json.load(f)
+
+    if refined_segments:
+        max_frame_scores = [
+            max(seg["frame_scores"])
+            for seg in refined_segments
+            if "frame_scores" in seg and seg["frame_scores"]
+        ]
+
+        if max_frame_scores:
+            avg_max_score = sum(max_frame_scores) / len(max_frame_scores)
+            quality_score = round(avg_max_score * 100, 2)
+        else:
+            quality_score = 0.0
+    else:
+        quality_score = 0.0
+
+    print(f"📈 프레임 max 기반 요약 품질 점수: {quality_score}/100", flush=True)
+
+    # 저장
+    score_path = os.path.join(output_dir, f"{base}_score.json")
+    with open(score_path, "w", encoding="utf-8") as f:
+        json.dump({ "summary_score": quality_score }, f, indent=2, ensure_ascii=False)
+
+    # ────────── 8. 요약 메타 정보 저장 ──────────
+    print("\n📊 요약 리포트 정보 계산 중...", flush=True)
+
+    with open(scene_json, encoding="utf-8") as f:
+        full_segments = json.load(f)
+
+    with open(refined_json, encoding="utf-8") as f:
+        selected_segments = json.load(f)
+
+    # 전체 길이 계산
+    full_duration = max(seg["end_time"] for seg in full_segments)
+    summary_duration = sum(seg["end_time"] - seg["start_time"] for seg in selected_segments)
+    segment_count = len(selected_segments)
+    compression_ratio = round((1 - summary_duration / full_duration) * 100, 1)
+
+    report = {
+        "full_duration": round(full_duration, 2),           # ex) 120.0
+        "summary_duration": round(summary_duration, 2),     # ex) 28.3
+        "compression_ratio": compression_ratio,             # ex) 76.4
+        "segment_count": segment_count                      # ex) 7
+    }
+
+    report_path = os.path.join(output_dir, f"{base}_report.json")
+    with open(report_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2, ensure_ascii=False)
+
+    print(f"📄 요약 리포트 저장 완료: {report_path}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

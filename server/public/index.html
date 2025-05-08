@@ -141,66 +141,99 @@
         </div>
       </div>
     </section>
-
     <!-- 결과 섹션 -->
+
     <section id="result-section" class="scroll-section result-section">
-      <!-- Add an ID to the card for specific styling -->
       <div id="resultCard" class="card">
         <div class="card-header">
-          <h2><i class="fas fa-play-circle"></i> 숏폼 결과 영상</h2>
+          <h2><i class="fas fa-play-circle"></i> 숏폼 결과</h2>
         </div>
         <div class="card-body">
-          <div class="video-container-group">
+          <!-- 뷰 전환 컨테이너 -->
+          <div id="resultViewContainer">
 
-            <!-- Original Video Box - NOW CONTAINS HIGHLIGHT SECTION -->
-            <div class="video-box original-video-box">
-              <h3><i class="fas fa-film"></i> 원본 영상</h3>
-              <video id="originalVideo" controls></video>
+            <!-- 1. 숏폼 영상 뷰 (기본 표시) -->
+            <div id="shortformView" class="result-view active">
+              <!-- 영상 영역 -->
+              <div class="main-video-wrapper">
+                <h3><i class="fas fa-star"></i> 숏폼 영상</h3>
+                <video id="finalVideo" controls poster="/images/video-poster.png"></video>
+              </div>
 
-              <!-- Highlight section MOVED HERE -->
-              <div class="highlight-section">
-                <h3><i class="fas fa-search"></i> 원본 대비 요약 구간</h3>
-                <div id="highlightBarContainer">
-                  <div class="time-markers">
-                    <span class="time-marker" style="left: 0%">00:00</span>
-                    <span class="time-marker" style="left: 25%">25%</span>
-                    <span class="time-marker" style="left: 50%">50%</span>
-                    <span class="time-marker" style="left: 75%">75%</span>
-                    <span class="time-marker" style="left: 100%">100%</span>
+              <!-- 오른쪽 사이드바 (점수판 등) -->
+              <div class="shortform-details-sidebar">
+                <div class="summary-score-container">
+                  <h4><i class="fas fa-award"></i> 요약 품질 점수</h4>
+                  <div class="summary-score-value">
+                    <span id="summaryScoreValue">n</span><small>/100</small>
                   </div>
-                  <!-- Highlight blocks will be added here dynamically -->
+                  <p class="summary-score-description">AI가 평가한 영상 요약의 품질입니다.</p>
                 </div>
+                <ul class="summary-metrics">
+                  <li data-tooltip="원본 영상 길이에서 84% 압축되었습니다">
+                    <i class="fas fa-scissors"></i> 원본 대비 <strong>n%</strong> 압축
+                  </li>
+                  <li data-tooltip="영상에서 중요한 7개 장면이 선별되었습니다">
+                    <i class="fas fa-star"></i> 핵심 장면 <strong>n개</strong> 추출됨
+                  </li>
+                  <li data-tooltip="시청 시간이 3분 58초에서 47초로 단축되었습니다">
+                    <i class="fas fa-stopwatch"></i> 시청 시간
+                    <span class="time-display">
+                      <strong>3분 58초</strong>
+                      <span class="time-arrow">→</span>
+                      <strong>47초</strong>
+                    </span>
+                  </li>
+                </ul>
+                <!-- 여기에 다른 정보나 컨트롤을 추가할 수도 있습니다. -->
+              </div>
+              <!-- 오른쪽 사이드바 끝 -->
+            </div>
+            <div id="shortformViewActions" class="result-view-actions-group"
+              style="/* display:none; JS로 shortformView 활성 시 보이도록 */">
+              <!-- 모든 버튼을 직접 자식으로 배치 -->
+              <button id="downloadBtn" class="secondary-btn">
+                <i class="fas fa-download"></i> 다운로드
+              </button>
+              <button id="shareBtn" class="accent-btn">
+                <i class="fas fa-share-alt"></i> 공유하기
+              </button>
+              <button id="switchToOriginalViewBtn" class="tertiary-btn"> <!-- 스타일 통일됨 -->
+                <i class="fas fa-film"></i> 원본 영상 보기 및 구간 편집
+              </button>
+              <button id="newBtn" class="primary-btn"> <!-- 여기에 추가 -->
+                <i class="fas fa-plus"></i> 새 영상 만들기
+              </button>
+            </div>
+
+            <!-- 2. 원본 영상 및 편집 뷰 (기본 숨김) -->
+            <div id="originalEditView" class="result-view">
+              <div class="main-video-wrapper">
+                <h3><i class="fas fa-film"></i> 원본 영상</h3>
+                <video id="originalVideo" controls poster="/images/video-poster.png"></video>
+              </div>
+              <div class="highlight-section-enhanced">
+                <h3><i class="fas fa-search-plus"></i> 하이라이트 구간</h3>
+                <div id="highlightBarContainer"></div>
                 <div class="highlight-legend">
                   <span class="legend-item"><span class="legend-color original"></span> 원본 영상</span>
                   <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
                 </div>
               </div>
-              <!-- End of moved highlight section -->
+              <div class="result-actions">
+                <button id="switchToShortformViewBtn" class="tertiary-btn">
+                  <i class="fas fa-star"></i> 숏폼 영상 보기
+                </button>
+              </div>
             </div>
-
-            <!-- Short-form Video Box -->
-            <div class="video-box shortform-video-box">
-              <h3><i class="fas fa-star"></i> 숏폼 영상</h3>
-              <video id="finalVideo" controls></video>
-            </div>
-
+            <!-- 뷰 전환 컨테이너 끝 -->
           </div>
-
-          <!-- Button Group remains at the bottom -->
-          <div class="button-group">
-            <button id="newBtn" class="primary-btn default-action">
-              <i class="fas fa-plus"></i> 새 영상 만들기
-            </button>
-            <button id="shareBtn" class="accent-btn default-action">
-              <i class="fas fa-share-alt"></i> 공유하기
-            </button>
-            <button id="downloadBtn" class="secondary-btn default-action">
-              <i class="fas fa-download"></i> 다운로드
-            </button>
-          </div>
+          <!-- card-body 끝 -->
         </div>
-      </div>
+        <!-- resultCard 끝 -->
     </section>
+    <!-- 결과 섹션 끝 -->
+
   </div>
 
   <!-- 페이지 내비게이션 -->
