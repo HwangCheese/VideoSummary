@@ -124,7 +124,7 @@ router.get("/process", (req, res) => {
       currentPhase = 'video_generate';
       currentStep = 6;
       progressState.step = 6;
-      progressState.message = "🎞️ 숏폼 영상 생성 중...";
+      progressState.message = "🎞️ 요약 영상 생성 중...";
       progressState.percent = 85;
       broadcastProgressUpdate(progressState);
 
@@ -139,7 +139,7 @@ router.get("/process", (req, res) => {
       }, 1000); // 1초마다 1% 증가
     } else if (text.includes("✅ 파이프라인 완료!")) {
       progressState.percent = 100;
-      progressState.message = "✅ 숏폼 영상 생성 완료!";
+      progressState.message = "✅ 요약 영상 생성 완료!";
       progressState.done = true;
       broadcastProgressUpdate(progressState);
     }
@@ -186,7 +186,7 @@ router.get("/process", (req, res) => {
 
     if (!progressState.done) {
       progressState.percent = 100;
-      progressState.message = "✅ 숏폼 영상 생성 완료!";
+      progressState.message = "✅ 요약 영상 생성 완료!";
       progressState.done = true;
       broadcastProgressUpdate(progressState);
     }

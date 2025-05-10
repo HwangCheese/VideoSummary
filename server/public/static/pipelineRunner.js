@@ -31,7 +31,7 @@ export function initPipelineRunner() {
     originalEditView.classList.add("active");
   });
 
-  // “숏폼 영상 보기” 클릭
+  // “요약 영상 보기” 클릭
   switchToShortformViewBtn.addEventListener("click", () => {
     originalEditView.classList.remove("active");
     shortformView.classList.add("active");
@@ -76,7 +76,7 @@ export function initPipelineRunner() {
     else if (msg.includes("오디오 추출")) updateProgressStep(3);
     else if (msg.includes("Whisper 자막") || msg.includes("문장 세그먼트")) updateProgressStep(4);
     else if (msg.includes("상위 세그먼트") || msg.includes("PGL-SUM") || msg.includes("중요도") || msg.includes("경계 보정")) updateProgressStep(5);
-    else if (msg.includes("하이라이트 영상 생성") || msg.includes("숏폼 영상")) updateProgressStep(6);
+    else if (msg.includes("하이라이트 영상 생성") || msg.includes("요약 영상")) updateProgressStep(6);
 
     if (state.done && sseSource) {
       sseSource.close();
@@ -156,7 +156,7 @@ export function initPipelineRunner() {
         progressCard.style.display = "none";
         resultCard.style.display = "block";
 
-        // 숏폼 뷰 활성화 & 액션 버튼 보이기
+        // 요약 뷰 활성화 & 액션 버튼 보이기
         shortformView.classList.add("active");
         originalEditView.classList.remove("active");
         shortformViewActions.style.display = "flex";
@@ -184,7 +184,7 @@ export function initPipelineRunner() {
       stopElapsedTime();
     } finally {
       startBtn.disabled = false;
-      startBtn.innerHTML = '<i class="fas fa-magic"></i> 숏폼 생성하기';
+      startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 생성하기';
     }
   });
 

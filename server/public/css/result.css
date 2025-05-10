@@ -85,7 +85,7 @@ server/public/css/result.css
     }
 }
 
-/* 메인 비디오 래퍼 (숏폼 & 원본 공통 기본 스타일) */
+/* 메인 비디오 래퍼 요약 & 원본 공통 기본 스타일) */
 .main-video-wrapper {
     width: 100%;
     margin: 0 auto;
@@ -137,7 +137,7 @@ server/public/css/result.css
     width: 280px;
 }
 
-/* 숏폼 뷰 하단 버튼 그룹 */
+/* 요약 뷰 하단 버튼 그룹 */
 #shortformViewActions {
     display: flex;
     flex-direction: row;
@@ -535,7 +535,7 @@ server/public/css/result.css
         gap: 12px;
     }
 
-    /* 숏폼 뷰 모바일 레이아웃 */
+    /* 요약 뷰 모바일 레이아웃 */
     #shortformView.active {
         flex-direction: column;
         align-items: center;
@@ -550,7 +550,7 @@ server/public/css/result.css
         margin-top: 15px;
     }
 
-    /* 숏폼 뷰 하단 버튼 모바일 */
+    /* 요약 뷰 하단 버튼 모바일 */
     #shortformViewActions {
         flex-direction: column;
         align-items: center;

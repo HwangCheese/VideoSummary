@@ -5,12 +5,12 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 
 def create_highlight_video(selected_segments, video_path, output_video):
     """
-    선택된 세그먼트를 기반으로 숏폼 영상 생성
+    선택된 세그먼트를 기반으로 요약 영상 생성
 
     Args:
         selected_segments (list): 선택된 세그먼트 목록 (예: 냅색 알고리즘 결과)
         video_path (str): 원본 영상 경로
-        output_video (str): 출력할 숏폼 영상 경로
+        output_video (str): 출력할 요약 영상 경로
     """
     if not selected_segments:
         print("⚠️ 선택된 세그먼트가 없습니다.")
@@ -36,7 +36,7 @@ def create_highlight_video(selected_segments, video_path, output_video):
     final_clip.write_videofile(output_video, codec="libx264", audio_codec="aac", verbose=False, logger=None)
     final_clip.close()
     video.close()
-    print(f"✅ 숏폼 영상 저장 완료: {output_video}")
+    print(f"✅ 요약 영상 저장 완료: {output_video}")
 
     # 하이라이트 세그먼트 정보 저장
     segments_with_duration = {
@@ -52,7 +52,7 @@ def create_highlight_video(selected_segments, video_path, output_video):
 
 def update_highlight_from_json(video_path, json_path):
     """
-    편집된 JSON 파일을 기반으로 숏폼 영상 업데이트
+    편집된 JSON 파일을 기반으로 요약 영상 업데이트
     
     Args:
         video_path (str): 원본 영상 경로
@@ -74,11 +74,11 @@ def update_highlight_from_json(video_path, json_path):
         if not base_name.endswith('.mp4'):
             base_name += '.mp4'
             
-        # 숏폼 영상 생성
+        # 요약 영상 생성
         create_highlight_video(segments, video_path, base_name)
         return True
     except Exception as e:
-        print(f"❌ 숏폼 업데이트 중 오류 발생: {str(e)}")
+        print(f"❌ 요약 업데이트 중 오류 발생: {str(e)}")
         return False
 
 if __name__ == "__main__":
@@ -98,11 +98,11 @@ if __name__ == "__main__":
         print(f"❌ JSON 파일이 존재하지 않습니다: {json_path}")
         sys.exit(1)
     
-    # 숏폼 업데이트
+    # 요약 업데이트
     success = update_highlight_from_json(video_path, json_path)
     if success:
-        print("✅ 숏폼 영상 업데이트 완료")
+        print("✅ 요약 영상 업데이트 완료")
         sys.exit(0)
     else:
-        print("❌ 숏폼 영상 업데이트 실패")
+        print("❌ 요약 영상 업데이트 실패")
         sys.exit(1)
