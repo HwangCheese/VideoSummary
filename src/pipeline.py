@@ -80,14 +80,14 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     # 시각화 PNG
     #run_visualize_pipeline(segment_json, selected_json, visualize_png)
 
-    # ────────── 6. 하이라이트 영상 생성 ──────────
-    print("\n🎞️ [6/6] 하이라이트 영상 생성", flush=True)
+    # ────────── 6. 요약 영상 생성 ──────────
+    print("\n🎞️ [6/6] 요약 영상 생성", flush=True)
     create_highlight_video(
         selected_segments=json.load(open(refined_json, encoding="utf-8")),
         video_path=video_path,
         output_video=highlight_video
     )
-    print(f"\n✅ 파이프라인 완료! 최종 하이라이트 영상: {highlight_video}", flush=True)
+    print(f"\n✅ 파이프라인 완료! 최종 요약 영상: {highlight_video}", flush=True)
     
     # ────────── 7. 프레임 max 기반 순수 품질 점수 계산 ──────────
     print("\n📊 프레임 max 기반 품질 점수 계산 중...", flush=True)

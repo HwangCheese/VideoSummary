@@ -21,7 +21,7 @@ def predict_scores(model, features, device="cpu"):
     with torch.no_grad():
         scores, _ = model(x, mask)
     scores = scores.cpu().numpy().squeeze()
-    print(f"📊 하이라이트 점수 리스트: {scores} 길이: {len(scores)}")
+    print(f"📊 요약 점수 리스트: {scores} 길이: {len(scores)}")
     return scores
 
 def load_model_checkpoint(model, ckpt_path, device):
