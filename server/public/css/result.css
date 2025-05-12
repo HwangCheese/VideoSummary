@@ -11,7 +11,7 @@ server/public/css/result.css
     overflow: hidden;
     margin-top: 20px;
     animation: cardEnter 0.5s ease-out forwards;
-    max-width: 1140px;
+    max-width: 1400px;
     width: calc(100% - 40px);
     margin-left: auto;
     margin-right: auto;
