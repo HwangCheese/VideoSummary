@@ -91,32 +91,112 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     )
     print(f"\n✅ 파이프라인 완료! 최종 요약 영상: {highlight_video}", flush=True)
     
-    # ────────── 7. 프레임 max 기반 순수 품질 점수 계산 ──────────
-    print("\n📊 프레임 max 기반 품질 점수 계산 중...", flush=True)
-    with open(refined_json, encoding="utf-8") as f:
-        refined_segments = json.load(f)
+    # ────────── 7. 비디오 내 상대 점수 기반 품질 점수 계산 (정규화 방식) ──────────
+    print("\n📊 순위 기반 상대 품질 점수 계산 중...", flush=True)
 
-    if refined_segments:
-        max_frame_scores = [
-            max(seg["frame_scores"])
-            for seg in refined_segments
-            if "frame_scores" in seg and seg["frame_scores"]
-        ]
+    quality_score = 0.0  # 기본값 설정
+    score_calculation_successful = False
+    # sorted_json이 어떤 점수 기준으로 정렬되었는지 명시 (대개 combined_score)
+    sort_key = 'combined_score'
+    print(f"ℹ️ 정보: '{sort_key}' 기준 정렬 파일({os.path.basename(sorted_json)})을 사용하여 순위 기반 점수를 계산합니다.")
 
-        if max_frame_scores:
-            avg_max_score = sum(max_frame_scores) / len(max_frame_scores)
-            quality_score = round(avg_max_score * 100, 2)
+    try:
+        # 1. 정렬된 전체 세그먼트 목록 로드
+        if not os.path.exists(sorted_json):
+             print(f"⚠️ 경고: 정렬된 세그먼트 파일({sorted_json})을 찾을 수 없습니다. 점수를 0으로 계산합니다.")
         else:
-            quality_score = 0.0
-    else:
-        quality_score = 0.0
+            with open(sorted_json, encoding="utf-8") as f:
+                sorted_segments = json.load(f)
 
-    print(f"📈 프레임 max 기반 요약 품질 점수: {quality_score}/100", flush=True)
+            total_segments = len(sorted_segments)
+            if total_segments == 0:
+                print(f"⚠️ 경고: 정렬된 세그먼트 파일({sorted_json})이 비어 있습니다. 점수를 0으로 계산합니다.")
+            else:
+                # 세그먼트를 빠르게 찾기 위해 ID 또는 시간 기반으로 rank 맵 생성
+                # segment_id가 고유하고 존재한다고 가정. 없다면 start_time 등 다른 식별자 사용 필요
+                rank_map = {seg['segment_id']: rank for rank, seg in enumerate(sorted_segments) if 'segment_id' in seg}
+                if not rank_map:
+                     # segment_id가 없는 경우 fallback 또는 에러 처리 필요
+                     print(f"⚠️ 경고: 정렬된 세그먼트 데이터에 'segment_id' 키가 없어 순위 매핑 불가. 점수를 0으로 계산합니다.")
+                     # 대체 식별자(예: start_time)로 시도해 볼 수 있으나, 여기서는 실패 처리
+                else:
+                    # 2. 선택된 세그먼트 정보 로드
+                    if not os.path.exists(selected_json):
+                        print(f"⚠️ 경고: 선택된 세그먼트 파일({selected_json})을 찾을 수 없습니다. 점수를 0으로 계산합니다.")
+                    else:
+                        with open(selected_json, encoding="utf-8") as f:
+                            selected_segments_info = json.load(f)
+
+                        num_selected = len(selected_segments_info)
+                        if num_selected == 0:
+                            print(f"⚠️ 경고: 선택된 세그먼트가 없습니다. 점수를 0으로 계산합니다.")
+                        else:
+                            # 3. 선택된 세그먼트들의 순위(rank) 찾기
+                            selected_ranks = []
+                            missing_rank_count = 0
+                            for seg in selected_segments_info:
+                                seg_id = seg.get('segment_id')
+                                if seg_id is not None and seg_id in rank_map:
+                                    selected_ranks.append(rank_map[seg_id])
+                                else:
+                                    # 선택된 세그먼트가 정렬 목록에 없는 경우 (이론상 드묾)
+                                    missing_rank_count += 1
+                                    print(f"  - ⚠️ 경고: 선택된 세그먼트 ID {seg_id}의 순위를 찾을 수 없습니다. (정렬 기준: {sort_key})")
+
+                            if missing_rank_count > 0:
+                                print(f"  - 총 {missing_rank_count}개의 선택된 세그먼트 순위를 찾지 못했습니다.")
+
+                            if not selected_ranks:
+                                print(f"⚠️ 경고: 유효한 순위를 가진 선택된 세그먼트가 없습니다. 점수를 0으로 계산합니다.")
+                            else:
+                                # 4. 평균 순위 계산
+                                avg_rank = sum(selected_ranks) / len(selected_ranks)
+
+                                # 5. 평균 순위를 0-100 점수로 변환
+                                # 평균 순위가 0 (최상위)이면 100점, 평균 순위가 N/2 이면 50점, 평균 순위가 N (최하위)이면 0점에 가깝게 변환
+                                # N 대신 total_segments 사용
+                                normalized_rank_score = max(0.0, 1.0 - (avg_rank / total_segments))
+                                quality_score = round(normalized_rank_score * 100, 2)
+                                score_calculation_successful = True
+
+                                print(f"  - 전체 세그먼트 수: {total_segments}")
+                                print(f"  - 선택된 세그먼트 수: {num_selected} (유효 순위: {len(selected_ranks)})")
+                                print(f"  - 선택된 세그먼트 평균 순위: {avg_rank:.2f} (0이 최상위)")
+
+
+    except FileNotFoundError as e:
+        missing_file = e.filename if hasattr(e, 'filename') else f"{sorted_json} 또는 {selected_json}"
+        print(f"⚠️ 경고: 점수 계산에 필요한 파일({missing_file})을 찾을 수 없습니다. 점수를 0으로 계산합니다.")
+    except json.JSONDecodeError as e:
+        print(f"⚠️ 경고: 점수 파일 ({sorted_json} 또는 {selected_json} 중 하나) 파싱 오류 - {e}. 점수를 0으로 계산합니다.")
+    except KeyError as e:
+        # 'segment_id' 등 예상 키가 없을 때 발생 가능
+        print(f"⚠️ 경고: JSON 데이터에 필요한 키 '{e}'가 없습니다. 점수를 0으로 계산합니다.")
+    except Exception as e:
+        print(f"⚠️ 오류: 점수 계산 중 예외 발생 - {e}. 점수를 0으로 계산합니다.")
+
+
+    if score_calculation_successful:
+        print(f"📈 순위 기반({sort_key} 기준) 상대 품질 점수: {quality_score}/100", flush=True)
+    else:
+        print(f"📉 요약 품질 점수 계산 실패. 최종 점수: {quality_score}/100", flush=True)
+
 
     # 저장
     score_path = os.path.join(output_dir, f"{base}_score.json")
+    score_data = {
+        "summary_score": quality_score,
+        "score_type": "rank_based_relative", # 점수 계산 방식 명시
+        "based_on_sort_key": sort_key       # 어떤 키 기준으로 정렬된 파일을 사용했는지 명시
+    }
+    if score_calculation_successful:
+        score_data["average_rank"] = round(avg_rank, 2)
+        score_data["total_segments"] = total_segments
+        score_data["num_selected_with_rank"] = len(selected_ranks)
+
     with open(score_path, "w", encoding="utf-8") as f:
-        json.dump({ "summary_score": quality_score }, f, indent=2, ensure_ascii=False)
+        json.dump(score_data, f, indent=2, ensure_ascii=False)
+        print(f"[📁 SCORE PATH] {score_path}")
 
     # ────────── 8. 요약 메타 정보 저장 ──────────
     print("\n📊 요약 리포트 정보 계산 중...", flush=True)
