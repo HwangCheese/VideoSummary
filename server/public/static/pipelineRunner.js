@@ -101,10 +101,15 @@ export function initPipelineRunner() {
         .then(res => res.json())
         .then(data => {
           document.querySelector(".summary-metrics").innerHTML = `
-      <li><i class="fas fa-scissors"></i> 원본 대비 <strong>${data.compression_ratio}%</strong> 압축</li>
-      <li><i class="fas fa-star"></i> 핵심 장면 <strong>${data.segment_count}개</strong> 추출됨</li>
-      <li><i class="fas fa-stopwatch"></i> 시청 시간 <strong>${formatSeconds(data.full_duration)} → ${formatSeconds(data.summary_duration)}</strong></li>
-    `;
+          <li><i class="fas fa-scissors"></i> 원본 대비 <strong>${data.compression_ratio}%</strong> 압축</li>
+          <li><i class="fas fa-star"></i> 핵심 장면 <strong>${data.segment_count}개</strong> 추출됨</li>
+          <li>
+            <i class="fas fa-stopwatch"></i> 시청 시간
+            <strong>${formatSeconds(data.full_duration)}</strong>
+            <span class="time-arrow">→</span>
+            <strong>${formatSeconds(data.summary_duration)}</strong>
+          </li>
+        `;
         })
         .catch(err => {
           console.warn("요약 리포트 로딩 실패", err);
@@ -128,7 +133,7 @@ export function initPipelineRunner() {
 
     // 버튼 및 UI 초기화
     startBtn.disabled = true;
-    startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
+    startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 업로드 중...';
     progressCard.style.display = "block";
     resultCard.style.display = "none";
     statusDiv.innerHTML = '<i class="fas fa-hourglass-start"></i> 0% - 생성 시작 중...';

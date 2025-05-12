@@ -136,7 +136,7 @@ router.get("/process", (req, res) => {
         } else {
           clearInterval(slowInterval);
         }
-      }, 1000); // 1초마다 1% 증가
+      }, 2000); // 2초마다 1% 증가
     } else if (text.includes("✅ 파이프라인 완료!")) {
       progressState.percent = 100;
       progressState.message = "✅ 요약 영상 생성 완료!";

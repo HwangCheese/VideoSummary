@@ -134,7 +134,8 @@ server/public/css/result.css
 
 #shortformView.active .shortform-details-sidebar {
     flex-shrink: 0;
-    width: 280px;
+    width: 360px;
+    min-width: 360px;
 }
 
 /* 요약 뷰 하단 버튼 그룹 */
@@ -256,9 +257,6 @@ server/public/css/result.css
     color: var(--dark-color, #333);
     border: 1px solid var(--gray-color, #ccc);
 }
-.tertiary-btn:hover {
-    background-color: var(--medium-gray, #e0e0e0);
-}
 
 .summary-score-container {
     animation: fadeInUp 0.6s ease;
@@ -303,12 +301,8 @@ server/public/css/result.css
     animation-delay: 0.5s;
 }
 
-.summary-metrics li:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    transform: translateX(5px);
-}
-
 .summary-metrics li i {
+    outline: none !important;
     font-size: 1.2rem;
     margin-right: 1rem;
     width: 24px;
@@ -321,10 +315,6 @@ server/public/css/result.css
     color: white;
     box-shadow: 0 3px 6px rgba(94, 114, 228, 0.3);
     transition: all 0.3s ease;
-}
-
-.summary-metrics li:hover i {
-    transform: rotate(10deg) scale(1.1);
 }
 
 /* 각 아이콘별 다른 배경색 */
@@ -436,6 +426,7 @@ server/public/css/result.css
     }
 
     .summary-metrics li i {
+        outline: none !important;
         font-size: 1rem;
         width: 20px;
         height: 20px;
@@ -469,12 +460,6 @@ server/public/css/result.css
     pointer-events: none;
     white-space: nowrap;
     z-index: 100;
-}
-
-.summary-metrics li:hover::after {
-    opacity: 0.9;
-    transform: translateX(-50%) translateY(0);
-    visibility: visible;
 }
 
 /* HTML 업데이트를 위한 추가 속성 예시:
