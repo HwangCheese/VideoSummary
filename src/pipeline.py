@@ -25,6 +25,8 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     whisper_json   = os.path.join(output_dir, f"{base}_whisper_segments.json")
     refined_json   = os.path.join(output_dir, f"{base}_refined_segments.json")
     audio_wav      = os.path.join(output_dir, f"{base}.wav")
+    #highlight_video= os.path.join(output_dir, f"highlight_{base}_w{importance_weight}.mp4")
+    #visualize_png  = os.path.join(output_dir, f"visualize_{base}_w{importance_weight}.png")
     highlight_video= os.path.join(output_dir, f"highlight_{base}.mp4")
     visualize_png  = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
 
