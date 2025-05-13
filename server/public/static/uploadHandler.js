@@ -5,7 +5,7 @@ export let uploadedFileName = "";
 
 export function initUploadHandler() {
   const dropZone = document.getElementById("dropZone");
-  const fileInput = document.getElementById("fileInput");
+  let fileInput = document.getElementById("fileInput"); // let으로 선언 (재할당 가능)
   const fileName = document.getElementById("fileName");
   const fileSize = document.getElementById("fileSize");
   const uploadInfo = document.getElementById("uploadInfo");
@@ -31,13 +31,13 @@ export function initUploadHandler() {
 
   dropZone.addEventListener("click", () => fileInput.click());
 
-  fileInput.addEventListener("change", () => {
-    if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
-  });
-
   dropZone.addEventListener("drop", (e) => {
     const file = e.dataTransfer.files[0];
     if (file) handleFile(file);
+  });
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files.length > 0) handleFile(fileInput.files[0]);
   });
 
   /* ----------------------------- File logic ----------------------------- */
@@ -46,7 +46,7 @@ export function initUploadHandler() {
     fileSize.textContent = formatFileSize(file.size);
 
     uploadInfo.style.display = "block";
-    dropZone.classList.add("uploaded"); // 📌 shrink dropZone for better UX
+    dropZone.classList.add("uploaded");
     dropZone.scrollIntoView({ behavior: "smooth" });
 
     uploadFile(file);
@@ -81,20 +81,49 @@ export function initUploadHandler() {
   }
 
   /* --------------------------- Remove / Reset --------------------------- */
-  removeFileBtn.addEventListener("click", resetUpload);
+  removeFileBtn.addEventListener("click", resetUploadUI);
 
-  function resetUpload() {
-    // 초기화
-    fileInput.value = "";
+  function resetUploadUI() {
+    console.log("Executing resetUploadUI");
+
+    // 1. file input 교체
+    const oldInput = document.getElementById("fileInput");
+    if (oldInput && oldInput.parentNode) {
+      const newInput = oldInput.cloneNode(); // <input type="file">
+      newInput.id = "fileInput";
+      oldInput.parentNode.replaceChild(newInput, oldInput);
+      fileInput = newInput;
+
+      newInput.addEventListener("change", () => {
+        if (newInput.files.length > 0) {
+          handleFile(newInput.files[0]);
+        }
+      });
+    }
+
+    // 2. 업로드 정보 초기화
     uploadedFileName = "";
+    fileName.textContent = "";
+    fileSize.textContent = "";
 
     uploadInfo.style.display = "none";
     dropZone.classList.remove("uploaded");
-
     statusDiv.textContent = "";
     progressBarInner.style.width = "0%";
     startBtn.disabled = true;
 
-    dropZone.scrollIntoView({ behavior: "smooth" });
+    // 3. 요약 모드 선택 초기화
+    document.getElementById("highlightRadio")?.setAttribute("checked", true);
+    document.getElementById("storyRadio")?.removeAttribute("checked");
+
+    // 4. 요약 길이 입력값 초기화
+    const durationInput = document.getElementById("durationInput");
+    if (durationInput) durationInput.value = "";
+
+    // 5. upload-section으로 스크롤 복귀
+    const section = document.getElementById("upload-section");
+    section?.scrollIntoView({ behavior: "smooth", block: "start" });
+
+    console.log("resetUploadUI finished");
   }
 }

@@ -181,6 +181,11 @@ server/public/css/upload.css
     flex-grow: 1;
 }
 
+.uploaded .upload-area,
+.uploaded#dropZone {
+    display: none;
+}
+
 #fileName {
     font-weight: 600;
     color: var(--dark-color);

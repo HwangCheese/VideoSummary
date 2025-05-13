@@ -119,35 +119,173 @@ button:not(:disabled):hover .btn-shine {
     background: linear-gradient(135deg, var(--accent-dark), #9c1485);
 }
 
-/* ---------------------- */
-/* 옵션 버튼 스타일 */
-.option-buttons {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
+.summary-options {
+    background-color: #f8f9fc;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaecf3;
 }
 
-.summary-option-btn {
-    flex: 1;
-    background-color: var(--light-gray);
+.summary-options h3 {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    font-size: 1.15rem;
+    font-weight: 600;
     color: var(--dark-color);
-    padding: 0.8rem;
-    border-radius: var(--border-radius);
-    font-size: 1rem;
-    cursor: pointer;
-    transition: var(--transition);
-    border: none;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.5rem;
 }
 
-/* 옵션 버튼 활성화 */
-.summary-option-btn.active,
-.summary-option-btn:hover {
+/* 라디오 버튼 그룹 스타일링 */
+.option-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 실제 라디오 버튼 숨기기 */
+.summary-type-radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* 라디오 버튼 라벨 스타일링 */
+.summary-type-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    background-color: white;
+    border: 2px solid #e1e5ee;
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--gray-color);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex: 1;
+    justify-content: center;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 라디오 버튼 호버 효과 */
+.summary-type-label:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(67, 97, 238, 0.15);
+}
+
+/* 선택된 라디오 버튼 스타일 */
+.summary-type-radio:checked + .summary-type-label {
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.1));
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+}
+
+/* 선택된 라디오 버튼에 체크마크 아이콘 추가 */
+.summary-type-radio:checked + .summary-type-label::after {
+    content: "✓";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     background-color: var(--primary-color);
     color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 요약 영상 길이 입력 필드 스타일 개선 */
+.summary-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    background-color: white;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #eaecf3;
+}
+
+.summary-duration label {
+    font-size: 1rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.summary-duration input {
+    padding: 0.9rem;
+    border-radius: var(--border-radius);
+    border: 2px solid #e1e5ee;
+    font-size: 1rem;
+    transition: var(--transition);
+    background-color: #f8f9fc;
+}
+
+.summary-duration input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    background-color: white;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .option-group {
+        flex-direction: column;
+    }
+
+    .summary-type-label {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+/* ---------------------- */
+.summary-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-duration label {
+    font-size: 1rem;
+    color: var(--gray-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-duration input {
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--light-gray);
+    font-size: 1rem;
+    transition: var(--transition);
+}
+
+.summary-duration input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 67, 97, 238), 0.2); /* 주 색상 기반 포커스 링 */
 }
 
 /* ---------------------- */

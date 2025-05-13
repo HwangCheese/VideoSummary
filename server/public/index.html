@@ -62,18 +62,22 @@
               </button>
             </div>
             <div class="summary-options">
-              <h3><i class="fas fa-sliders-h"></i> 영상 요약 설정</h3>
-              <div class="option-buttons">
-                <button id="highlightBtn" class="summary-option-btn active">
+              <h3><i class="fas fa-sliders-h"></i>요약 방식 선택</h3>
+              <div class="option-group">
+                <input type="radio" id="highlightRadio" name="summaryType" value="highlight" class="summary-type-radio"
+                  checked> <!-- 기본 선택 -->
+                <label for="highlightRadio" class="summary-type-label">
                   <i class="fas fa-star"></i> 하이라이트 요약
-                </button>
-                <button id="storyBtn" class="summary-option-btn">
+                </label>
+
+                <input type="radio" id="storyRadio" name="summaryType" value="story" class="summary-type-radio">
+                <label for="storyRadio" class="summary-type-label">
                   <i class="fas fa-book-open"></i> 스토리 요약
-                </button>
+                </label>
               </div>
               <div class="summary-duration">
-                <label for="durationInput"><i class="fas fa-clock"></i> 요약 영상 길이</label>
-                <input type="number" id="durationInput" placeholder="sec 단위">
+                <label for="durationInput"><i class="fas fa-clock"></i> 원하는요약 영상 길이</label>
+                <input type="number" id="durationInput" placeholder="분 단위">
               </div>
             </div>
             <button id="startBtn" disabled>
@@ -192,7 +196,7 @@
               </div>
 
               <div class="score-display">
-                <span class="score-value" id="summaryScoreValue">72.3</span><!-- 실제 값은 JS로 업데이트 -->
+                <span class="score-value" id="summaryScoreValue">n</span><!-- 실제 값은 JS로 업데이트 -->
                 <span class="score-max">/ 100</span>
               </div>
               <p class="score-description" id="summaryScoreDescription">
@@ -206,8 +210,7 @@
                   </div>
                   <div class="metric-info">
                     <span class="metric-label">원본 대비 압축률</span>
-                    <span class="metric-value" id="compressionRateValue">69.5% <span
-                        class="metric-unit">압축</span></span>
+                    <span class="metric-value" id="compressionRateValue">n% <span class="metric-unit">압축</span></span>
                   </div>
                 </li>
                 <li class="metric-item">
@@ -216,7 +219,7 @@
                   </div>
                   <div class="metric-info">
                     <span class="metric-label">핵심 장면</span>
-                    <span class="metric-value" id="keyScenesCountValue">31개 <span class="metric-unit">추출됨</span></span>
+                    <span class="metric-value" id="keyScenesCountValue">n개 <span class="metric-unit">추출됨</span></span>
                   </div>
                 </li>
                 <li class="metric-item">
@@ -226,7 +229,7 @@
                   <div class="metric-info">
                     <span class="metric-label">시청 시간</span>
                     <span class="metric-value" id="viewingTimeValue">
-                      <span class="time-original">03:58</span> → <span class="time-summary">01:12</span>
+                      <span class="time-original">n:n</span> → <span class="time-summary">n:n</span>
                     </span>
                   </div>
                 </li>
@@ -236,7 +239,7 @@
                   </div>
                   <div class="metric-info">
                     <span class="metric-label">요약 방식</span>
-                    <span class="metric-value" id="summaryMethodValue">하이라이트 요약</span>
+                    <span class="metric-value" id="summaryMethodValue">? 요약</span>
                   </div>
                 </li>
               </ul>
