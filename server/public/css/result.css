@@ -1,606 +1,271 @@
 /*
 server/public/css/result.css
-결과 영상 표시
+결과 영상, 하이라이트 구간 시각화 (통합 및 수정본)
 */
 
-/* 기본 Result Card 스타일 */
+/* --- 카드 크기 조정 --- */
 #resultCard {
-    background-color: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-    margin-top: 20px;
-    animation: cardEnter 0.5s ease-out forwards;
-    max-width: 1400px;
-    width: calc(100% - 40px);
-    margin-left: auto;
-    margin-right: auto;
+    /* max-width: 1100px; */ /* 이전 값, 필요시 조절 */
+    max-width: 1600px; /* 사용자가 제공한 값 유지 */
+    width: 95%; /* 뷰포트 너비 대비 */
+}
+
+/* --- 비디오 컨테이너 그룹 --- */
+.video-container-group {
+    display: flex;
+    flex-direction: row; /* 가로 배치 */
+    flex-wrap: nowrap; /* 줄 바꿈 없음 */
+    justify-content: center; /* 가운데 정렬 (내용물 기준) */
+    align-items: flex-start; /* 상단 정렬 */
+    gap: 2rem; /* 비디오 박스 사이 기본 간격 */
+    margin-bottom: 2.5rem; /* 하단 여백 */
+    width: 100%; /* 중요: 부모(.card-body) 너비를 넘지 않도록 */
+    box-sizing: border-box; /* 패딩/테두리 포함하여 너비 계산 */
+    transition: gap 0.4s ease-out; /* gap 변경 시 부드러운 효과 */
+}
+
+/* --- 개별 비디오 박스 --- */
+.video-box {
+    /* 기본 너비 설정 */
+    flex-basis: 48%; /* 기본적으로 절반 가까이 차지 */
+    flex-shrink: 1; /* 공간 부족 시 줄어듦 허용 */
+    flex-grow: 0; /* 추가 공간 있어도 늘어나지 않음 */
+
+    /* 애니메이션 설정 */
+    transition:
+        flex-basis 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.4s ease-out 0.1s,
+        min-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+        padding 0.4s ease-out,
+        margin 0.4s ease-out;
+
+    /* 기본 상태 */
+    opacity: 1;
+    overflow: hidden; /* 내부 요소 넘침 방지 */
+    min-width: auto; /* 기본 최소 너비 */
+    width: auto; /* 기본 너비 */
+    max-width: 100%; /* 부모 너비 초과 방지 */
     box-sizing: border-box;
 }
 
-@keyframes cardEnter {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.video-box video {
+    width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    display: block; /* 비디오 아래 불필요한 공간 제거 */
 }
 
-#resultCard .card-header {
-    background: linear-gradient(135deg, var(--primary-color, #6a11cb), var(--primary-color-dark, #2575fc));
-    color: white;
-    padding: 18px 25px;
-    border-bottom: none;
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-}
-
-#resultCard .card-header h2 {
-    margin: 0;
+.video-box h3 {
+    margin-bottom: 0.8rem;
     font-size: 1.3rem;
-    font-weight: 600;
+    color: var(--dark-color);
     display: flex;
     align-items: center;
+    gap: 0.6rem;
 }
 
-#resultCard .card-header h2 i {
-    margin-right: 12px;
-    font-size: 1.5rem;
+/* --- 하이라이트 섹션 (원본 비디오 박스 내부) --- */
+.video-box .highlight-section {
+    margin-top: 1.5rem;
 }
 
-#resultCard .card-body {
-    display: flex;
-    flex-direction: column;
-    padding: 20px 25px;
+.video-box .highlight-section h3 {
+    font-size: 1.1rem;
+    margin-bottom: 0.8rem;
+    color: var(--gray-color);
 }
 
-/* 뷰 전환 컨테이너 및 뷰 공통 스타일 */
-#resultViewContainer {
-    width: 100%;
+#highlightBarContainer {
     position: relative;
-}
-
-.result-view {
-    display: none;
-    flex-direction: column;
-    gap: 20px;
-    animation: fadeInView 0.4s ease-out;
-}
-
-.result-view.active {
-    display: flex;
-}
-
-@keyframes fadeInView {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* 메인 비디오 래퍼 요약 & 원본 공통 기본 스타일) */
-.main-video-wrapper {
     width: 100%;
-    margin: 0 auto;
-    background-color: #1c1c1e;
-    border-radius: 12px;
+    height: 25px;
+    background: #e0e0e0;
+    border-radius: 8px;
+    margin-bottom: 0.5rem;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-.main-video-wrapper h3 {
-    font-size: 1rem;
-    font-weight: 500;
-    padding: 10px 18px;
-    margin: 0;
-    background-color: rgba(255, 255, 255, 0.08);
-    color: #e0e0e0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+/* --- 타임 마커 & 범례 --- */
+.time-markers {
+    position: absolute;
+    width: 100%;
+    top: -20px;
+    left: 0;
+    z-index: 1;
+    height: auto;
+}
+
+.time-marker {
+    position: absolute;
+    font-size: 0.75rem;
+    color: var(--gray-color);
+    top: 0;
+    transform: translateX(-50%);
+}
+.time-marker:first-child {
+    transform: translateX(0);
+}
+.time-marker:last-child {
+    transform: translateX(-100%);
+}
+
+.highlight-legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    justify-content: center;
+}
+
+.legend-item {
     display: flex;
     align-items: center;
-}
-.main-video-wrapper h3 i {
-    margin-right: 8px;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--gray-color);
 }
 
-.main-video-wrapper video {
+.legend-color {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+}
+.legend-color.original {
+    background-color: #e0e0e0;
+}
+.legend-color.highlight {
+    background-color: var(--accent-color);
+}
+
+/* --- 리사이즈 핸들 --- */
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    top: 0;
+    z-index: 5;
+    cursor: ew-resize;
+}
+.resize-handle.left {
+    left: -5px;
+}
+.resize-handle.right {
+    right: -5px;
+}
+
+/* ====================================== */
+/* ========= 편집 모드 스타일 ========= */
+/* ====================================== */
+
+/* 편집 모드일 때 컨테이너 gap 제거 */
+#resultCard.editing-mode .video-container-group {
+    gap: 0;
+}
+
+/* 편집 모드일 때 원본 영상 영역 크기 유지 */
+#resultCard.editing-mode .original-video-box {
+    flex-basis: 48%; /* 기본 비율과 동일하게 */
+    max-width: 800px; /* 필요시 최대폭 제한 */
+    opacity: 1;
+    min-width: auto;
+    margin: 0 auto;
+}
+
+/* 편집 모드일 때 원본 영상 높이 제한 */
+#resultCard.editing-mode .original-video-box video {
     width: 100%;
     height: auto;
-    max-height: 70vh;
+    max-height: 40vh; /* 화면 높이 대비 40% */
+    margin: 0 auto;
     display: block;
-    aspect-ratio: 16 / 9;
-    background-color: #000000;
+    object-fit: cover;
+    aspect-ratio: 16/9;
 }
 
-/* === Shortform View Specific Styles === */
-#shortformView.active {
-    flex-direction: row;
-    align-items: flex-start;
-    gap: 25px;
-}
-
-#shortformView.active .main-video-wrapper {
-    flex-grow: 1;
-    flex-basis: 0;
+/* 편집 모드일 때 숏폼 영상 영역 축소 및 숨김 */
+#resultCard.editing-mode .shortform-video-box {
+    flex-basis: 0%;
+    width: 0;
+    max-width: 0;
     min-width: 0;
-}
-
-#shortformView.active .shortform-details-sidebar {
-    flex-shrink: 0;
-    width: 360px;
-    min-width: 360px;
-}
-
-/* 요약 뷰 하단 버튼 그룹 */
-#shortformViewActions {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: stretch;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 25px;
-    margin-bottom: 10px;
-    width: 100%;
-    padding: 0 10px;
-    box-sizing: border-box;
-}
-
-#shortformViewActions button {
-    flex-grow: 1;
-    flex-basis: 0;
-    min-width: 150px;
-    padding: 10px 15px;
-    font-size: 0.9rem;
-    border-radius: 8px;
-    margin: 5px 0;
-}
-
-/* --- 요약 품질 점수 UI 스타일 --- */
-.summary-score-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    background-color: var(--card-bg-light, #f8f9fa);
-    border-radius: 10px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    width: 100%;
-    box-sizing: border-box;
-}
-.summary-score-container h4 {
-    margin: 0 0 10px 0;
-    font-size: 0.95rem;
-    color: var(--text-color-medium, #555);
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-}
-.summary-score-container h4 i {
-    margin-right: 6px;
-    color: var(--primary-color, #5a5fff);
-}
-
-.summary-score-value {
-    font-size: 2.2rem;
-    font-weight: 700;
-    color: var(--primary-color, #5a5fff);
-    line-height: 1;
-}
-.summary-score-value small {
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--text-color-light, #777);
-    margin-left: 4px;
-}
-
-.summary-score-description {
-    font-size: 0.75rem;
-    color: var(--text-color-light, #888);
-    margin-top: 8px;
-    text-align: center;
-}
-
-/* 요약 타입 라벨 */
-.summary-type-label {
-    display: inline-block;
-    font-weight: 600;
-    padding: 2px 8px;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    margin-left: 6px;
-    vertical-align: middle;
-    color: black;
-    background: linear-gradient(to right, #4facfe, #00f2fe); /* 기본은 하이라이트용 */
-}
-
-#summaryTypeText {
-    display: inline-block;
-    padding: 2px 10px;
-    border-radius: 16px;
-    font-weight: 600;
-    font-size: 0.85rem;
-    color: white;
-    background: linear-gradient(to right, #4facfe, #00f2fe); /* 하이라이트 색상 */
-}
-
-#summaryTypeText.story-type {
-    background: linear-gradient(to right, #ff758c, #ff7eb3); /* 스토리 색상 */
-}
-
-#summaryTypeText {
-    color: #333 !important; /* 또는 black */
-}
-
-/* === Original Edit View Specific Styles (하이라이트 편집 제거됨) === */
-#originalEditView.active .main-video-wrapper {
-    /* 하이라이트 섹션 관련 제거 */
-    max-width: 800px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* #originalEditView 내부의 버튼 영역들 스타일 (예: "숏폼 영상 보기" 버튼용) */
-/* .result-actions가 #originalEditView 내부에 있다면 이 스타일이 적용됩니다. */
-#originalEditView .result-actions {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
-    width: 100%;
-    max-width: 800px;
-    margin: 20px auto 10px auto;
-    flex-wrap: wrap;
-}
-
-/* #originalEditView 내부의 .result-actions 안의 버튼들에 공통 스타일 적용 */
-#originalEditView .result-actions button {
-    flex-grow: 1;
-    flex-basis: 0;
-    min-width: 180px;
-    padding: 12px 18px;
-    font-size: 0.95rem;
-    border-radius: 8px;
-    margin: 5px;
-    line-height: 1.5;
-    display: flex; /* 버튼 내 아이콘/텍스트 정렬용 */
-    align-items: center;
-    justify-content: center;
-}
-#originalEditView .result-actions button i {
-    margin-right: 8px;
-}
-
-/* === General Button Styles within Result Card === */
-.tertiary-btn {
-    background-color: var(--light-gray, #f0f0f0);
-    color: var(--dark-color, #333);
-    border: 1px solid var(--gray-color, #ccc);
-}
-
-.summary-score-container {
-    animation: fadeInUp 0.6s ease;
-}
-
-/* 요약 메트릭스 스타일 */
-.summary-metrics {
-    list-style: none;
+    opacity: 0;
+    pointer-events: none;
     padding: 0;
-    margin: 1.5rem 0;
-    border-radius: 12px;
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03));
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+    margin: 0;
+    border: none;
     overflow: hidden;
 }
 
-.summary-metrics li {
-    padding: 1rem 1.2rem;
-    margin: 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease;
+/* 편집모드 진입하면 기본 버튼 사라짐 */
+#resultCard.editing-mode .default-action {
     opacity: 0;
-    transform: translateY(15px);
-    animation: fadeInUp 0.5s forwards;
-}
-
-.summary-metrics li:last-child {
-    border-bottom: none;
-}
-
-.summary-metrics li:nth-child(1) {
-    animation-delay: 0.1s;
-}
-
-.summary-metrics li:nth-child(2) {
-    animation-delay: 0.3s;
-}
-
-.summary-metrics li:nth-child(3) {
-    animation-delay: 0.5s;
-}
-
-.summary-metrics li i {
-    outline: none !important;
-    font-size: 1.2rem;
-    margin-right: 1rem;
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #5e72e4, #825ee4);
-    color: white;
-    box-shadow: 0 3px 6px rgba(94, 114, 228, 0.3);
-    transition: all 0.3s ease;
-}
-
-/* 각 아이콘별 다른 배경색 */
-.summary-metrics li:nth-child(1) i {
-    background: linear-gradient(135deg, #f5365c, #f56036);
-    box-shadow: 0 3px 6px rgba(245, 54, 92, 0.3);
-}
-
-.summary-metrics li:nth-child(2) i {
-    background: linear-gradient(135deg, #ffd600, #ff9500);
-    box-shadow: 0 3px 6px rgba(255, 214, 0, 0.3);
-}
-
-.summary-metrics li:nth-child(3) i {
-    background: linear-gradient(135deg, #2dce89, #2dcec2);
-    box-shadow: 0 3px 6px rgba(45, 206, 137, 0.3);
-}
-
-.summary-metrics li strong {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #fff;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    margin: 0 0.3rem;
-    position: relative;
-    display: inline-block;
-}
-
-/* 숫자가 올라오는 애니메이션 */
-.summary-metrics li strong {
-    animation: countUp 1.5s ease-out forwards;
-    animation-delay: 0.7s;
-    opacity: 0;
-}
-
-.summary-metrics li:nth-child(1) strong {
-    color: #ff5a75;
-}
-
-.summary-metrics li:nth-child(2) strong {
-    color: #ffcc00;
-}
-
-.summary-metrics li:nth-child(3) strong:first-of-type {
-    color: #ff7b5a;
-}
-
-.summary-metrics li:nth-child(3) strong:last-of-type {
-    color: #2dce89;
-}
-
-/* 화살표 스타일 */
-/* 시청 시간 화살표 스타일 개선 */
-.summary-metrics .time-display {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.3rem;
-    position: relative;
-    white-space: nowrap;
-}
-
-.summary-metrics .time-arrow {
-    color: #2dce89;
-    display: inline-block;
-    margin: 0 0.3rem;
-    animation: pulse 1.5s infinite;
-    font-size: 1.2rem;
-}
-
-/* 애니메이션 정의 */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes countUp {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-@keyframes pulse {
-    0% {
-        opacity: 0.6;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0.6;
-    }
-}
-
-/* 모바일 반응형 디자인 */
-@media (max-width: 768px) {
-    .summary-metrics li {
-        padding: 0.8rem 1rem;
-    }
-
-    .summary-metrics li i {
-        outline: none !important;
-        font-size: 1rem;
-        width: 20px;
-        height: 20px;
-        margin-right: 0.7rem;
-    }
-
-    .summary-metrics li strong {
-        font-size: 1.1rem;
-    }
-}
-
-/* 마우스 오버 인터랙션을 위한 툴팁 스타일 (선택적) */
-.summary-metrics li {
-    position: relative;
-}
-
-.summary-metrics li::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%) translateY(10px);
-    background-color: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s ease;
+    transform: translateY(10px);
     pointer-events: none;
-    white-space: nowrap;
-    z-index: 100;
+    visibility: hidden;
+    display: none !important;
 }
 
-/* HTML 업데이트를 위한 추가 속성 예시:
-  <li data-tooltip="원본 영상 길이에서 84% 줄어들었어요">
-  */
-
-/* === Responsive Design === */
-@media (max-width: 1350px) {
-    #resultCard {
-        width: 95%;
-    }
+#resultCard.editing-mode .button-group {
+    justify-content: center;
 }
 
-@media (max-width: 992px) {
-    #shortformView.active .shortform-details-sidebar {
-        width: 240px;
-    }
-    #shortformView.active {
-        gap: 15px;
-    }
-
-    .summary-score-container {
-        padding: 15px;
-    }
-    .summary-score-value {
-        font-size: 2rem;
-    }
-
-    .result-view {
-        gap: 15px;
-    }
+/* 편집모드일 때 저장 버튼 자연스럽게 등장 */
+#resultCard.editing-mode #saveCustomBtn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
 }
 
+/* 4) 편집 모드에서 highlight 바를 원본 박스 바깥까지 풀 너비로 늘리기 */
+#resultCard.editing-mode .highlight-section {
+    width: 100%;
+    max-width: none; /* 필요시 px 단위 최대폭도 지정 가능 (예: 1200px) */
+    padding: 0; /* 좌우 여백 없애기 */
+    box-sizing: border-box;
+}
+
+/* 5) highlightBarContainer가 100% 너비를 쓰도록 보장 */
+#resultCard.editing-mode #highlightBarContainer {
+    width: 100%;
+}
+
+/* ====================================== */
+/* ========= 반응형 스타일 ========= */
+/* ====================================== */
 @media (max-width: 768px) {
-    #resultCard {
-        width: 100%;
-        border-radius: 0;
-        margin-top: 0;
-        box-shadow: none;
-        max-width: 100%;
-    }
-    #resultCard .card-header {
-        border-top-left-radius: 0;
-        border-top-right-radius: 0;
-        padding: 15px 20px;
-    }
-    #resultCard .card-header h2 {
-        font-size: 1.15rem;
-    }
-    #resultCard .card-header h2 i {
-        font-size: 1.3rem;
-    }
-    #resultCard .card-body {
-        padding: 15px 10px;
-    }
-
-    .result-view {
-        gap: 12px;
-    }
-
-    /* 요약 뷰 모바일 레이아웃 */
-    #shortformView.active {
+    .video-container-group {
         flex-direction: column;
         align-items: center;
+        gap: 2rem;
     }
-    #shortformView.active .main-video-wrapper {
+    .video-box {
+        flex-basis: auto;
         width: 100%;
+        max-width: 500px;
         min-width: auto;
-    }
-    #shortformView.active .shortform-details-sidebar {
-        width: 90%;
-        max-width: 300px;
-        margin-top: 15px;
-    }
-
-    /* 요약 뷰 하단 버튼 모바일 */
-    #shortformViewActions {
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
+        transition: none;
+        opacity: 1 !important;
+        pointer-events: auto !important;
         padding: 0;
+        margin: 0;
+        border: none;
     }
-    #shortformViewActions button {
-        flex-grow: 0;
-        width: 90%;
-        max-width: 350px;
+    #resultCard.editing-mode .video-container-group {
+        gap: 2rem;
     }
-
-    /* 원본 영상 편집 뷰 모바일 레이아웃 (하이라이트 편집 관련 제거) */
-    #originalEditView.active .main-video-wrapper {
-        /* max-width: 800px; already defined */
+    #resultCard.editing-mode .original-video-box,
+    #resultCard.editing-mode .shortform-video-box {
+        flex-basis: auto;
         width: 100%;
-    }
-
-    /* #originalEditView 내부 버튼 모바일 */
-    #originalEditView .result-actions {
-        /* flex-wrap: wrap; already defined */
-        gap: 8px; /* 모바일에서 버튼 간격 약간 줄임 */
-        margin: 15px auto 10px auto;
-    }
-
-    #originalEditView .result-actions button {
-        flex-grow: 1;
-        flex-basis: calc(50% - 10px); /* 공간이 되면 한 줄에 2개 시도 */
-        min-width: 150px;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-
-    .main-video-wrapper video {
-        max-height: 45vh;
+        max-width: 500px;
+        min-width: auto;
+        opacity: 1;
+        pointer-events: auto;
+        padding: 0;
+        margin: 0;
+        border: none;
     }
 }

@@ -141,97 +141,65 @@
         </div>
       </div>
     </section>
-    <!-- 결과 섹션 -->
 
+    <!-- 결과 섹션 -->
     <section id="result-section" class="scroll-section result-section">
+      <!-- Add an ID to the card for specific styling -->
       <div id="resultCard" class="card">
         <div class="card-header">
           <h2><i class="fas fa-play-circle"></i> 요약 결과</h2>
         </div>
         <div class="card-body">
-          <!-- 뷰 전환 컨테이너 -->
-          <div id="resultViewContainer">
+          <div class="video-container-group">
 
-            <div id="shortformView" class="result-view active">
-              <!-- 영상 영역 -->
-              <div class="main-video-wrapper">
-                <h3><i class="fas fa-star"></i> 요약 영상</h3>
-                <video id="finalVideo" controls poster="/images/video-poster.png"></video>
-              </div>
+            <!-- Original Video Box - NOW CONTAINS HIGHLIGHT SECTION -->
+            <div class="video-box original-video-box">
+              <h3><i class="fas fa-film"></i> 원본 영상</h3>
+              <video id="originalVideo" controls></video>
 
-              <!-- 오른쪽 사이드바 (점수판 등) -->
-              <div class="shortform-details-sidebar">
-                <div class="summary-score-container">
-                  <h4><i class="fas fa-award"></i> 요약 품질 점수</h4>
-                  <div class="summary-score-value">
-                    <span id="summaryScoreValue">n</span><small>/100</small>
+              <!-- Highlight section MOVED HERE -->
+              <div class="highlight-section">
+                <h3><i class="fas fa-search"></i> 원본 대비 요약 구간</h3>
+                <div id="highlightBarContainer">
+                  <div class="time-markers">
+                    <span class="time-marker" style="left: 0%">00:00</span>
+                    <span class="time-marker" style="left: 25%">25%</span>
+                    <span class="time-marker" style="left: 50%">50%</span>
+                    <span class="time-marker" style="left: 75%">75%</span>
+                    <span class="time-marker" style="left: 100%">100%</span>
                   </div>
-                  <p class="summary-score-description">영상 내 중요도 순위를 기준으로, 요약된 부분들의 평균 순위가 높을수록 좋은 요약으로 평가되어 점수가 올라갑니다.
-                  </p>
+                  <!-- Highlight blocks will be added here dynamically -->
                 </div>
-                <ul class="summary-metrics">
-                  <li>
-                    <i class="fas fa-scissors"></i> 원본 대비 <strong>n%</strong> 압축
-                  </li>
-                  <li>
-                    <i class="fas fa-star"></i> 핵심 장면 <strong>n개</strong> 추출됨
-                  </li>
-                  <li>
-                    <i class="fas fa-stopwatch"></i> 시청 시간
-                    <span class="time-display">
-                      <strong>n분 n초</strong>
-                      <span class="time-arrow">→</span>
-                      <strong>n초</strong>
-                    </span>
-                  </li>
-                  <li>
-                    <i class="fas fa-filter"></i> 요약 방식: <strong id="summaryTypeText"></strong>
-                  </li>
-                </ul>
-              </div>
-              <!-- 오른쪽 사이드바 끝 -->
-            </div>
-            <div id="shortformViewActions" class="result-view-actions-group">
-              <!-- 모든 버튼을 직접 자식으로 배치 -->
-              <button id="downloadBtn" class="secondary-btn">
-                <i class="fas fa-download"></i> 다운로드
-              </button>
-              <button id="shareBtn" class="accent-btn">
-                <i class="fas fa-share-alt"></i> 공유하기
-              </button>
-              <button id="switchToOriginalViewBtn" class="tertiary-btn"> <!-- 스타일 통일됨 -->
-                <i class="fas fa-film"></i> 원본 영상 보기 및 구간 편집
-              </button>
-              <button id="newBtn" class="primary-btn"> <!-- 여기에 추가 -->
-                <i class="fas fa-plus"></i> 새 영상 만들기
-              </button>
-            </div>
-
-            <!-- 2. 원본 영상 및 편집 뷰 (기본 숨김) -->
-            <div id="originalEditView" class="result-view">
-              <div class="main-video-wrapper">
-                <h3><i class="fas fa-film"></i> 원본 영상</h3>
-                <video id="originalVideo" controls poster="/images/video-poster.png"></video>
-              </div>
-              <div class="highlight-section-enhanced">
-                <h3><i class="fas fa-search-plus"></i> 원본 영상 대비 요약 구간</h3>
-                <div id="highlightBarContainer"></div>
                 <div class="highlight-legend">
                   <span class="legend-item"><span class="legend-color original"></span> 원본 영상</span>
                   <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
                 </div>
               </div>
-              <div class="result-actions">
-                <button id="switchToShortformViewBtn" class="tertiary-btn">
-                  <i class="fas fa-star"></i> 요약 영상 보기
-                </button>
-              </div>
+              <!-- End of moved highlight section -->
             </div>
-            <!-- 뷰 전환 컨테이너 끝 -->
+
+            <!-- Short-form Video Box -->
+            <div class="video-box shortform-video-box">
+              <h3><i class="fas fa-star"></i> 요약 영상</h3>
+              <video id="finalVideo" controls></video>
+            </div>
+
           </div>
-          <!-- card-body 끝 -->
+
+          <!-- Button Group remains at the bottom -->
+          <div class="button-group">
+            <button id="newBtn" class="primary-btn default-action">
+              <i class="fas fa-plus"></i> 새 영상 만들기
+            </button>
+            <button id="shareBtn" class="accent-btn default-action">
+              <i class="fas fa-share-alt"></i> 공유하기
+            </button>
+            <button id="downloadBtn" class="secondary-btn default-action">
+              <i class="fas fa-download"></i> 다운로드
+            </button>
+          </div>
         </div>
-        <!-- resultCard 끝 -->
+      </div>
     </section>
     <!-- 결과 섹션 끝 -->
 
