@@ -1,6 +1,6 @@
 // public/static/pipelineRunner.js
 import { uploadedFileName } from "./uploadHandler.js";
-import { showToast, resetProgressSteps, updateProgressStep, resetUI, formatTime } from "./uiUtils.js"; // formatTime 추가
+import { showToast, resetProgressSteps, updateProgressStep, resetUI, formatTime } from "./uiUtils.js"; // formatTime 추가 (현재 코드에 이미 있음)
 import { initHighlightEditor } from "./highlightEditor.js";
 import { getSummaryType } from "./summaryOptions.js";
 
@@ -21,13 +21,27 @@ export function initPipelineRunner() {
   const elapsedTimeDisplay = document.getElementById("elapsedTime");
   const highlightBarContainer = document.getElementById("highlightBarContainer");
 
-  // --- 점수/메트릭 표시용 DOM 요소들 ---
+  // --- 점수/메트릭 표시용 DOM 요소들 (현재 코드 기준) ---
   const summaryScoreValueEl = document.getElementById("summaryScoreValue");
-  const compressionRatioValueEl = document.getElementById("compressionRatioValue");
-  const segmentCountValueEl = document.getElementById("segmentCountValue");
-  const originalDurationTextEl = document.getElementById("originalDurationText");
-  const summaryDurationTextEl = document.getElementById("summaryDurationText");
-  const summaryTypeTextEl = document.getElementById("summaryTypeText");
+  // 이전 코드의 .summary-metrics li 항목에 해당하는 ID들 (현재 코드에는 없음, updateSummaryMetrics에서 직접 사용)
+  // const compressionRatioValueEl = document.getElementById("compressionRatioValue"); // 현재 코드에 있음
+  // const segmentCountValueEl = document.getElementById("segmentCountValue"); // 현재 코드에 있음
+  // const originalDurationTextEl = document.getElementById("originalDurationText"); // 현재 코드에 있음
+  // const summaryDurationTextEl = document.getElementById("summaryDurationText"); // 현재 코드에 있음
+  // const summaryTypeTextEl = document.getElementById("summaryTypeText"); // 현재 코드에 있음
+  // 대신, updateSummaryMetrics 함수에서 해당 ID를 가진 요소들을 직접 사용합니다.
+
+  // 이전 코드에서 사용한 ID가 현재 HTML에 있는지 확인 필요. 없다면 updateSummaryMetrics 함수를 사용해야 함.
+  // 예시: document.getElementById("compressionRateValue"); // HTML의 ID와 일치시켜야 함
+  // 현재 코드의 updateSummaryMetrics는 compressionRatioValueEl 등을 사용하므로, 이 ID들이 HTML에 존재해야 함.
+  // 이전 코드의 metric-item 내부 ID (compressionRateValue, keyScenesCountValue, viewingTimeValue, summaryMethodValue)를 사용하려면
+  // 해당 ID를 가진 요소들을 다시 가져오거나, updateSummaryMetrics가 해당 ID를 사용하도록 수정 필요.
+  // 여기서는 현재 코드의 updateSummaryMetrics 함수 구조를 최대한 유지하면서 이전 로직을 통합합니다.
+  const compressionRateValueEl = document.getElementById("compressionRateValue"); // index.html의 ID와 일치
+  const keyScenesCountValueEl = document.getElementById("keyScenesCountValue");   // index.html의 ID와 일치
+  const viewingTimeValueEl = document.getElementById("viewingTimeValue");       // index.html의 ID와 일치
+  const summaryMethodValueEl = document.getElementById("summaryMethodValue");     // index.html의 ID와 일치
+
 
   // ------------- SSE 연결 ---------------
   function startSSE() {
@@ -83,8 +97,8 @@ export function initPipelineRunner() {
       // SSE 응답에 리포트 데이터가 포함되어 있다면 사용 (선택적)
       if (state.reportData) {
         console.log("SSE로부터 reportData 수신 (완료 시):", state.reportData);
-        updateSummaryMetrics(state.reportData);
-        // 만약 state.reportData에 summary_score가 없다면, 별도 fetch
+        updateSummaryMetricsFromServerData(state.reportData); // 이전 코드 로직 통합
+        // 만약 state.reportData에 summary_score가 없다면, 별도 fetch (이전 코드에는 이 부분이 없었음, 현재 코드 로직 유지)
         if (uploadedFileName && state.reportData.summary_score === undefined) {
           const cleanFileNameForScore = uploadedFileName.replace(/\.mp4$/i, "");
           fetchSummaryScore(cleanFileNameForScore);
@@ -93,9 +107,51 @@ export function initPipelineRunner() {
         // SSE에 reportData가 없다면, 이 시점에 명시적으로 fetch 할 수도 있음.
         // 하지만 보통은 finalVideo.loadedmetadata 이후에 하는 것이 일반적.
         console.log("SSE 완료 응답에 reportData가 없으므로, 필요시 별도 로드.");
+        // 여기서 이전 코드처럼 report와 score를 fetch 할 수 있음.
+        // const cleanFileName = uploadedFileName.replace(/\.mp4$/i, "");
+        // fetchReportAndScoreForUI(cleanFileName); // 새로운 헬퍼 함수 (아래 정의)
       }
     }
   }
+
+  // 이전 코드의 SSE 완료 시 report/score fetch 로직을 통합한 함수
+  async function fetchReportAndScoreForUI(baseFilename) {
+    console.log(`[${baseFilename}] SSE 완료 후 report 및 score 데이터 요청 시작`);
+    try {
+      const reportRes = await fetch(`/results/report/${baseFilename}?t=${Date.now()}`);
+      if (reportRes.ok) {
+        const reportData = await reportRes.json();
+        console.log(`[${baseFilename}] Report 데이터 수신:`, reportData);
+        updateSummaryMetricsFromServerData(reportData); // 이전 코드의 업데이트 방식 적용
+      } else {
+        console.warn(`[${baseFilename}] Report 데이터 로드 실패: ${reportRes.status}`);
+        resetSummaryMetrics(true); // 점수 제외하고 리셋
+      }
+    } catch (err) {
+      console.warn(`[${baseFilename}] Report 데이터 요청 오류:`, err);
+      resetSummaryMetrics(true);
+    }
+
+    try {
+      const scoreRes = await fetch(`/results/score/${baseFilename}?t=${Date.now()}`);
+      if (scoreRes.ok) {
+        const scoreData = await scoreRes.json();
+        console.log(`[${baseFilename}] Score 데이터 수신:`, scoreData);
+        if (summaryScoreValueEl && scoreData.summary_score !== undefined) {
+          summaryScoreValueEl.textContent = parseFloat(scoreData.summary_score).toFixed(1);
+        } else if (summaryScoreValueEl) {
+          summaryScoreValueEl.textContent = 'N/A';
+        }
+      } else {
+        console.warn(`[${baseFilename}] Score 데이터 로드 실패: ${scoreRes.status}`);
+        if (summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
+      }
+    } catch (err) {
+      console.warn(`[${baseFilename}] Score 데이터 요청 오류:`, err);
+      if (summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
+    }
+  }
+
 
   // ------------- 요약 시작 버튼 클릭 ---------------
   startBtn.addEventListener("click", async () => {
@@ -112,7 +168,7 @@ export function initPipelineRunner() {
       highlightEditor.destroy();
       highlightEditor = null;
     }
-    resetSummaryMetrics(); // 점수/메트릭 표시 초기화
+    resetSummaryMetrics(); // 점수/메트릭 표시 초기화 (현재 코드 방식)
 
     progressCard.style.display = "block";
     resultCard.style.display = "none";
@@ -155,15 +211,16 @@ export function initPipelineRunner() {
         }
 
         const cleanFileName = uploadedFileName.replace(/\.mp4$/i, "");
-        if (processData.reportData) {
-          updateSummaryMetrics(processData.reportData);
-          // processData.reportData에 summary_score가 없다면 별도 요청
+        if (processData.reportData) { // /upload/process 응답에 reportData가 있는 경우
+          console.log("processData로부터 reportData 수신:", processData.reportData);
+          updateSummaryMetricsFromServerData(processData.reportData); // 이전 코드 방식 적용
+          // processData.reportData에 summary_score가 없다면 별도 요청 (현재 코드 로직 유지)
           if (processData.reportData.summary_score === undefined) {
             fetchSummaryScore(cleanFileName);
           }
-        } else {
-          fetchAndDisplayReport(cleanFileName);
-          fetchSummaryScore(cleanFileName);
+        } else { // /upload/process 응답에 reportData가 없는 경우, 별도 fetch (이전 코드 방식과 유사)
+          console.log("processData에 reportData 없음, 별도 fetch 시도.");
+          fetchReportAndScoreForUI(cleanFileName);
         }
 
         setTimeout(() => {
@@ -204,7 +261,7 @@ export function initPipelineRunner() {
       highlightEditor.destroy();
       highlightEditor = null;
     }
-    resetSummaryMetrics(); // 점수/메트릭 표시 초기화
+    resetSummaryMetrics(); // 현재 코드 방식 UI 초기화
     resetUI();
     if (sseSource) {
       sseSource.close();
@@ -234,7 +291,7 @@ export function initPipelineRunner() {
       const segments = data.segments || [];
       const originalDuration = data.original_duration || originalVideo.duration || 0;
       highlightEditor.loadHighlightData(segments, originalDuration);
-      // showToast("요약 구간 정보 로드 완료", "info"); // 이미 fetchAndDisplayReport에서 유사 메시지 표시 가능성
+      // showToast("요약 구간 정보 로드 완료", "info");
     } catch (err) {
       console.error("숏폼 JSON 로드 오류:", err);
       if (highlightEditor) {
@@ -244,7 +301,7 @@ export function initPipelineRunner() {
     }
   }
 
-  // ------------- 점수만 별도로 가져오는 함수 ---------------
+  // ------------- 점수만 별도로 가져오는 함수 (현재 코드 유지) ---------------
   async function fetchSummaryScore(baseFilename) {
     if (!summaryScoreValueEl) return;
     try {
@@ -257,7 +314,7 @@ export function initPipelineRunner() {
       }
       const data = await res.json();
       if (data && data.summary_score !== undefined) {
-        summaryScoreValueEl.textContent = parseFloat(data.summary_score).toFixed(1); // 애니메이션 위해 임시 저장
+        summaryScoreValueEl.textContent = parseFloat(data.summary_score).toFixed(1);
       } else {
         summaryScoreValueEl.textContent = 'N/A';
       }
@@ -267,76 +324,57 @@ export function initPipelineRunner() {
     }
   }
 
-  // ------------- 리포트 데이터 로드 및 표시 함수 ---------------
-  async function fetchAndDisplayReport(baseFilename) {
-    try {
-      const reportRes = await fetch(`/results/report/${baseFilename}?t=${Date.now()}`);
-      if (!reportRes.ok) {
-        if (reportRes.status === 404) {
-          console.warn(`리포트 파일 (/results/report/${baseFilename}) 없음 (404)`);
-          resetSummaryMetrics(true); // 점수 제외 리셋
-          return;
-        }
-        throw new Error(`리포트 로드 실패 (${reportRes.status}): ${reportRes.statusText}`);
-      }
-      const reportData = await reportRes.json();
-      updateSummaryMetrics(reportData, true); // 점수 제외 업데이트
-      // 애니메이션 함수를 직접 호출할 수도 있음
-      // animateMetrics(); // 데이터 로드 후 바로 애니메이션 시작
-      showToast("요약 정보 로드 완료", "info");
-    } catch (err) {
-      console.error("리포트 데이터 로드 중 오류:", err);
-      showToast("요약 정보 로드 중 오류 발생", "error");
-      resetSummaryMetrics(true); // 점수 제외 리셋
-    }
-  }
-
-  // ------------- 점수 및 메트릭 UI 업데이트 함수 ---------------
-  function updateSummaryMetrics(data, excludeScore = false) {
+  // ------------- 이전 코드의 리포트 데이터 처리 방식에 맞춘 UI 업데이트 함수 ---------------
+  // 이 함수는 HTML의 ID (compressionRateValue 등)가 이전 코드의 사이드바 항목들과 일치한다고 가정합니다.
+  function updateSummaryMetricsFromServerData(data) {
     if (!data) {
-      resetSummaryMetrics();
+      resetSummaryMetrics(); // 현재 코드의 리셋 함수 사용
       return;
     }
+    const summaryType = getSummaryType();
+    const summaryText = summaryType === "story" ? "스토리 요약" : "하이라이트 요약";
 
-    if (!excludeScore && summaryScoreValueEl) {
-      const score = data.summary_score !== undefined ? parseFloat(data.summary_score).toFixed(1) : 'N/A';
-      summaryScoreValueEl.textContent = score; // 애니메이션 위해 임시 저장 또는 최종값
-      // animateScoreCounter(); // 데이터 업데이트 후 애니메이션 호출
+    // 점수 (별도 fetch 또는 data.summary_score 사용)
+    if (summaryScoreValueEl) {
+      summaryScoreValueEl.textContent = data.summary_score !== undefined ? parseFloat(data.summary_score).toFixed(1) : 'N/A';
     }
-    if (compressionRatioValueEl) {
-      compressionRatioValueEl.textContent = data.compression_ratio !== undefined ? `${parseFloat(data.compression_ratio).toFixed(1)}%` : 'N/A';
+
+    // 압축률
+    if (compressionRateValueEl) {
+      compressionRateValueEl.innerHTML = data.compression_ratio !== undefined ? `${parseFloat(data.compression_ratio).toFixed(1)}% <span class="metric-unit">압축</span>` : 'N/A';
     }
-    if (segmentCountValueEl) {
-      segmentCountValueEl.textContent = data.segment_count !== undefined ? `${data.segment_count}개` : 'N/A';
+
+    // 핵심 장면
+    if (keyScenesCountValueEl) {
+      keyScenesCountValueEl.innerHTML = data.segment_count !== undefined ? `${data.segment_count}개 <span class="metric-unit">추출됨</span>` : 'N/A';
     }
-    if (originalDurationTextEl && data.full_duration !== undefined) {
-      originalDurationTextEl.textContent = formatTime(data.full_duration);
-    } else if (originalDurationTextEl) {
-      originalDurationTextEl.textContent = 'N/A';
+
+    // 시청 시간
+    if (viewingTimeValueEl) {
+      const originalTimeFormatted = data.full_duration !== undefined ? formatTime(data.full_duration) : 'N/A';
+      const summaryTimeFormatted = data.summary_duration !== undefined ? formatTime(data.summary_duration) : 'N/A';
+      viewingTimeValueEl.innerHTML = `<span class="time-original">${originalTimeFormatted}</span> → <span class="time-summary">${summaryTimeFormatted}</span>`;
     }
-    if (summaryDurationTextEl && data.summary_duration !== undefined) {
-      summaryDurationTextEl.textContent = formatTime(data.summary_duration);
-    } else if (summaryDurationTextEl) {
-      summaryDurationTextEl.textContent = 'N/A';
+
+    // 요약 방식
+    if (summaryMethodValueEl) {
+      summaryMethodValueEl.textContent = data.summary_type_text || summaryText;
     }
-    if (summaryTypeTextEl) {
-      summaryTypeTextEl.textContent = data.summary_type_text || (getSummaryType() === 'story' ? '스토리 요약' : '하이라이트 요약');
-    }
-    // 모든 데이터가 설정된 후, 메트릭 애니메이션 호출
-    // animateMetrics();
+    // showToast("요약 정보 로드 완료 (이전 방식 통합)", "info");
+    // 애니메이션 호출은 IntersectionObserver에서 하도록 유지
   }
 
-  // ------------- 점수 및 메트릭 UI 초기화 함수 ---------------
+
+  // ------------- 점수 및 메트릭 UI 초기화 함수 (현재 코드 유지) ---------------
   function resetSummaryMetrics(excludeScore = false) {
-    if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A'; // 또는 '0'
-    if (compressionRatioValueEl) compressionRatioValueEl.textContent = 'N/A';
-    if (segmentCountValueEl) segmentCountValueEl.textContent = 'N/A';
-    if (originalDurationTextEl) originalDurationTextEl.textContent = 'N/A';
-    if (summaryDurationTextEl) summaryDurationTextEl.textContent = 'N/A';
-    if (summaryTypeTextEl) summaryTypeTextEl.textContent = 'N/A';
+    if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
+    if (compressionRateValueEl) compressionRateValueEl.textContent = 'N/A';
+    if (keyScenesCountValueEl) keyScenesCountValueEl.textContent = 'N/A';
+    if (viewingTimeValueEl) viewingTimeValueEl.innerHTML = `<span class="time-original">N/A</span> → <span class="time-summary">N/A</span>`;
+    if (summaryMethodValueEl) summaryMethodValueEl.textContent = 'N/A';
   }
 
-  // ------------- 경과 시간 표시 로직 ---------------
+  // ------------- 경과 시간 표시 로직 (현재 코드 유지) ---------------
   let elapsedInterval = null;
   let startTime = null;
   function startElapsedTime() {
@@ -358,44 +396,40 @@ export function initPipelineRunner() {
     }
   }
 
-
-  // ------------- 애니메이션 관련 로직 ---------------
-  // 이 로직들은 해당 ID와 클래스를 가진 HTML 요소가 존재해야 정상 작동합니다.
+  // ------------- 애니메이션 관련 로직 (현재 코드 유지) ---------------
   document.addEventListener('DOMContentLoaded', () => {
     const resultSection = document.getElementById('result-section');
-    if (!resultSection) return; // result-section이 없으면 실행 안 함
+    if (!resultSection) return;
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          animateMetrics();
-          animateScoreCounter();
-          observer.unobserve(entry.target); // 한 번만 실행
+          animateMetrics(); // 현재 코드의 애니메이션 함수
+          animateScoreCounter(); // 현재 코드의 애니메이션 함수
+          observer.unobserve(entry.target);
         }
       });
-    }, { threshold: 0.3 }); // 30% 이상 보일 때 시작
+    }, { threshold: 0.3 });
 
     observer.observe(resultSection);
   });
 
-  // 점수 카운터 애니메이션
   function animateScoreCounter() {
-    if (!summaryScoreValueEl) return; // 요소 없으면 중단
+    if (!summaryScoreValueEl) return;
 
     const endValueText = summaryScoreValueEl.textContent;
     if (endValueText === 'N/A' || endValueText === null || endValueText === undefined) {
-      summaryScoreValueEl.textContent = '0.0'; // 애니메이션 시작 전 기본값
-      return; // 유효한 숫자가 아니면 애니메이션 실행 안 함
+      summaryScoreValueEl.textContent = '0.0';
+      return;
     }
     const endValue = parseFloat(endValueText);
     if (isNaN(endValue)) {
       summaryScoreValueEl.textContent = '0.0';
-      return; // 숫자로 변환 실패 시
+      return;
     }
 
-
-    summaryScoreValueEl.textContent = '0.0'; // 애니메이션 시작 값
-    const duration = 1500; // 1.5초
+    summaryScoreValueEl.textContent = '0.0';
+    const duration = 1500;
     const startTime = performance.now();
 
     function updateScoreCounter(timestamp) {
@@ -404,8 +438,7 @@ export function initPipelineRunner() {
       if (progress > 1) progress = 1;
 
       const easedProgress = easeOutQuart(progress);
-      const currentValue = (endValue * easedProgress).toFixed(1); // 소수점 첫째자리
-
+      const currentValue = (endValue * easedProgress).toFixed(1);
       summaryScoreValueEl.textContent = currentValue;
 
       if (progress < 1) {
@@ -415,50 +448,72 @@ export function initPipelineRunner() {
     requestAnimationFrame(updateScoreCounter);
   }
 
-  // 메트릭 항목 애니메이션 (숫자 카운팅 포함)
   function animateMetrics() {
-    const metricsItems = document.querySelectorAll('#resultCard .summary-metrics li'); // 더 구체적인 선택자
-    if (metricsItems.length === 0) return;
+    // 현재 코드에서는 #resultCard .summary-metrics li 를 사용하고 있지 않음.
+    // 대신, 사이드바의 각 .metric-item을 대상으로 해야 함.
+    // const metricsItems = document.querySelectorAll('#resultCard .shortform-details-sidebar .metric-item');
+    const metricsItems = document.querySelectorAll('.shortform-details-sidebar .metric-item'); // 더 간단한 선택자
+    if (metricsItems.length === 0) {
+      console.warn("AnimateMetrics: .metric-item 요소를 찾을 수 없습니다.");
+      return;
+    }
+
 
     metricsItems.forEach((item, index) => {
       setTimeout(() => {
-        item.style.opacity = '0'; // 초기 상태 (CSS에서 처리하는 것이 더 좋을 수 있음)
+        item.style.opacity = '0';
         item.style.transform = 'translateY(20px)';
-        item.classList.add('animate__animated', 'animate__fadeInUp'); // Animate.css 사용
+        item.classList.add('animate__animated', 'animate__fadeInUp');
         item.style.opacity = '1';
         item.style.transform = 'translateY(0)';
 
+        // 각 metric-item 내부의 .metric-value에 카운팅 애니메이션 적용
+        const valueElement = item.querySelector('.metric-value');
+        if (valueElement) {
+          const textContent = valueElement.textContent; // 예: "69.5% 압축" 또는 "31개 추출됨"
+          if (textContent === 'N/A' || !textContent) return;
 
-        // 강조 숫자에 카운팅 애니메이션 적용 (strong 태그 대상)
-        const strongElements = item.querySelectorAll('strong');
-        strongElements.forEach(strongElement => {
-          // ID를 통해 각 요소에 맞는 값을 가져와서 애니메이션해야 함
-          // 여기서는 간단히 현재 텍스트를 기준으로 함
-          const textContent = strongElement.textContent;
-          if (textContent === 'N/A') return;
-
-          if (strongElement.id === 'originalDurationText' || strongElement.id === 'summaryDurationText') {
-            // 시간 형식 (예: "1분 30초" 또는 "50초")
-            // animateTimeCounter(strongElement); // animateTimeCounter는 아래에 정의
-          } else if (textContent.includes('%') || textContent.includes('개')) {
-            // 숫자 + 단위 (예: "75.0%", "5개")
-            const finalValue = parseFloat(textContent.replace(/[^0-9.]/g, ''));
-            if (!isNaN(finalValue)) {
-              animateCounter(strongElement, 0, finalValue, textContent.includes('%') ? 1 : 0, textContent.replace(/[0-9.]+/g, '').trim());
+          if (valueElement.id === 'viewingTimeValue') {
+            // 시청 시간은 형식이 다르므로 별도 처리하거나, 숫자 부분만 애니메이션.
+            // 현재는 viewingTimeValueEl.innerHTML 로 직접 설정하므로, 개별 숫자 애니메이션은 복잡.
+            // 여기서는 일단 텍스트 값만 표시된 것으로 가정.
+          } else {
+            // 숫자와 단위를 분리
+            const match = textContent.match(/([0-9.]+)(.*)/);
+            if (match && match[1]) {
+              const finalValue = parseFloat(match[1]);
+              const suffix = match[2] ? match[2].trim() : ''; // 예: "% 압축", "개 추출됨"
+              if (!isNaN(finalValue)) {
+                animateCounter(valueElement, 0, finalValue, textContent.includes('.') ? 1 : 0, suffix, true); // isComplexSuffix = true
+              }
             }
           }
-        });
-      }, index * 150); // 각 항목별 지연
+        }
+      }, index * 150);
     });
   }
 
-  // 숫자 카운팅 애니메이션 (소수점 및 단위 지원)
-  function animateCounter(element, start, end, decimalPlaces = 0, suffix = '') {
+  // 숫자 카운팅 애니메이션 (복잡한 단위 포함 가능하도록 수정)
+  function animateCounter(element, start, end, decimalPlaces = 0, suffix = '', isComplexSuffix = false) {
     if (!element) return;
     const duration = 1500;
     const startTime = performance.now();
 
-    element.textContent = start.toFixed(decimalPlaces) + suffix; // 시작 값 설정
+    // isComplexSuffix가 true이면, suffix는 "단위1 단위2" 형태일 수 있음.
+    // 이 경우, innerHTML을 사용하여 span 태그 등을 유지해야 할 수 있음.
+    // 여기서는 textContent를 사용하되, suffix를 그대로 붙이는 방식으로 단순화.
+    // 더 복잡한 HTML 구조 유지가 필요하면, value 부분만 span으로 감싸고 해당 span만 업데이트.
+
+    const initialText = start.toFixed(decimalPlaces) + (isComplexSuffix ? ` ${suffix}` : suffix);
+    if (isComplexSuffix && element.querySelector('.metric-unit')) {
+      // .metric-value의 숫자 부분만 업데이트하고, .metric-unit은 그대로 두는 방식 고려
+      // 예: element.childNodes[0].nodeValue = start.toFixed(decimalPlaces);
+      // 여기서는 단순화를 위해 전체 textContent 업데이트
+      element.textContent = initialText;
+    } else {
+      element.textContent = initialText;
+    }
+
 
     function updateCounter(timestamp) {
       const elapsedTime = timestamp - startTime;
@@ -467,8 +522,18 @@ export function initPipelineRunner() {
 
       const easedProgress = easeOutQuart(progress);
       let currentValue = start + (end - start) * easedProgress;
+      const currentText = currentValue.toFixed(decimalPlaces) + (isComplexSuffix ? ` ${suffix}` : suffix);
 
-      element.textContent = currentValue.toFixed(decimalPlaces) + suffix;
+      if (isComplexSuffix && element.querySelector('.metric-unit')) {
+        // .metric-value의 숫자 부분만 업데이트 (예시)
+        // <span>숫자</span><span class="metric-unit">단위</span> 구조라면
+        // element.childNodes[0].nodeValue = currentValue.toFixed(decimalPlaces);
+        // 여기서는 단순화를 위해 전체 textContent 업데이트
+        element.textContent = currentText;
+      } else {
+        element.textContent = currentText;
+      }
+
 
       if (progress < 1) {
         requestAnimationFrame(updateCounter);
@@ -477,9 +542,9 @@ export function initPipelineRunner() {
     requestAnimationFrame(updateCounter);
   }
 
-  // 부드러운 이징 함수
+
   function easeOutQuart(x) {
     return 1 - Math.pow(1 - x, 4);
   }
 
-} 
+}
