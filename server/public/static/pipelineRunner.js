@@ -1,11 +1,11 @@
 // public/static/pipelineRunner.js
 import { uploadedFileName } from "./uploadHandler.js";
-import { showToast, resetProgressSteps, updateProgressStep, resetUI } from "./uiUtils.js";
-import { initHighlightEditor } from "./highlightEditor.js"; // highlightEditor import 추가
+import { showToast, resetProgressSteps, updateProgressStep, resetUI, formatTime } from "./uiUtils.js"; // formatTime 추가
+import { initHighlightEditor } from "./highlightEditor.js";
 import { getSummaryType } from "./summaryOptions.js";
 
 let sseSource;
-let highlightEditor = null; // highlightEditor 인스턴스를 저장할 변수
+let highlightEditor = null;
 
 export function initPipelineRunner() {
   // ---------------- DOM 요소 ----------------
@@ -19,30 +19,15 @@ export function initPipelineRunner() {
   const downloadBtn = document.getElementById("downloadBtn");
   const newBtn = document.getElementById("newBtn");
   const elapsedTimeDisplay = document.getElementById("elapsedTime");
-  const highlightBarContainer = document.getElementById("highlightBarContainer"); // highlightBarContainer 가져오기
+  const highlightBarContainer = document.getElementById("highlightBarContainer");
 
-  // 뷰 전환용 요소 (index.html 에 맞춤) - THESE ELEMENTS ARE NOT IN THE CURRENT index.html
-  /*
-  const shortformView = document.getElementById("shortformView");
-  const shortformViewActions = document.getElementById("shortformViewActions");
-  const originalEditView = document.getElementById("originalEditView");
-  const switchToOriginalViewBtn = document.getElementById("switchToOriginalViewBtn");
-  const switchToShortformViewBtn = document.getElementById("switchToShortformViewBtn");
-
-  // “원본 영상 보기 및 구간 편집” 클릭
-  switchToOriginalViewBtn.addEventListener("click", () => {
-    shortformView.classList.remove("active");
-    shortformViewActions.style.display = "none";
-    originalEditView.classList.add("active");
-  });
-
-  // “요약 영상 보기” 클릭
-  switchToShortformViewBtn.addEventListener("click", () => {
-    originalEditView.classList.remove("active");
-    shortformView.classList.add("active");
-    shortformViewActions.style.display = "flex";
-  });
-  */
+  // --- 점수/메트릭 표시용 DOM 요소들 ---
+  const summaryScoreValueEl = document.getElementById("summaryScoreValue");
+  const compressionRatioValueEl = document.getElementById("compressionRatioValue");
+  const segmentCountValueEl = document.getElementById("segmentCountValue");
+  const originalDurationTextEl = document.getElementById("originalDurationText");
+  const summaryDurationTextEl = document.getElementById("summaryDurationText");
+  const summaryTypeTextEl = document.getElementById("summaryTypeText");
 
   // ------------- SSE 연결 ---------------
   function startSSE() {
@@ -78,15 +63,7 @@ export function initPipelineRunner() {
 
     if (state.step) updateProgressStep(state.step);
 
-    // 단계 자동 업데이트 (Python 스크립트 로그 기반)
     const msg = state.message || "";
-    // 주석처리된 이전 자동 업데이트 로직
-    // if (msg.includes("TransNetV2") || msg.includes("장면 분할")) updateProgressStep(2);
-    // else if (msg.includes("오디오 추출")) updateProgressStep(3);
-    // else if (msg.includes("Whisper 자막") || msg.includes("문장 세그먼트")) updateProgressStep(4);
-    // else if (msg.includes("상위 세그먼트") || msg.includes("PGL-SUM") || msg.includes("중요도") || msg.includes("경계 보정")) updateProgressStep(5);
-    // else if (msg.includes("하이라이트 영상 생성") || msg.includes("요약 영상")) updateProgressStep(6);
-    // 새 자동 업데이트 로직
     if (msg.includes("특징 추출")) updateProgressStep(1);
     else if (msg.includes("장면 분할") || msg.includes("TransNetV2")) updateProgressStep(2);
     else if (msg.includes("오디오 추출")) updateProgressStep(3);
@@ -94,69 +71,29 @@ export function initPipelineRunner() {
     else if (msg.includes("AI 분석") || msg.includes("PGL-SUM") || msg.includes("중요도") || msg.includes("경계 보정")) updateProgressStep(5);
     else if (msg.includes("영상 생성") || msg.includes("요약 영상") || msg.includes("편집")) updateProgressStep(6);
 
-
     if (state.done && sseSource) {
       sseSource.close();
       sseSource = null;
       stopElapsedTime();
 
-      // ⭐ 파이프라인 완료 시, highlightData가 있으면 highlightEditor에 로드
       if (state.highlightData && highlightEditor) {
-        console.log("SSE로부터 highlightData 수신 (완료 시):", state.highlightData);
-        // originalVideo의 duration을 기준으로 로드
         highlightEditor.loadHighlightData(state.highlightData.segments || [], state.highlightData.original_duration || originalVideo.duration || 0);
-      } else if (state.highlightData && !highlightEditor) {
-        console.warn("highlightData는 수신했으나, highlightEditor가 초기화되지 않았습니다.");
       }
 
-      // The following section for summary score and metrics is commented out
-      // as the corresponding HTML elements are not in the current index.html
-      /*
-      const cleanFileName = uploadedFileName.replace(".mp4", "");
-      console.log("[📡 점수 요청]", `/results/score/${cleanFileName}`);
-      fetch(`/results/score/${cleanFileName}`)
-        .then(res => {
-          if (!res.ok) throw new Error("요약 점수 파일 없음");
-          return res.json();
-        })
-        .then(data => {
-          console.log("[✅ 점수 응답]", data);
-          document.getElementById("summaryScoreValue").textContent = data.summary_score;
-        })
-        .catch(err => {
-          console.warn("요약 품질 점수 로딩 실패", err);
-        });
-      fetch(`/results/report/${cleanFileName}`)
-        .then(res => res.json())
-        .then(data => {
-          const summaryType = getSummaryType();
-          const summaryText = summaryType === "story" ? " 스토리 요약" : " 하이라이트 요약";
-
-          document.querySelector(".summary-metrics").innerHTML = `
-          <li><i class="fas fa-scissors"></i> 원본 대비 <strong>${data.compression_ratio}%</strong> 압축</li>
-          <li><i class="fas fa-star"></i> 핵심 장면 <strong>${data.segment_count}개</strong> 추출됨</li>
-          <li>
-            <i class="fas fa-stopwatch"></i> 시청 시간
-            <strong>${formatSeconds(data.full_duration)}</strong>
-            <span class="time-arrow">→</span>
-            <strong>${formatSeconds(data.summary_duration)}</strong>
-          </li>
-          <li>
-            <i class="fas fa-filter"></i> 요약 방식:${summaryText}</strong>
-          </li>
-        `;
-        })
-        .catch(err => {
-          console.warn("요약 리포트 로딩 실패", err);
-        });
-
-
-      function formatSeconds(sec) {
-        const m = Math.floor(sec / 60);
-        const s = Math.round(sec % 60);
-        return m > 0 ? `${m}분 ${s}초` : `${s}초`;
+      // SSE 응답에 리포트 데이터가 포함되어 있다면 사용 (선택적)
+      if (state.reportData) {
+        console.log("SSE로부터 reportData 수신 (완료 시):", state.reportData);
+        updateSummaryMetrics(state.reportData);
+        // 만약 state.reportData에 summary_score가 없다면, 별도 fetch
+        if (uploadedFileName && state.reportData.summary_score === undefined) {
+          const cleanFileNameForScore = uploadedFileName.replace(/\.mp4$/i, "");
+          fetchSummaryScore(cleanFileNameForScore);
+        }
+      } else if (uploadedFileName) {
+        // SSE에 reportData가 없다면, 이 시점에 명시적으로 fetch 할 수도 있음.
+        // 하지만 보통은 finalVideo.loadedmetadata 이후에 하는 것이 일반적.
+        console.log("SSE 완료 응답에 reportData가 없으므로, 필요시 별도 로드.");
       }
-      */
     }
   }
 
@@ -167,76 +104,73 @@ export function initPipelineRunner() {
       return;
     }
 
-    const mode = getSummaryType(); // "story" 또는 "highlight"
+    const mode = getSummaryType();
 
-    // 버튼 및 UI 초기화
     startBtn.disabled = true;
-    // startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 업로드 중...'; // 이전 코드 주석
-    startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...'; // "생성 중..."으로 변경
-    if (highlightEditor) { // 기존 에디터가 있다면 파괴
+    startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
+    if (highlightEditor) {
       highlightEditor.destroy();
       highlightEditor = null;
     }
+    resetSummaryMetrics(); // 점수/메트릭 표시 초기화
+
     progressCard.style.display = "block";
     resultCard.style.display = "none";
     statusDiv.innerHTML = '<i class="fas fa-hourglass-start"></i> 0% - 생성 시작 중...';
     progressBarInner.style.width = "0%";
     startElapsedTime();
     resetProgressSteps();
-    updateProgressStep(1); // 첫 번째 단계 활성화
+    updateProgressStep(1);
     setTimeout(() => {
       document.getElementById("progress-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
     }, 100);
 
-    startSSE(); // SSE 연결 시작
+    startSSE();
 
     try {
-      const res = await fetch(`/upload/process?filename=${uploadedFileName}&mode=${mode}`);
-      const serverResponse = await res.json(); // 서버 응답 받기
-      if (!res.ok) throw new Error(serverResponse.message || serverResponse.error || res.statusText);
+      const processRes = await fetch(`/upload/process?filename=${uploadedFileName}&mode=${mode}`);
+      const processData = await processRes.json();
+      if (!processRes.ok) throw new Error(processData.message || processData.error || processRes.statusText);
 
-      console.log("서버 처리 요청 성공:", serverResponse);
-
-      // 비디오 소스 설정
       originalVideo.src = `/uploads/${uploadedFileName}?t=${Date.now()}`;
       finalVideo.src = `/clips/highlight_${uploadedFileName}?t=${Date.now()}`;
 
-      // finalVideo 메타데이터 로드 완료 시
       finalVideo.addEventListener("loadedmetadata", async () => {
         progressCard.style.display = "none";
-        resultCard.style.display = "block";
+        resultCard.style.display = "block"; // resultCard를 먼저 보이게 해야 IntersectionObserver가 작동
 
-        // ⭐ mode에 관계없이 highlightEditor 초기화 시도
         if (highlightBarContainer && originalVideo && uploadedFileName && resultCard) {
-          if (highlightEditor) { // 중복 초기화 방지
+          if (highlightEditor) {
             highlightEditor.destroy();
           }
-          // initHighlightEditor 호출 시 originalVideo 전달
           highlightEditor = initHighlightEditor(highlightBarContainer, originalVideo, uploadedFileName, resultCard);
-          console.log("Highlight Editor 초기화됨.");
 
-          // highlight 데이터 로드 시도
           if (highlightEditor) {
-            await loadHighlightDataFromServer();
+            if (processData.highlightData) {
+              highlightEditor.loadHighlightData(processData.highlightData.segments || [], processData.highlightData.original_duration || originalVideo.duration || 0);
+            } else {
+              await loadHighlightDataFromServer();
+            }
           }
-        } else {
-          console.error("Highlight Editor 초기화에 필요한 요소가 부족합니다.");
         }
 
-        // 요약 뷰 활성화 & 액션 버튼 보이기 - These elements are not in the current index.html
-        /*
-        shortformView.classList.add("active");
-        originalEditView.classList.remove("active");
-        shortformViewActions.style.display = "flex";
-        */
+        const cleanFileName = uploadedFileName.replace(/\.mp4$/i, "");
+        if (processData.reportData) {
+          updateSummaryMetrics(processData.reportData);
+          // processData.reportData에 summary_score가 없다면 별도 요청
+          if (processData.reportData.summary_score === undefined) {
+            fetchSummaryScore(cleanFileName);
+          }
+        } else {
+          fetchAndDisplayReport(cleanFileName);
+          fetchSummaryScore(cleanFileName);
+        }
 
-        // 스크롤 이동
         setTimeout(() => {
           resultCard.scrollIntoView({ behavior: "smooth", block: "center" });
         }, 400);
       }, { once: true });
 
-      // 다운로드 버튼 설정
       downloadBtn.onclick = () => {
         const link = document.createElement("a");
         link.href = finalVideo.src;
@@ -253,13 +187,12 @@ export function initPipelineRunner() {
       stopElapsedTime();
     } finally {
       startBtn.disabled = false;
-      startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 시작'; // Reverted button text to match HTML
+      startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 시작';
     }
   });
 
   // ------------- 새 영상 만들기 버튼 클릭 ---------------
   newBtn.addEventListener("click", () => {
-    // 전체 UI 초기화
     resultCard.style.display = "none";
     progressCard.style.display = "none";
     progressBarInner.style.width = "0%";
@@ -267,11 +200,12 @@ export function initPipelineRunner() {
     if (elapsedTimeDisplay) elapsedTimeDisplay.textContent = "00:00";
     stopElapsedTime();
     resetProgressSteps();
-    if (highlightEditor) { // 에디터가 있다면 파괴
+    if (highlightEditor) {
       highlightEditor.destroy();
       highlightEditor = null;
     }
-    resetUI(); // 파일 입력 등 공통 UI 초기화
+    resetSummaryMetrics(); // 점수/메트릭 표시 초기화
+    resetUI();
     if (sseSource) {
       sseSource.close();
       sseSource = null;
@@ -279,51 +213,127 @@ export function initPipelineRunner() {
     document.getElementById("upload-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
-  // ------------- highlight JSON 로드 함수 (명시적 호출용) ---------------
+  // ------------- highlight JSON 로드 함수 ---------------
   async function loadHighlightDataFromServer() {
-    if (!highlightEditor) {
-      console.warn("loadHighlightDataFromServer: highlightEditor가 초기화되지 않았습니다.");
-      return;
-    }
-    if (!uploadedFileName) {
-      console.warn("loadHighlightDataFromServer: uploadedFileName이 없습니다.");
-      return;
-    }
+    if (!highlightEditor) return;
+    if (!uploadedFileName) return;
 
     const baseName = uploadedFileName.split('.').slice(0, -1).join('.');
     const jsonName = `highlight_${baseName}.json`;
 
     try {
-      console.log(`서버로부터 ${jsonName} 파일 로드 시도...`);
       const res = await fetch(`/clips/${jsonName}?t=${Date.now()}`);
       if (!res.ok) {
         if (res.status === 404) {
-          console.log(`${jsonName} 파일을 찾을 수 없습니다.`);
           highlightEditor.loadHighlightData([], originalVideo.duration || 0);
           return;
         }
         throw new Error(`Fetch 실패 (${res.status}): ${res.statusText}`);
       }
       const data = await res.json();
-      console.log("서버로부터 highlight JSON 데이터 수신:", data);
-
       const segments = data.segments || [];
       const originalDuration = data.original_duration || originalVideo.duration || 0;
-
-      if (originalDuration === 0 && originalVideo.readyState < 1) {
-        console.warn("원본 비디오의 duration을 아직 알 수 없습니다.");
-      }
-
       highlightEditor.loadHighlightData(segments, originalDuration);
-      showToast("요약 구간 정보 로드 완료", "info");
-
+      // showToast("요약 구간 정보 로드 완료", "info"); // 이미 fetchAndDisplayReport에서 유사 메시지 표시 가능성
     } catch (err) {
       console.error("숏폼 JSON 로드 오류:", err);
       if (highlightEditor) {
         highlightEditor.loadHighlightData([], originalVideo.duration || 0);
       }
-      showToast("요약 구간 정보 로드 중 오류 발생", "error");
+      // showToast("요약 구간 정보 로드 중 오류 발생", "error");
     }
+  }
+
+  // ------------- 점수만 별도로 가져오는 함수 ---------------
+  async function fetchSummaryScore(baseFilename) {
+    if (!summaryScoreValueEl) return;
+    try {
+      const res = await fetch(`/results/score/${baseFilename}?t=${Date.now()}`);
+      if (!res.ok) {
+        if (res.status === 404) console.warn(`점수 파일 /results/score/${baseFilename} 없음 (404)`);
+        else console.warn(`점수 파일 로드 실패: ${res.status}`);
+        summaryScoreValueEl.textContent = 'N/A';
+        return;
+      }
+      const data = await res.json();
+      if (data && data.summary_score !== undefined) {
+        summaryScoreValueEl.textContent = parseFloat(data.summary_score).toFixed(1); // 애니메이션 위해 임시 저장
+      } else {
+        summaryScoreValueEl.textContent = 'N/A';
+      }
+    } catch (err) {
+      console.warn("요약 품질 점수 로딩 실패:", err);
+      summaryScoreValueEl.textContent = 'N/A';
+    }
+  }
+
+  // ------------- 리포트 데이터 로드 및 표시 함수 ---------------
+  async function fetchAndDisplayReport(baseFilename) {
+    try {
+      const reportRes = await fetch(`/results/report/${baseFilename}?t=${Date.now()}`);
+      if (!reportRes.ok) {
+        if (reportRes.status === 404) {
+          console.warn(`리포트 파일 (/results/report/${baseFilename}) 없음 (404)`);
+          resetSummaryMetrics(true); // 점수 제외 리셋
+          return;
+        }
+        throw new Error(`리포트 로드 실패 (${reportRes.status}): ${reportRes.statusText}`);
+      }
+      const reportData = await reportRes.json();
+      updateSummaryMetrics(reportData, true); // 점수 제외 업데이트
+      // 애니메이션 함수를 직접 호출할 수도 있음
+      // animateMetrics(); // 데이터 로드 후 바로 애니메이션 시작
+      showToast("요약 정보 로드 완료", "info");
+    } catch (err) {
+      console.error("리포트 데이터 로드 중 오류:", err);
+      showToast("요약 정보 로드 중 오류 발생", "error");
+      resetSummaryMetrics(true); // 점수 제외 리셋
+    }
+  }
+
+  // ------------- 점수 및 메트릭 UI 업데이트 함수 ---------------
+  function updateSummaryMetrics(data, excludeScore = false) {
+    if (!data) {
+      resetSummaryMetrics();
+      return;
+    }
+
+    if (!excludeScore && summaryScoreValueEl) {
+      const score = data.summary_score !== undefined ? parseFloat(data.summary_score).toFixed(1) : 'N/A';
+      summaryScoreValueEl.textContent = score; // 애니메이션 위해 임시 저장 또는 최종값
+      // animateScoreCounter(); // 데이터 업데이트 후 애니메이션 호출
+    }
+    if (compressionRatioValueEl) {
+      compressionRatioValueEl.textContent = data.compression_ratio !== undefined ? `${parseFloat(data.compression_ratio).toFixed(1)}%` : 'N/A';
+    }
+    if (segmentCountValueEl) {
+      segmentCountValueEl.textContent = data.segment_count !== undefined ? `${data.segment_count}개` : 'N/A';
+    }
+    if (originalDurationTextEl && data.full_duration !== undefined) {
+      originalDurationTextEl.textContent = formatTime(data.full_duration);
+    } else if (originalDurationTextEl) {
+      originalDurationTextEl.textContent = 'N/A';
+    }
+    if (summaryDurationTextEl && data.summary_duration !== undefined) {
+      summaryDurationTextEl.textContent = formatTime(data.summary_duration);
+    } else if (summaryDurationTextEl) {
+      summaryDurationTextEl.textContent = 'N/A';
+    }
+    if (summaryTypeTextEl) {
+      summaryTypeTextEl.textContent = data.summary_type_text || (getSummaryType() === 'story' ? '스토리 요약' : '하이라이트 요약');
+    }
+    // 모든 데이터가 설정된 후, 메트릭 애니메이션 호출
+    // animateMetrics();
+  }
+
+  // ------------- 점수 및 메트릭 UI 초기화 함수 ---------------
+  function resetSummaryMetrics(excludeScore = false) {
+    if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A'; // 또는 '0'
+    if (compressionRatioValueEl) compressionRatioValueEl.textContent = 'N/A';
+    if (segmentCountValueEl) segmentCountValueEl.textContent = 'N/A';
+    if (originalDurationTextEl) originalDurationTextEl.textContent = 'N/A';
+    if (summaryDurationTextEl) summaryDurationTextEl.textContent = 'N/A';
+    if (summaryTypeTextEl) summaryTypeTextEl.textContent = 'N/A';
   }
 
   // ------------- 경과 시간 표시 로직 ---------------
@@ -341,182 +351,135 @@ export function initPipelineRunner() {
       elapsedTimeDisplay.textContent = `${mins}:${secs}`;
     }, 1000);
   }
-
   function stopElapsedTime() {
     if (elapsedInterval) {
       clearInterval(elapsedInterval);
       elapsedInterval = null;
     }
   }
-}
 
-// The following animation logic is commented out as the target elements
-// (summaryScoreValue, .summary-metrics) are not present in the current index.html
-/*
-document.addEventListener('DOMContentLoaded', () => {
-  // 결과 섹션이 화면에 표시될 때 애니메이션 시작
-  const resultSection = document.getElementById('result-section');
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // 결과 섹션이 보이면 메트릭스 애니메이션 시작
-        animateMetrics();
-        // 점수 애니메이션 시작
-        animateScoreCounter();
-        // 한 번만 실행하도록 관찰 중단
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.3 }); // 30% 이상 보일 때 시작
 
-  if (resultSection) {
-    observer.observe(resultSection);
-  }
-});
+  // ------------- 애니메이션 관련 로직 ---------------
+  // 이 로직들은 해당 ID와 클래스를 가진 HTML 요소가 존재해야 정상 작동합니다.
+  document.addEventListener('DOMContentLoaded', () => {
+    const resultSection = document.getElementById('result-section');
+    if (!resultSection) return; // result-section이 없으면 실행 안 함
 
-// 점수 카운터 애니메이션
-function animateScoreCounter() {
-  const scoreElement = document.getElementById('summaryScoreValue');
-  if (!scoreElement) return;
-
-  const endValue = parseFloat(scoreElement.textContent);
-  // 초기값을 0으로 설정
-  scoreElement.textContent = '0.00';
-
-  const duration = 2000; // 2초 동안 카운팅
-  const startTime = performance.now();
-
-  function updateScoreCounter(timestamp) {
-    const elapsedTime = timestamp - startTime;
-    const progress = Math.min(elapsedTime / duration, 1);
-
-    // 이징 함수로 자연스러운 느낌 추가
-    const easedProgress = easeOutQuart(progress);
-    const currentValue = (endValue * easedProgress).toFixed(2);
-
-    scoreElement.textContent = currentValue;
-
-    if (progress < 1) {
-      requestAnimationFrame(updateScoreCounter);
-    }
-  }
-
-  requestAnimationFrame(updateScoreCounter);
-}
-
-function animateMetrics() {
-  // 메트릭스 항목들 애니메이션 적용
-  const metricsItems = document.querySelectorAll('.summary-metrics li');
-
-  metricsItems.forEach((item, index) => {
-    // 각 항목에 지연 시간을 다르게 적용
-    setTimeout(() => {
-      item.classList.add('animate');
-
-      // 강조 숫자에 카운팅 애니메이션 적용
-      const strongElements = item.querySelectorAll('strong');
-      strongElements.forEach(strongElement => {
-        const timePattern = /(\d+)분\s*(\d+)초/;
-        const matches = strongElement.textContent.match(timePattern);
-
-        // 시간 형식(X분 X초)인지 확인
-        if (matches) {
-          animateTimeCounter(strongElement);
-        } else {
-          const finalValue = strongElement.textContent.replace(/[^0-9.]/g, '');
-          animateCounter(strongElement, 0, parseFloat(finalValue));
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateMetrics();
+          animateScoreCounter();
+          observer.unobserve(entry.target); // 한 번만 실행
         }
       });
-    }, index * 200);
+    }, { threshold: 0.3 }); // 30% 이상 보일 때 시작
+
+    observer.observe(resultSection);
   });
-}
 
-function animateCounter(element, start, end) {
-  // 숫자 카운팅 애니메이션
-  const duration = 1500; // 1.5초 동안 카운팅
-  const startTime = performance.now();
+  // 점수 카운터 애니메이션
+  function animateScoreCounter() {
+    if (!summaryScoreValueEl) return; // 요소 없으면 중단
 
-  const originalContent = element.textContent;
-  const suffix = originalContent.replace(/[0-9.]+/g, '').trim();
-
-  function updateCounter(timestamp) {
-    const elapsedTime = timestamp - startTime;
-    const progress = Math.min(elapsedTime / duration, 1);
-
-    // 이징 함수로 자연스러운 느낌 추가
-    const easedProgress = easeOutQuart(progress);
-    const currentValue = Math.floor(start + (end - start) * easedProgress);
-
-    // 원래 텍스트에서 숫자만 변경
-    element.textContent = currentValue + suffix;
-
-    if (progress < 1) {
-      requestAnimationFrame(updateCounter);
+    const endValueText = summaryScoreValueEl.textContent;
+    if (endValueText === 'N/A' || endValueText === null || endValueText === undefined) {
+      summaryScoreValueEl.textContent = '0.0'; // 애니메이션 시작 전 기본값
+      return; // 유효한 숫자가 아니면 애니메이션 실행 안 함
     }
+    const endValue = parseFloat(endValueText);
+    if (isNaN(endValue)) {
+      summaryScoreValueEl.textContent = '0.0';
+      return; // 숫자로 변환 실패 시
+    }
+
+
+    summaryScoreValueEl.textContent = '0.0'; // 애니메이션 시작 값
+    const duration = 1500; // 1.5초
+    const startTime = performance.now();
+
+    function updateScoreCounter(timestamp) {
+      const elapsedTime = timestamp - startTime;
+      let progress = elapsedTime / duration;
+      if (progress > 1) progress = 1;
+
+      const easedProgress = easeOutQuart(progress);
+      const currentValue = (endValue * easedProgress).toFixed(1); // 소수점 첫째자리
+
+      summaryScoreValueEl.textContent = currentValue;
+
+      if (progress < 1) {
+        requestAnimationFrame(updateScoreCounter);
+      }
+    }
+    requestAnimationFrame(updateScoreCounter);
   }
 
-  requestAnimationFrame(updateCounter);
-}
+  // 메트릭 항목 애니메이션 (숫자 카운팅 포함)
+  function animateMetrics() {
+    const metricsItems = document.querySelectorAll('#resultCard .summary-metrics li'); // 더 구체적인 선택자
+    if (metricsItems.length === 0) return;
 
-// 시간 카운터 애니메이션 (X분 X초 형식)
-function animateTimeCounter(element) {
-  const timePattern = /(\d+)분\s*(\d+)초/;
-  const matches = element.textContent.match(timePattern);
+    metricsItems.forEach((item, index) => {
+      setTimeout(() => {
+        item.style.opacity = '0'; // 초기 상태 (CSS에서 처리하는 것이 더 좋을 수 있음)
+        item.style.transform = 'translateY(20px)';
+        item.classList.add('animate__animated', 'animate__fadeInUp'); // Animate.css 사용
+        item.style.opacity = '1';
+        item.style.transform = 'translateY(0)';
 
-  if (!matches) return;
 
-  const minutes = parseInt(matches[1], 10);
-  const seconds = parseInt(matches[2], 10);
-  const totalSeconds = minutes * 60 + seconds;
+        // 강조 숫자에 카운팅 애니메이션 적용 (strong 태그 대상)
+        const strongElements = item.querySelectorAll('strong');
+        strongElements.forEach(strongElement => {
+          // ID를 통해 각 요소에 맞는 값을 가져와서 애니메이션해야 함
+          // 여기서는 간단히 현재 텍스트를 기준으로 함
+          const textContent = strongElement.textContent;
+          if (textContent === 'N/A') return;
 
-  const duration = 1500; // 1.5초 동안 카운팅
-  const startTime = performance.now();
-  let startSeconds = 0;
-
-  // 첫 번째 요소는 내려가는 카운트, 두 번째는 올라가는 카운트
-  const isCountDown = element.parentNode.querySelector('strong:first-of-type') === element;
-
-  if (isCountDown) {
-    startSeconds = totalSeconds * 1.5; // 더 큰 수에서 시작
+          if (strongElement.id === 'originalDurationText' || strongElement.id === 'summaryDurationText') {
+            // 시간 형식 (예: "1분 30초" 또는 "50초")
+            // animateTimeCounter(strongElement); // animateTimeCounter는 아래에 정의
+          } else if (textContent.includes('%') || textContent.includes('개')) {
+            // 숫자 + 단위 (예: "75.0%", "5개")
+            const finalValue = parseFloat(textContent.replace(/[^0-9.]/g, ''));
+            if (!isNaN(finalValue)) {
+              animateCounter(strongElement, 0, finalValue, textContent.includes('%') ? 1 : 0, textContent.replace(/[0-9.]+/g, '').trim());
+            }
+          }
+        });
+      }, index * 150); // 각 항목별 지연
+    });
   }
 
-  function updateTimeCounter(timestamp) {
-    const elapsedTime = timestamp - startTime;
-    const progress = Math.min(elapsedTime / duration, 1);
+  // 숫자 카운팅 애니메이션 (소수점 및 단위 지원)
+  function animateCounter(element, start, end, decimalPlaces = 0, suffix = '') {
+    if (!element) return;
+    const duration = 1500;
+    const startTime = performance.now();
 
-    // 이징 함수로 자연스러운 느낌 추가
-    const easedProgress = easeOutQuart(progress);
+    element.textContent = start.toFixed(decimalPlaces) + suffix; // 시작 값 설정
 
-    let currentSeconds;
-    if (isCountDown) {
-      // 카운트다운: 큰 숫자에서 목표로
-      currentSeconds = Math.floor(startSeconds - (startSeconds - totalSeconds) * easedProgress);
-    } else {
-      // 카운트업: 0에서 목표로
-      currentSeconds = Math.floor(totalSeconds * easedProgress);
+    function updateCounter(timestamp) {
+      const elapsedTime = timestamp - startTime;
+      let progress = elapsedTime / duration;
+      if (progress > 1) progress = 1;
+
+      const easedProgress = easeOutQuart(progress);
+      let currentValue = start + (end - start) * easedProgress;
+
+      element.textContent = currentValue.toFixed(decimalPlaces) + suffix;
+
+      if (progress < 1) {
+        requestAnimationFrame(updateCounter);
+      }
     }
-
-    // 분:초 형식으로 변환
-    const currentMinutes = Math.floor(currentSeconds / 60);
-    const remainingSeconds = currentSeconds % 60;
-
-    // 한국어 형식 (X분 X초)으로 표시
-    if (currentMinutes > 0) {
-      element.textContent = `${currentMinutes}분 ${remainingSeconds}초`;
-    } else {
-      element.textContent = `${remainingSeconds}초`;
-    }
-
-    if (progress < 1) {
-      requestAnimationFrame(updateTimeCounter);
-    }
+    requestAnimationFrame(updateCounter);
   }
 
-  requestAnimationFrame(updateTimeCounter);
-}
+  // 부드러운 이징 함수
+  function easeOutQuart(x) {
+    return 1 - Math.pow(1 - x, 4);
+  }
 
-// 부드러운 이징 함수
-function easeOutQuart(x) {
-  return 1 - Math.pow(1 - x, 4);
-}
-*/
+} 
