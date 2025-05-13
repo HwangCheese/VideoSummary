@@ -15,3 +15,5 @@ __pycache__
 node_modules
 
 src/TransNetV2
+
+/results/output_test
