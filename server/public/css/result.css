@@ -572,3 +572,42 @@ server/public/css/result.css
         border: none;
     }
 }
+
+.video-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.video-wrapper video {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
+.video-wrapper img.frame-graph-overlay {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.frame-graph-overlay {
+  position: absolute;
+  width: 100%;
+  height: auto;
+  display: block;
+  bottom: 20px; /* 영상 내부 하단에서 위로 약간 띄움 */
+  left: 0%;                    /* ⬅ 양쪽 여백 2% */
+  width: 100%;                  /* ⬅ 100% - 2%*2 */
+  height: 25px;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+}
+
+
+.video-wrapper:hover .frame-graph-overlay {
+  opacity: 1;
+}
