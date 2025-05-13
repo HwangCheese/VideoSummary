@@ -7,6 +7,7 @@ from video_module import create_highlight_video
 from whisper_segmentor import process as whisper_process
 from refine_selected_segments import refine_selected_segments
 from visualize_module import run_visualize_pipeline
+from frame_score_plotter import visualize_all_segments_frame_scores
 
 
 def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
@@ -81,9 +82,11 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
 
     # 시각화 PNG
     #run_visualize_pipeline(segment_json, selected_json, visualize_png)
+    
+    # 📈 전체 프레임 점수 시각화 (선택 강조 없이)
+    #print("\n🖼️ [시각화] 전체 세그먼트 프레임 점수 시각화", flush=True)
+    #visualize_all_segments_frame_scores(segment_json, visualize_png)
 
-    # ────────── 6. 요약 영상 생성 ──────────
-    print("\n🎞️ [6/6] 요약 영상 생성", flush=True)
    # ────────── 6. 요약 영상 생성 ──────────
     if os.path.exists(highlight_video):
         print("\n🎞️ [6/6] 요약 영상 생성 - 기존 파일 발견, 스킵", flush=True)
