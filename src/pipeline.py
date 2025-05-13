@@ -84,11 +84,17 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
 
     # ────────── 6. 요약 영상 생성 ──────────
     print("\n🎞️ [6/6] 요약 영상 생성", flush=True)
-    create_highlight_video(
-        selected_segments=json.load(open(refined_json, encoding="utf-8")),
-        video_path=video_path,
-        output_video=highlight_video
-    )
+   # ────────── 6. 요약 영상 생성 ──────────
+    if os.path.exists(highlight_video):
+        print("\n🎞️ [6/6] 요약 영상 생성 - 기존 파일 발견, 스킵", flush=True)
+    else:
+        print("\n🎞️ [6/6] 요약 영상 생성", flush=True)
+        create_highlight_video(
+            selected_segments=json.load(open(refined_json, encoding="utf-8")),
+            video_path=video_path,
+            output_video=highlight_video
+        )
+
     print(f"\n✅ 파이프라인 완료! 최종 요약 영상: {highlight_video}", flush=True)
     
     # ────────── 7. 비디오 내 상대 점수 기반 품질 점수 계산 (정규화 방식) ──────────
@@ -239,7 +245,7 @@ if __name__ == "__main__":
     parser.add_argument("--model_size", default="base", help="Whisper 모델 크기")
 
     # Knapsack 선택 관련 인자 
-    parser.add_argument("--importance_weight", default=1.0, type=float, help="중요도 가중치 (0.0 ~ 1.0) for knapsack selection 0에 가까울 수록 전반적인 요약")  
+    parser.add_argument("--importance_weight", default=0.1, type=float, help="중요도 가중치 (0.0 ~ 1.0) for knapsack selection 0에 가까울 수록 전반적인 요약")  
     parser.add_argument("--budget_time", type=float, default=None, help="요약에 사용할 총 예산 시간(초). 지정하지 않으면 전체 길이의 20% 사용")   
 
     args = parser.parse_args()

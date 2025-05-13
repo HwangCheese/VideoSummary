@@ -100,6 +100,9 @@ export function initPipelineRunner() {
       fetch(`/results/report/${cleanFileName}`)
         .then(res => res.json())
         .then(data => {
+          const summaryType = getSummaryType();
+          const summaryText = summaryType === "story" ? " 스토리 요약" : " 하이라이트 요약";
+
           document.querySelector(".summary-metrics").innerHTML = `
           <li><i class="fas fa-scissors"></i> 원본 대비 <strong>${data.compression_ratio}%</strong> 압축</li>
           <li><i class="fas fa-star"></i> 핵심 장면 <strong>${data.segment_count}개</strong> 추출됨</li>
@@ -109,11 +112,15 @@ export function initPipelineRunner() {
             <span class="time-arrow">→</span>
             <strong>${formatSeconds(data.summary_duration)}</strong>
           </li>
+          <li>
+            <i class="fas fa-filter"></i> 요약 방식:${summaryText}</strong>
+          </li>
         `;
         })
         .catch(err => {
           console.warn("요약 리포트 로딩 실패", err);
         });
+
 
       function formatSeconds(sec) {
         const m = Math.floor(sec / 60);

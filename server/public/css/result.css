@@ -209,6 +209,37 @@ server/public/css/result.css
     text-align: center;
 }
 
+/* 요약 타입 라벨 */
+.summary-type-label {
+    display: inline-block;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    margin-left: 6px;
+    vertical-align: middle;
+    color: black;
+    background: linear-gradient(to right, #4facfe, #00f2fe); /* 기본은 하이라이트용 */
+}
+
+#summaryTypeText {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 16px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: white;
+    background: linear-gradient(to right, #4facfe, #00f2fe); /* 하이라이트 색상 */
+}
+
+#summaryTypeText.story-type {
+    background: linear-gradient(to right, #ff758c, #ff7eb3); /* 스토리 색상 */
+}
+
+#summaryTypeText {
+    color: #333 !important; /* 또는 black */
+}
+
 /* === Original Edit View Specific Styles (하이라이트 편집 제거됨) === */
 #originalEditView.active .main-video-wrapper {
     /* 하이라이트 섹션 관련 제거 */

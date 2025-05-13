@@ -73,7 +73,7 @@ router.get("/process", (req, res) => {
   if (mode === "highlight") {
     pipelineArgs.push("--importance_weight", "0.8");
   } else {
-    pipelineArgs.push("--importance_weight", "0.3");
+    pipelineArgs.push("--importance_weight", "0.1");
   }
 
   const pipeline = spawn("conda", [
