@@ -9,6 +9,30 @@ server/public/css/result.css
     width: 95%;
 }
 
+.card {
+    background-color: #fff; /* 또는 var(--light-color) */
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+    /* padding: 2rem; */ /* 만약 카드 자체에 큰 패딩이 있다면 이 값을 줄이거나 제거 */
+    /* margin-bottom: 2rem; */ /* 카드 간 간격 */
+}
+
+.card-header {
+    padding: 1.5rem 2rem; /* 상하 패딩(1.5rem)을 줄일 수 있음. 예: 1rem 2rem */
+    border-bottom: 1px solid var(--light-gray);
+    /* margin-bottom: 1.5rem; */ /* 만약 헤더와 바디 사이에 마진이 있다면 줄이거나 제거 */
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.5rem; /* 필요시 약간 줄일 수 있음 */
+    /* ... */
+}
+
+.card-body {
+    padding: 2rem; /* 이 상하 패딩(2rem)을 줄이는 것이 효과적입니다. 예: 1.2rem 2rem 또는 1.5rem */
+}
+
 /* --- 비디오 컨테이너 그룹 --- */
 .video-container-group {
     display: flex;
@@ -298,6 +322,113 @@ server/public/css/result.css
 }
 .resize-handle.right {
     right: -5px;
+}
+
+/* ===== 요약 영상 자막 스크립트 영역 스타일 ===== */
+.shortform-transcript-section {
+    margin-top: 2rem; /* 요약 영상과의 간격 */
+    padding: 1.5rem;
+    background-color: var(--light-color, #f8f9fa); /* 밝은 배경색 */
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--light-gray, #e9ecef);
+    max-height: 260px;
+    overflow-y: auto; /* 세로 스크롤 자동 표시 */
+}
+
+.transcript-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--light-gray, #e9ecef);
+}
+
+.transcript-header h4 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.transcript-header h4 i {
+    color: var(--primary-color);
+}
+
+/* (선택 사항) 자막 검색창 스타일
+#transcriptSearch {
+    padding: 0.5rem 0.8rem;
+    border-radius: calc(var(--border-radius) / 1.5);
+    border: 1px solid var(--light-gray);
+    font-size: 0.9rem;
+    min-width: 200px;
+}
+#transcriptSearch:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 67, 97, 238), 0.2);
+}
+*/
+
+.transcript-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem; /* 각 자막 아이템 사이 간격 */
+}
+
+.transcript-list li {
+    padding: 0.8rem 1rem;
+    background-color: #ffffff;
+    border-radius: calc(var(--border-radius) / 1.5);
+    border: 1px solid var(--light-gray, #e9ecef);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.15s ease,
+        border-color 0.2s ease;
+    display: flex; /* 시간과 텍스트를 가로로 배치 */
+    align-items: flex-start; /* 상단 정렬 */
+    gap: 0.8rem; /* 시간과 텍스트 사이 간격 */
+}
+
+.transcript-list li:hover {
+    background-color: #f0f3ff; /* 호버 시 배경색 (primary-light 계열의 아주 연한 색) */
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.transcript-list li.active-transcript {
+    background-color: var(--primary-light); /* 현재 재생 중인 자막 배경색 */
+    color: white; /* 현재 재생 중인 자막 텍스트 색상 */
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 67, 97, 238), 0.3);
+}
+.transcript-list li.active-transcript .transcript-time,
+.transcript-list li.active-transcript .transcript-text {
+    color: white;
+}
+
+.transcript-time {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    white-space: nowrap; /* 시간 정보가 줄바꿈되지 않도록 */
+    flex-shrink: 0; /* 시간 영역 크기 고정 */
+    min-width: 100px; /* 시간 표시 영역 최소 너비 (예: 00:00 ~ 00:00) */
+}
+
+.transcript-text {
+    font-size: 0.95rem;
+    color: var(--dark-color);
+    line-height: 1.5;
+    flex-grow: 1; /* 텍스트 영역이 남은 공간을 모두 차지하도록 */
 }
 
 /* ========= 편집 모드 스타일 ========= */

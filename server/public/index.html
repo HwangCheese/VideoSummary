@@ -76,7 +76,7 @@
                 </label>
               </div>
               <div class="summary-duration">
-                <label for="durationInput"><i class="fas fa-clock"></i> 원하는요약 영상 길이</label>
+                <label for="durationInput"><i class="fas fa-clock"></i> 원하는 요약 영상 길이</label>
                 <input type="number" id="durationInput" placeholder="분 단위">
               </div>
             </div>
@@ -186,8 +186,24 @@
             <div class="video-box shortform-video-box">
               <h3><i class="fas fa-star"></i> 요약 영상</h3>
               <video id="finalVideo" controls></video>
+              <!-- ===== 요약 영상 자막 스크립트 영역 (신규 추가) ===== -->
+              <div id="shortformTranscriptSection" class="shortform-transcript-section">
+                <div class="transcript-header">
+                  <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
+                  <!-- <input type="text" id="transcriptSearch" placeholder="자막 검색..."> -->
+                </div>
+                <ul id="transcriptList" class="transcript-list">
+                  <!-- 자막 아이템은 JavaScript로 동적으로 채워집니다. -->
+                  <!-- 예시 아이템 (실제로는 JS로 생성):
+                  <li data-start-time="1.7">
+                    <span class="transcript-time">00:01 ~ 00:05</span>
+                    <p class="transcript-text">이 영상은 그럼 성님 하다 안 찍겠습니다 네?</p>
+                  </li>
+                  -->
+                </ul>
+              </div>
+              <!-- ===== 요약 영상 자막 스크립트 영역 끝 ===== -->
             </div>
-            <!-- 요약 관련 점수 기능 (사이드바) -->
             <!-- 요약 관련 점수 기능 (사이드바) -->
             <div class="shortform-details-sidebar">
               <div class="sidebar-header">

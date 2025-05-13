@@ -23,24 +23,11 @@ export function initPipelineRunner() {
 
   // --- 점수/메트릭 표시용 DOM 요소들 (현재 코드 기준) ---
   const summaryScoreValueEl = document.getElementById("summaryScoreValue");
-  // 이전 코드의 .summary-metrics li 항목에 해당하는 ID들 (현재 코드에는 없음, updateSummaryMetrics에서 직접 사용)
-  // const compressionRatioValueEl = document.getElementById("compressionRatioValue"); // 현재 코드에 있음
-  // const segmentCountValueEl = document.getElementById("segmentCountValue"); // 현재 코드에 있음
-  // const originalDurationTextEl = document.getElementById("originalDurationText"); // 현재 코드에 있음
-  // const summaryDurationTextEl = document.getElementById("summaryDurationText"); // 현재 코드에 있음
-  // const summaryTypeTextEl = document.getElementById("summaryTypeText"); // 현재 코드에 있음
-  // 대신, updateSummaryMetrics 함수에서 해당 ID를 가진 요소들을 직접 사용합니다.
-
-  // 이전 코드에서 사용한 ID가 현재 HTML에 있는지 확인 필요. 없다면 updateSummaryMetrics 함수를 사용해야 함.
-  // 예시: document.getElementById("compressionRateValue"); // HTML의 ID와 일치시켜야 함
-  // 현재 코드의 updateSummaryMetrics는 compressionRatioValueEl 등을 사용하므로, 이 ID들이 HTML에 존재해야 함.
-  // 이전 코드의 metric-item 내부 ID (compressionRateValue, keyScenesCountValue, viewingTimeValue, summaryMethodValue)를 사용하려면
-  // 해당 ID를 가진 요소들을 다시 가져오거나, updateSummaryMetrics가 해당 ID를 사용하도록 수정 필요.
-  // 여기서는 현재 코드의 updateSummaryMetrics 함수 구조를 최대한 유지하면서 이전 로직을 통합합니다.
   const compressionRateValueEl = document.getElementById("compressionRateValue"); // index.html의 ID와 일치
   const keyScenesCountValueEl = document.getElementById("keyScenesCountValue");   // index.html의 ID와 일치
   const viewingTimeValueEl = document.getElementById("viewingTimeValue");       // index.html의 ID와 일치
   const summaryMethodValueEl = document.getElementById("summaryMethodValue");     // index.html의 ID와 일치
+  const transcriptListEl = document.getElementById("transcriptList");
 
 
   // ------------- SSE 연결 ---------------
@@ -221,6 +208,13 @@ export function initPipelineRunner() {
         } else { // /upload/process 응답에 reportData가 없는 경우, 별도 fetch (이전 코드 방식과 유사)
           console.log("processData에 reportData 없음, 별도 fetch 시도.");
           fetchReportAndScoreForUI(cleanFileName);
+        }
+
+        if (transcriptListEl) { // transcriptListEl이 존재하는지 다시 한번 확인
+          console.log(`[${cleanFileName}] 요약 영상 자막 로드 시도...`); // 호출 전 로그 추가
+          await loadAndDisplayShortformTranscript(cleanFileName);
+        } else {
+          console.warn("transcriptListEl 요소를 찾을 수 없어 자막을 로드할 수 없습니다.");
         }
 
         setTimeout(() => {
@@ -545,6 +539,103 @@ export function initPipelineRunner() {
 
   function easeOutQuart(x) {
     return 1 - Math.pow(1 - x, 4);
+  }
+
+  // ===== 요약 영상 자막 로드 및 표시 함수 (신규 추가) =====
+  async function loadAndDisplayShortformTranscript(baseFilename) {
+    if (!transcriptListEl || !finalVideo) return;
+    transcriptListEl.innerHTML = '<li><i class="fas fa-spinner fa-spin"></i> 자막 로딩 중...</li>'; // 로딩 표시
+
+    try {
+      // highlight_{baseFilename}_transcript.json 파일을 요청
+      const transcriptRes = await fetch(`/clips/${baseFilename}_reScript.json?t=${Date.now()}`);
+      if (!transcriptRes.ok) {
+        if (transcriptRes.status === 404) {
+          console.warn(`요약 영상 자막 파일(${baseFilename}_reScript.json) 없음 (404)`);
+          transcriptListEl.innerHTML = '<li>자막 정보를 찾을 수 없습니다.</li>';
+        } else {
+          throw new Error(`요약 영상 자막 로드 실패 (${transcriptRes.status})`);
+        }
+        return;
+      }
+      const transcriptData = await transcriptRes.json(); // [{start, end, text}, ...]
+
+      transcriptListEl.innerHTML = ''; // 로딩 표시 제거 및 목록 초기화
+
+      if (!transcriptData || transcriptData.length === 0) {
+        transcriptListEl.innerHTML = '<li>표시할 자막이 없습니다.</li>';
+        return;
+      }
+
+      transcriptData.forEach(segment => {
+        const listItem = document.createElement('li');
+        listItem.dataset.startTime = segment.start; // 클릭 시 이동을 위한 시작 시간 저장
+
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'transcript-time';
+        // formatTime 함수는 초를 MM:SS 형식으로 변환하는 함수여야 함
+        timeSpan.textContent = `${formatTime(segment.start)} ~ ${formatTime(segment.end)}`;
+
+        const textP = document.createElement('p');
+        textP.className = 'transcript-text';
+        textP.textContent = segment.text;
+
+        listItem.appendChild(timeSpan);
+        listItem.appendChild(textP);
+
+        listItem.addEventListener('click', () => {
+          finalVideo.currentTime = parseFloat(segment.start);
+          finalVideo.play(); // 클릭 시 바로 재생 (선택 사항)
+        });
+
+        transcriptListEl.appendChild(listItem);
+      });
+
+      // 요약 영상 재생 시간에 따라 현재 자막 하이라이트
+      finalVideo.addEventListener('timeupdate', highlightCurrentTranscript);
+
+    } catch (err) {
+      console.error("요약 영상 자막 처리 중 오류:", err);
+      transcriptListEl.innerHTML = '<li>자막을 불러오는 중 오류가 발생했습니다.</li>';
+      showToast("요약 영상 자막 로드 중 오류 발생", "error");
+    }
+  }
+
+  function highlightCurrentTranscript() {
+    if (!transcriptListEl || !finalVideo) return;
+    const currentTime = finalVideo.currentTime;
+    const items = transcriptListEl.querySelectorAll('li');
+
+    items.forEach(item => {
+      const startTime = parseFloat(item.dataset.startTime);
+      // 해당 아이템의 끝 시간도 필요 (json 데이터의 end 값을 data-end-time 등으로 저장)
+      // 여기서는 간단히 시작 시간만으로 다음 아이템 시작 전까지를 현재 구간으로 가정
+      // 더 정확하려면 각 li에 data-end-time도 저장하고 비교해야 함.
+      // 예: const endTime = parseFloat(item.dataset.endTime);
+      // if (currentTime >= startTime && currentTime < endTime) { ... }
+
+      // 임시: 현재 자막의 시작 시간과 다음 자막의 시작 시간 사이로 판단
+      let isActive = false;
+      const nextItem = item.nextElementSibling;
+      if (nextItem) {
+        const nextStartTime = parseFloat(nextItem.dataset.startTime);
+        if (currentTime >= startTime && currentTime < nextStartTime) {
+          isActive = true;
+        }
+      } else { // 마지막 자막인 경우
+        if (currentTime >= startTime) {
+          isActive = true;
+        }
+      }
+
+      if (isActive) {
+        item.classList.add('active-transcript');
+        // (선택 사항) 활성 자막으로 스크롤
+        // item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      } else {
+        item.classList.remove('active-transcript');
+      }
+    });
   }
 
 }

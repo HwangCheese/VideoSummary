@@ -98,7 +98,92 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
             output_video=highlight_video
         )
 
+         # ────────── 6.5. 요약 영상 자막 재구성 (신규 단계 - 원본 자막 재활용) ──────────
+    highlight_transcript_json = os.path.join(output_dir, f"{base}_reScript.json")
+
+    if os.path.exists(highlight_transcript_json):
+        print("\n📝 요약 영상 자막 재구성 - 기존 파일 발견, 스킵", flush=True)
+    else:
+        print("\n📝 요약 영상 자막 재구성 중...", flush=True)
+        try:
+            # 1. 요약에 사용된 세그먼트 정보 로드 (refined_json 사용)
+            with open(refined_json, "r", encoding="utf-8") as f:
+                selected_video_segments = json.load(f) # [{"start_time": S1, "end_time": E1, "original_start": OS1, "original_end": OE1}, ...]
+                                                      # create_highlight_video에 전달되는 selected_segments가 이 형태여야 함.
+                                                      # 또는, refined_json의 구조를 확인하여 올바른 키 사용.
+                                                      # 만약 refined_json에 'original_start' 등이 없다면, selected_json을 참조하거나
+                                                      # refine_selected_segments 함수가 이 정보를 유지하도록 수정 필요.
+                                                      # 여기서는 refined_json에 원본 시간 정보가 있다고 가정.
+
+            # 2. 원본 영상 전체 자막 로드
+            with open(whisper_json, "r", encoding="utf-8") as f:
+                original_transcripts = json.load(f) # [{"start": S, "end": E, "text": T}, ...]
+
+            highlight_transcripts = []
+            current_highlight_time = 0.0  # 요약 영상에서의 현재 누적 시간
+
+            for video_segment in selected_video_segments:
+                # refined_json의 각 세그먼트는 원본 영상의 시간 정보를 가지고 있어야 함.
+                # 예: "original_start_time", "original_end_time"
+                # 여기서는 'start_time'과 'end_time'이 원본 영상의 시간이라고 가정하고,
+                # 요약 영상에서의 상대적 시간은 selected_video_segments의 순서와 길이에 따라 누적.
+                # 만약 refined_json의 start_time, end_time이 이미 요약 영상 기준이라면,
+                # original_start_time, original_end_time 같은 추가 정보가 필요.
+                # 여기서는 refined_json이 원본 영상의 시간 구간을 나타낸다고 가정.
+                segment_original_start = video_segment["start_time"]
+                segment_original_end = video_segment["end_time"]
+                segment_duration_in_highlight = segment_original_end - segment_original_start # 이 세그먼트의 요약 영상 내 길이
+
+                for transcript_segment in original_transcripts:
+                    original_transcript_start = transcript_segment["start"]
+                    original_transcript_end = transcript_segment["end"]
+                    text = transcript_segment["text"]
+
+                    # 원본 자막이 현재 선택된 비디오 세그먼트 구간 내에 완전히 또는 부분적으로 포함되는지 확인
+                    # (선택1: 자막 전체가 비디오 세그먼트 내에 있을 때만 포함)
+                    # if segment_original_start <= original_transcript_start and original_transcript_end <= segment_original_end:
+
+                    # (선택2: 자막이 비디오 세그먼트와 겹치는 부분이 있다면 포함 - 더 복잡한 로직 필요)
+                    # 여기서는 간단하게 자막의 시작 시간이 비디오 세그먼트 구간 내에 있는지 확인
+                    if segment_original_start <= original_transcript_start < segment_original_end:
+                        # 자막의 원본 시작 시간을 요약 영상의 상대적 시간으로 변환
+                        # (현재 비디오 세그먼트 내에서의 상대적 위치 + 이전까지 요약 영상의 누적 시간)
+                        relative_start_in_segment = original_transcript_start - segment_original_start
+                        new_start_time = current_highlight_time + relative_start_in_segment
+
+                        # 자막의 끝 시간도 유사하게 계산 (자막이 세그먼트 경계를 넘지 않도록 주의)
+                        relative_end_in_segment = min(original_transcript_end, segment_original_end) - segment_original_start
+                        new_end_time = current_highlight_time + relative_end_in_segment
+                        
+                        # new_end_time이 new_start_time보다 작거나 같으면 (예: 빈 text="" 자막 또는 경계 문제) 스킵
+                        if new_end_time <= new_start_time or not text.strip():
+                            continue
+
+                        highlight_transcripts.append({
+                            "start": round(new_start_time, 2),
+                            "end": round(new_end_time, 2),
+                            "text": text
+                        })
+
+                current_highlight_time += segment_duration_in_highlight # 다음 요약 세그먼트를 위해 누적 시간 업데이트
+
+            with open(highlight_transcript_json, "w", encoding="utf-8") as f:
+                json.dump(highlight_transcripts, f, indent=2, ensure_ascii=False)
+            print(f"  - 요약 영상 자막 재구성 완료: {highlight_transcript_json}", flush=True)
+
+        except FileNotFoundError as e:
+            print(f"  - ⚠️ 오류: 자막 재구성에 필요한 파일({e.filename})을 찾을 수 없습니다.", flush=True)
+        except KeyError as e:
+            print(f"  - ⚠️ 오류: JSON 데이터에 필요한 키 '{e}'가 없습니다. (refined_json 또는 whisper_json 구조 확인 필요)", flush=True)
+        except Exception as e:
+            print(f"  - ⚠️ 오류: 요약 영상 자막 재구성 중 예외 발생 - {e}", flush=True)
+
+
     print(f"\n✅ 파이프라인 완료! 최종 요약 영상: {highlight_video}", flush=True)
+    if os.path.exists(highlight_transcript_json):
+        print(f"📝 요약 영상 자막 (재구성됨): {highlight_transcript_json}", flush=True)
+    else:
+        print(f"📝 요약 영상 자막 (재구성 실패 또는 스킵됨)", flush=True)
     
     # ────────── 7. 비디오 내 상대 점수 기반 품질 점수 계산 (정규화 방식) ──────────
     print("\n📊 순위 기반 상대 품질 점수 계산 중...", flush=True)
