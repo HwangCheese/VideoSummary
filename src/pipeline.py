@@ -347,8 +347,7 @@ def generate_thumbnails(video_path, refined_segments, output_dir, base):
 
     for seg in refined_segments:
         start_sec = int(seg.get("start_time", 0))  # 썸네일 기준 시간
-        thumb_path = os.path.join(output_dir, f"thumb_{start_sec}.jpg")
-
+        thumb_path = os.path.join(output_dir, f"{base}_thumb_{start_sec}.jpg")
         cmd = [
             "ffmpeg", "-ss", str(start_sec), "-i", video_path,
             "-vframes", "1", "-q:v", "2", "-y", thumb_path

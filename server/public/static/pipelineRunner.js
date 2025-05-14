@@ -336,7 +336,7 @@ export function initPipelineRunner() {
 
       thumbs.forEach((t, idx) => {
         const start = t.start_time;
-        const thumbUrl = `/clips/thumb_${start}.jpg?t=${Date.now()}`;
+        const thumbUrl = `/clips/${baseFilename}_thumb_${start}.jpg?t=${Date.now()}`;
         const stamp = formatTime(start);
         const sceneNumber = idx + 1; // 👉 1부터 시작
 
