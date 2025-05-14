@@ -1,4 +1,4 @@
-import argparse, os, subprocess, json
+import argparse, os, subprocess, json, subprocess
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from extract_features_module import extract_features_pipe
@@ -105,7 +105,15 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
             output_video=highlight_video
         )
 
-         # ────────── 6.5. 요약 영상 자막 재구성 (신규 단계 - 원본 자막 재활용) ──────────
+    # ────────── 6. 썸네일 사진 생성 ──────────
+    try:
+        with open(refined_json, encoding="utf-8") as f:
+            refined_segments = json.load(f)
+        generate_thumbnails(video_path, refined_segments, output_dir, base)
+    except Exception as e:
+        print(f"❌ 썸네일 생성 중 오류 발생: {e}")
+
+    # ────────── 6.5. 요약 영상 자막 재구성 (신규 단계 - 원본 자막 재활용) ──────────
     highlight_transcript_json = os.path.join(output_dir, f"{base}_reScript.json")
 
     if os.path.exists(highlight_transcript_json):
@@ -326,6 +334,45 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         json.dump(report, f, indent=2, ensure_ascii=False)
 
     print(f"📄 요약 리포트 저장 완료: {report_path}")
+
+
+def generate_thumbnails(video_path, refined_segments, output_dir, base):
+    """
+    refined_segments (보정된 세그먼트) 기반으로 start_time을 모두 순회하며 썸네일을 생성한다.
+    refined_segments는 이미 요약 대상으로 선정된 segment들의 리스트이다.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+
+    thumb_meta = []
+
+    for seg in refined_segments:
+        start_sec = int(seg.get("start_time", 0))  # 썸네일 기준 시간
+        thumb_path = os.path.join(output_dir, f"thumb_{start_sec}.jpg")
+
+        cmd = [
+            "ffmpeg", "-ss", str(start_sec), "-i", video_path,
+            "-vframes", "1", "-q:v", "2", "-y", thumb_path
+        ]
+
+        try:
+            subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            print(f"📸 썸네일 생성 완료: {thumb_path}")
+            thumb_meta.append({
+                "start_time": start_sec,
+                "score": seg.get("combined_score", 0),  # 또는 avg_score 등 원하는 기준
+                "segment_id": seg.get("segment_id", None)
+            })
+        except subprocess.CalledProcessError:
+            print(f"❌ 썸네일 생성 실패: {thumb_path}")
+
+    # 썸네일 메타 정보 저장
+    meta_path = os.path.join(output_dir, f"{base}_thumbs.json")
+    with open(meta_path, "w", encoding="utf-8") as f:
+        json.dump(thumb_meta, f, indent=2, ensure_ascii=False)
+    print(f"📝 썸네일 메타 저장 완료: {meta_path}")
+
+
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

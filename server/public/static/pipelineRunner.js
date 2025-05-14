@@ -193,6 +193,9 @@ export function initPipelineRunner() {
               highlightEditor.loadHighlightData(processData.highlightData.segments || [], processData.highlightData.original_duration || originalVideo.duration || 0);
             } else {
               await loadHighlightDataFromServer();
+              const base = uploadedFileName.replace(/\.mp4$/i, "");
+              loadAndRenderThumbnails(base);
+
             }
           }
         }
@@ -317,6 +320,48 @@ export function initPipelineRunner() {
       summaryScoreValueEl.textContent = 'N/A';
     }
   }
+
+  async function loadAndRenderThumbnails(baseFilename) {
+    const slider = document.getElementById("thumbnailSlider");
+    if (!slider) return;
+
+    slider.innerHTML = '<div class="loading">썸네일 로딩…</div>';
+
+    try {
+      const res = await fetch(`/clips/${baseFilename}_thumbs.json?t=${Date.now()}`);
+      if (!res.ok) throw new Error(`thumbs.json (${res.status})`);
+
+      const thumbs = await res.json();      // [{start_time, score}, …]
+      slider.innerHTML = "";
+
+      thumbs.forEach((t, idx) => {
+        const start = t.start_time;
+        const thumbUrl = `/clips/thumb_${start}.jpg?t=${Date.now()}`;
+        const stamp = formatTime(start);
+        const sceneNumber = idx + 1; // 👉 1부터 시작
+
+        const div = document.createElement("div");
+        div.className = "thumbnail";
+        div.innerHTML = `
+        <img src="${thumbUrl}" alt="thumb${sceneNumber}">
+        <div class="thumb-time">#${sceneNumber} · ${stamp}</div>
+      `;
+
+        div.addEventListener("click", () => {
+          const original = document.getElementById("originalVideo");
+          if (original) original.currentTime = start;
+        });
+
+        slider.appendChild(div);
+      });
+
+
+    } catch (err) {
+      console.error("📸 썸네일 로드 실패:", err);
+      slider.innerHTML = "<p>썸네일을 불러오지 못했습니다.</p>";
+    }
+  }
+
 
   // ------------- 이전 코드의 리포트 데이터 처리 방식에 맞춘 UI 업데이트 함수 ---------------
   // 이 함수는 HTML의 ID (compressionRateValue 등)가 이전 코드의 사이드바 항목들과 일치한다고 가정합니다.
