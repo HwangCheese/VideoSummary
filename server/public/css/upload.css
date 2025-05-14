@@ -214,8 +214,3 @@ server/public/css/upload.css
     transition: var(--transition);
     padding: 0;
 }
-
-.icon-btn:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-    color: var(--danger-color);
-}

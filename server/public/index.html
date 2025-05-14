@@ -156,17 +156,16 @@
         <div class="card-body">
           <div class="video-container-group">
 
-            <!-- Original Video Box - NOW CONTAINS HIGHLIGHT SECTION -->
             <div class="video-box original-video-box">
               <h3><i class="fas fa-film"></i> 원본 영상</h3>
               <!--<video id="originalVideo" controls></video>-->
               <div class="video-wrapper">
-               <video id="originalVideo" controls></video>
+                <video id="originalVideo" controls></video>
                 <img id="importanceOverlay" src="/images/frameScore/frameScoreGraph.png" alt="Frame Importance"
                   class="frame-graph-overlay">
               </div>
 
-              <!-- Highlight section MOVED HERE -->
+              <!-- Highlight section -->
               <div class="highlight-section">
                 <h3><i class="fas fa-search"></i> 원본 대비 요약 구간</h3>
                 <div id="highlightBarContainer">
@@ -191,20 +190,13 @@
             <div class="video-box shortform-video-box">
               <h3><i class="fas fa-star"></i> 요약 영상</h3>
               <video id="finalVideo" controls></video>
-              <!-- ===== 요약 영상 자막 스크립트 영역 (신규 추가) ===== -->
+              <!-- ===== 요약 영상 자막 스크립트 영역 -->
               <div id="shortformTranscriptSection" class="shortform-transcript-section">
                 <div class="transcript-header">
                   <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
                   <!-- <input type="text" id="transcriptSearch" placeholder="자막 검색..."> -->
                 </div>
                 <ul id="transcriptList" class="transcript-list">
-                  <!-- 자막 아이템은 JavaScript로 동적으로 채워집니다. -->
-                  <!-- 예시 아이템 (실제로는 JS로 생성):
-                  <li data-start-time="1.7">
-                    <span class="transcript-time">00:01 ~ 00:05</span>
-                    <p class="transcript-text">이 영상은 그럼 성님 하다 안 찍겠습니다 네?</p>
-                  </li>
-                  -->
                 </ul>
               </div>
               <!-- ===== 요약 영상 자막 스크립트 영역 끝 ===== -->
@@ -217,8 +209,8 @@
               </div>
 
               <div class="score-display">
-                <span class="score-value" id="summaryScoreValue">n</span><!-- 실제 값은 JS로 업데이트 -->
-                <span class="score-max">/ 100</span>
+                <span class="score-value" id="summaryScoreValue">n</span>
+                <span class="score-max">n / 100</span>
               </div>
               <p class="score-description" id="summaryScoreDescription">
                 영상 내 중요도 순위를 기준으로, 요약된 부분들의 평균 순위가 높을수록 좋은 요약으로 평가되어 점수가 올라갑니다.
