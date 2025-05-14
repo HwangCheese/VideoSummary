@@ -17,3 +17,4 @@ node_modules
 src/TransNetV2
 
 /results/output_test
+server/public/images/frameScore/*_frameScoreGraph.png
