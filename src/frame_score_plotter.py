@@ -2,11 +2,13 @@ import os
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
+
 
 def visualize_all_segments_frame_scores(segments_path):
     """
     세그먼트 JSON 파일로부터 프레임 점수를 시간 축에 따라 시각화하고,
-    CreateShorts/server/public/images/frameScore/frameScoreGraph.png 에 저장합니다.
+    CreateShorts/server/public/images/frameScore/{baseName}_frameScoreGraph.png 에 저장합니다.
     """
 
     # ─────── 1. JSON 파일 로드 ───────
@@ -61,8 +63,13 @@ def visualize_all_segments_frame_scores(segments_path):
     output_dir = os.path.join(os.path.dirname(__file__), "../server/public/images/frameScore")
     os.makedirs(output_dir, exist_ok=True)
 
-    # 항상 동일한 이름으로 저장
-    save_path = os.path.join(output_dir, "frameScoreGraph.png")
+    # uploadedFileName 기반으로 순수 이름 추출
+    base = Path(segments_path).stem.replace("_segment_scores", "")
+    # 원하는 형태: baby_frameScoreGraph.png
+    file_name = f"{base}_frameScoreGraph.png" 
+
+    # 동적 이름으로 저장
+    save_path = os.path.join(output_dir, file_name)
 
     plt.savefig(save_path, dpi=150, bbox_inches="tight", pad_inches=0, transparent=True)
     print(f"✅ 시각화 저장 완료: {save_path}")

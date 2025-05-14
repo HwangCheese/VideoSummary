@@ -177,6 +177,10 @@ export function initPipelineRunner() {
 
       originalVideo.src = `/uploads/${uploadedFileName}?t=${Date.now()}`;
       finalVideo.src = `/clips/highlight_${uploadedFileName}?t=${Date.now()}`;
+        
+      const overlay = document.getElementById("importanceOverlay");
+      const baseName = uploadedFileName.replace(/\.mp4$/i, "");
+      overlay.src = `/images/frameScore/${baseName}_frameScoreGraph.png?t=${Date.now()}`;
 
       finalVideo.addEventListener("loadedmetadata", async () => {
         progressCard.style.display = "none";
