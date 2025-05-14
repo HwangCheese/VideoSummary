@@ -95,15 +95,30 @@ server/public/css/result.css
     color: var(--gray-color);
 }
 
+/* 2) highlight bar를 절대 위치로 overlay */
 #highlightBarContainer {
-    position: relative;
-    width: 100%;
-    height: 25px;
-    background: #e0e0e0;
-    border-radius: 8px;
-    margin-bottom: 0.5rem;
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;            /* video 바로 위 */
+  height: 25px;         /* 원하는 높이 */
+  background: rgba(224,224,224,0.8);
+  border-radius: 8px;
+  opacity: 0;           /* 기본 숨김 */
+  transition: opacity .3s ease;
+  pointer-events: none; /* video 컨트롤 방해 안 함 */
+  z-index: 20;          /* video 위에 뜨도록 충분히 크게 */
+}
+
+.video-box > .highlight-legend {
+  margin-top: 7px;              /* 영상 아래 간격 */
+  display: flex;
+  justify-content: flex-start;
+  gap: 1rem;
+  font-size: 0.85rem;
+  color: var(--gray-color);
+  position: relative;           /* overlay 영향 안 받도록 */
+  z-index: 1;                   /* overlay보다 아래 */
 }
 
 /* ===== 요약 품질 사이드바 스타일 (신규) ===== */
@@ -530,6 +545,7 @@ server/public/css/result.css
         padding: 0;
         margin: 0;
         border: none;
+        overflow: visible
     }
 
     .shortform-details-sidebar {
@@ -575,6 +591,8 @@ server/public/css/result.css
 
 .video-wrapper {
     position: relative;
+    display: inline-block; /* 혹은 block */
+    overflow: visible;       /* overlay가 잘려 나가지 않도록 */
     width: 100%;
 }
 
@@ -590,13 +608,13 @@ server/public/css/result.css
     height: auto;
     display: block;
 }
-
+/* 프레임 점수 시각화 부분, (기본 숨김) 절대 위치로 아래에 붙이기 */
 .frame-graph-overlay {
     position: absolute;
     width: 100%;
     height: auto;
     display: block;
-    bottom: 20px; /* 영상 내부 하단에서 위로 약간 띄움 */
+    bottom: 25px; /* 영상 내부 하단에서 위로 약간 띄움 */
     left: 0%; /* ⬅ 양쪽 여백 2% */
     width: 100%; /* ⬅ 100% - 2%*2 */
     height: 25px;
@@ -604,11 +622,35 @@ server/public/css/result.css
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
-    z-index: 5;
+    z-index: 11;
 }
 
-.video-wrapper:hover .frame-graph-overlay {
-    opacity: 1;
+/* 타임바 부분, (기본 숨김) 절대 위치로 아래에 붙이기 */
+.highlight-overlay {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;               /* 비디오 하단에 밀착 */
+  height: 25px;            /* 원하는 높이 */
+  background: rgba(255,255,255,0.2); /* 반투명 배경 예시 */
+  border-radius: 8px;
+  overflow: hidden;
+  pointer-events: none;    /* 영상 컨트롤 가리지 않게 */
+  opacity: 0;
+  transition: opacity .25s ease;
+  z-index: 1000;             /* 비디오 위로 올라오도록 충분히 크게 */
+}
+#highlightBarContainer.highlight-overlay { /*ID+클래스 조합으로 override*/
+  height: 20px;
+  bottom: 1px;
+  background: transparent;
+  border-radius: 1;
+}
+
+/* hover 시만 보이게 */
+.video-wrapper:hover .frame-graph-overlay,
+.video-wrapper:hover #highlightBarContainer {
+  opacity: 1;
 }
 
 /* 썸네일 리스트 영역 */
