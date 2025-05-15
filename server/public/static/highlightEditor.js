@@ -26,7 +26,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     const customizeBtn = document.createElement("button");
     customizeBtn.id = "customizeBtn";
     customizeBtn.className = "secondary-btn";
-    customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 숏폼 편집';
+    customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
 
     const saveCustomBtn = document.createElement("button");
     saveCustomBtn.id = "saveCustomBtn";
@@ -205,7 +205,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             }
             isEditMode = false;
             saveCustomBtn.style.display = "none";
-            customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 숏폼 편집';
+            customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
             resultCard.classList.remove('editing-mode'); // <<< 레이아웃 변경 클래스 제거
             showHighlightBar(); // 원래 상태로 리렌더링
             highlightBarContainer.style.cursor = "default"; // 커서 복원
@@ -220,7 +220,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         backupSegments = null; // 백업본 필요 없음
         isEditMode = false;
         saveCustomBtn.style.display = "none";
-        customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 숏폼 편집';
+        customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
         resultCard.classList.remove('editing-mode'); // <<< 레이아웃 변경 클래스 제거
         showHighlightBar(); // 저장된 상태로 리렌더링 (핸들 제거 등)
         highlightBarContainer.style.cursor = "default";
