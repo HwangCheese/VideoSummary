@@ -45,10 +45,6 @@ def process(audio_path, scene_json_path, output_json_path, model_size="small", m
         print(f"VAD 감지된 음성 구간 수: {len(vad_time_ranges)}")
         if not vad_time_ranges:
             print("경고: VAD가 음성 구간을 감지하지 못했습니다.")
-            # 필요시 여기서 처리를 중단하거나 다른 로직 수행
-            # with open(output_json_path, 'w', encoding='utf-8') as f:
-            #     json.dump([], f)
-            # return
 
     except Exception as e:
         print(f"오류: Silero VAD 실행 중 문제 발생 - {e}")
@@ -88,8 +84,6 @@ def process(audio_path, scene_json_path, output_json_path, model_size="small", m
         # word_timestamps=True 추가
         result = model.transcribe(audio_path, language=detected_lang, word_timestamps=True)
         print("Whisper 전사 완료.")
-        # Whisper 결과 구조 확인 (디버깅용)
-        # print(json.dumps(result, indent=2, ensure_ascii=False))
 
     except Exception as e:
         print(f"오류: Whisper 전사 중 문제 발생 - {e}")

@@ -106,8 +106,6 @@ def save_segment_frame_scores_json(scores, scene_segments, output_json, fps):
     print(f"📄 Segment scores JSON saved: {output_json}")
     return segment_scores
 
-# 아래 나머지 코드는 기존 코드 유지 (변경 없음)
-
 def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_json):
     """
     각 세그먼트에 가중합(combined_score)을 계산한 후 내림차순으로 정렬하여 저장
@@ -181,7 +179,6 @@ def run_pgl_module(
     features = load_h5_features(feature_h5)
     scores = predict_scores(model, features, device=device)
 
-    # 여기에 수정된 함수 호출 (thr=0.5로 명확히 주어서 사용)
     scene_segments = load_scene_segments(scene_json, fps, thr=0.5)
     segment_scores = save_segment_frame_scores_json(scores, scene_segments, output_json, fps)
     save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_weight, output_sorted_combined_json)
