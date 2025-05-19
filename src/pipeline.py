@@ -29,8 +29,6 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     whisper_json   = os.path.join(output_dir, f"{base}_whisper_segments.json")
     refined_json   = os.path.join(output_dir, f"{base}_refined_segments.json")
     audio_wav      = os.path.join(output_dir, f"{base}.wav")
-    # highlight_video= os.path.join(output_dir, f"highlight_{base}_w{importance_weight}.mp4")
-    # visualize_png  = os.path.join(output_dir, f"visualize_{base}_w{importance_weight}.png")
     highlight_video= os.path.join(output_dir, f"highlight_{base}.mp4")
     visualize_png  = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
 
@@ -84,11 +82,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     refine_selected_segments(selected_json, whisper_json, refined_json)
 
     # 시각화 PNG
-    #run_visualize_pipeline(segment_json, selected_json, visualize_png)
-    
-    # 📈 전체 프레임 점수 시각화 
-    #print("\n🖼️ [시각화] 전체 세그먼트 프레임 점수 시각화", flush=True)
-    #visualize_all_segments_frame_scores(segment_json, visualize_png)
+    run_visualize_pipeline(segment_json, selected_json, visualize_png)
     
     # 📈 전체 프레임 점수 시각화 
     print("\n🖼️ [시각화] 전체 세그먼트 프레임 점수 시각화", flush=True)
