@@ -28,261 +28,236 @@
         <p class="subtitle">긴 영상을 AI가 분석하여 핵심만 모아 요약해 줍니다.</p>
       </header>
 
-      <div class="card animate__animated animate__fadeIn">
+      <div id="uploadCard" class="card animate__animated animate__fadeIn">
         <div class="card-header">
           <h2><i class="fas fa-upload"></i> 영상 업로드</h2>
         </div>
         <div class="card-body">
+          <!-- ===== 드롭존 영역 ===== -->
           <div id="dropZone">
             <div class="upload-icon-container">
               <i class="fas fa-cloud-upload-alt"></i>
             </div>
             <p>.mp4 파일을 이곳에 드래그하세요</p>
             <span class="small">또는 클릭하여 파일 선택</span>
-            <input type="file" id="fileInput" accept=".mp4" style="display:none">
             <div class="upload-decorations">
               <span class="decoration d1"></span>
               <span class="decoration d2"></span>
               <span class="decoration d3"></span>
               <span class="decoration d4"></span>
             </div>
-          </div>
-          <br>
-          <div id="uploadInfo" style="display:none">
-            <div class="file-info">
-              <div class="file-icon">
-                <i class="fas fa-file-video"></i>
-              </div>
-              <div class="file-details">
-                <span id="fileName"></span>
-                <span id="fileSize"></span>
-              </div>
-              <button id="removeFileBtn" class="icon-btn">
-                <i class="fas fa-times"></i>
-              </button>
-            </div>
-            <div class="summary-options">
-              <h3><i class="fas fa-sliders-h"></i> 요약 성향 선택</h3>
-              <div class="weight-slider-container">
-                <div class="slider-labels">
-                  <span class="label-left"> <b> 하이라이트 중심 </b> </span>
-                  <span class="label-right"> <b> 스토리 중심 </b> </span>
+          </div> <!-- #dropZone 끝 -->
+
+          <div id="fileActionsContainer" style="display:none; margin-top: 0;">
+            <div id="uploadInfo">
+              <div class="file-info">
+                <div class="file-icon">
+                  <i class="fas fa-file-video"></i>
                 </div>
-                <div class="slider-wrapper">
-                  <input type="range" id="importanceSlider" min="0" max="1" step="0.1" value="0.5">
-                  <div class="slider-progress"></div>
+                <div class="file-details">
+                  <span id="fileName"></span>
+                  <span id="fileSize"></span>
                 </div>
+                <button id="removeFileBtn" class="icon-btn">
+                  <i class="fas fa-times"></i>
+                </button>
               </div>
             </div>
-            <div class="summary-duration">
-              <label for="durationInput"><i class="fas fa-clock"></i> 원하는 요약 영상 길이</label>
-              <input type="number" id="durationInput" placeholder="분 단위">
+
+            <div class="summary-controls-group" style="margin-top: 1.5rem;">
+              <div class="summary-options">
+                <h3><i class="fas fa-sliders-h"></i> 요약 성향 선택</h3>
+                <div class="weight-slider-container">
+                  <div class="slider-labels">
+                    <span class="label-left"> <b> 하이라이트 중심 </b> </span>
+                    <span class="label-right"> <b> 스토리 중심 </b> </span>
+                  </div>
+                  <div class="slider-wrapper">
+                    <input type="range" id="importanceSlider" min="0" max="1" step="0.1" value="0.5">
+                    <div class="slider-progress"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="summary-duration" style="margin-top: 1rem;">
+                <label for="durationInput"><i class="fas fa-clock"></i> 원하는 요약 영상 길이</label>
+                <input type="number" id="durationInput" placeholder="분 단위">
+              </div>
             </div>
-          </div>
-          <button id="startBtn" disabled>
+          </div> <!-- #fileActionsContainer 끝 -->
+
+          <button id="startBtn" disabled style="margin-top: 1.5rem;">
             <i class="fas fa-magic"></i> 요약 시작
             <span class="btn-shine"></span>
           </button>
-        </div>
-      </div>
-  </div>
-  </section>
+        </div> <!-- .card-body 끝 -->
+        <input type="file" id="fileInput" accept=".mp4" style="display:none">
+      </div> <!-- #uploadCard 끝 -->
 
-  <!-- 진행률 섹션 -->
-  <section id="progress-section" class="scroll-section progress-section">
-    <div id="progressCard" class="card">
-      <div class="card-header">
-        <h2><i class="fas fa-tasks"></i> 처리 진행률</h2>
-      </div>
-      <div class="card-body">
-        <p id="status" class="status-message"><i class="fas fa-spinner fa-spin"></i> 영상 분석중...</p>
-        <div id="elapsedTimeContainer">
-          <i class="fas fa-stopwatch"></i>
-          <span id="elapsedTime">00:00</span>
-        </div>
-        <div id="progressBarContainer">
-          <div id="progressBarInner"></div>
-        </div>
-        <div id="progressSteps">
-          <div class="step active" data-step="1">
-            <div class="step-icon">
-              <i class="fas fa-camera"></i>
-            </div>
-            <span>특징 추출</span>
+
+      <!-- 새로운: 기존 요약 영상 목록 섹션 -->
+      <div class="existing-summaries-container">
+        <button id="toggleExistingSummariesBtn" class="secondary-btn">
+          <i class="fas fa-history"></i> 지난 요약 다시보기
+        </button>
+
+        <div id="existingSummariesCard" class="card animate__animated" style="display: none; margin-top: 20px;">
+          <div class="card-header">
+            <h2><i class="fas fa-list-ul"></i> 지난 요약 다시보기</h2>
+            <!-- !!!!! 수정된 닫기 버튼 !!!!! -->
+            <button id="backToUploadBtn" class="icon-btn small-close-btn" title="업로드로 돌아가기">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
-          <div class="step" data-step="2">
-            <div class="step-icon">
-              <i class="fas fa-film"></i>
+          <div class="card-body">
+            <p>아래 목록에서 이전에 요약한 영상을 선택하여 결과를 바로 확인할 수 있습니다.</p>
+            <ul id="existingSummariesList" class="existing-summaries-list">
+              <!-- JS로 목록 동적 삽입 -->
+            </ul>
+            <div id="loadingExistingSummaries" style="display:none; text-align:center;">
+              <i class="fas fa-spinner fa-spin"></i> 목록을 불러오는 중...
             </div>
-            <span>장면 분할</span>
-          </div>
-          <div class="step" data-step="3">
-            <div class="step-icon">
-              <i class="fas fa-film"></i>
-            </div>
-            <span>오디오 추출</span>
-          </div>
-          <div class="step" data-step="4">
-            <div class="step-icon">
-              <i class="fas fa-film"></i>
-            </div>
-            <span>문장 추출</span>
-          </div>
-          <div class="step" data-step="5">
-            <div class="step-icon">
-              <i class="fas fa-brain"></i>
-            </div>
-            <span>AI 분석</span>
-          </div>
-          <div class="step" data-step="6">
-            <div class="step-icon">
-              <i class="fas fa-video"></i>
-            </div>
-            <span>영상 편집</span>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- 결과 섹션 -->
-  <section id="result-section" class="scroll-section result-section">
-    <!-- Add an ID to the card for specific styling -->
-    <div id="resultCard" class="card">
-      <div class="card-header">
-        <h2><i class="fas fa-play-circle"></i> 요약 결과</h2>
+    <!-- 진행률 섹션 -->
+    <section id="progress-section" class="scroll-section progress-section">
+      <div id="progressCard" class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-tasks"></i> 처리 진행률</h2>
+        </div>
+        <div class="card-body">
+          <p id="status" class="status-message"><i class="fas fa-spinner fa-spin"></i> 영상 분석중...</p>
+          <div id="elapsedTimeContainer">
+            <i class="fas fa-stopwatch"></i>
+            <span id="elapsedTime">00:00</span>
+          </div>
+          <div id="progressBarContainer">
+            <div id="progressBarInner"></div>
+          </div>
+          <div id="progressSteps">
+            <div class="step active" data-step="1">
+              <div class="step-icon"><i class="fas fa-camera"></i></div>
+              <span>특징 추출</span>
+            </div>
+            <div class="step" data-step="2">
+              <div class="step-icon"><i class="fas fa-film"></i></div>
+              <span>장면 분할</span>
+            </div>
+            <div class="step" data-step="3">
+              <div class="step-icon"><i class="fas fa-film"></i></div>
+              <span>오디오 추출</span>
+            </div>
+            <div class="step" data-step="4">
+              <div class="step-icon"><i class="fas fa-film"></i></div>
+              <span>문장 추출</span>
+            </div>
+            <div class="step" data-step="5">
+              <div class="step-icon"><i class="fas fa-brain"></i></div>
+              <span>AI 분석</span>
+            </div>
+            <div class="step" data-step="6">
+              <div class="step-icon"><i class="fas fa-video"></i></div>
+              <span>영상 편집</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="card-body">
-        <div class="video-container-group">
+    </section>
 
-          <!-- Original Video Box - NOW CONTAINS HIGHLIGHT SECTION -->
-          <div class="video-box original-video-box">
-            <h3><i class="fas fa-film"></i> 원본 영상</h3>
-            <!--<video id="originalVideo" controls></video>-->
-            <div class="video-wrapper">
-              <video id="originalVideo" controls></video>
-              <img id="importanceOverlay" src="" alt="Frame Importance" class="frame-graph-overlay">
-              <div id="highlightBarContainer" class="highlight-overlay">
-                <div class="time-markers">
-                  <span class="time-marker" style="left: 0%">00:00</span>
-                  <span class="time-marker" style="left: 25%">25%</span>
-                  <span class="time-marker" style="left: 50%">50%</span>
-                  <span class="time-marker" style="left: 75%">75%</span>
-                  <span class="time-marker" style="left: 100%">100%</span>
-                </div>
-                <!-- Highlight blocks will be added here dynamically -->
-              </div>
-            </div>
-            <div class="highlight-legend">
-              <span class="legend-item"><span class="legend-color original"></span> 프레임 중요도</span>
-              <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
-            </div>
-
-            <!-- Highlight section -->
-            <div class="highlight-section">
-              <div class="highlight-thumbnails">
-                <h3><i class="fas fa-images"></i> 주요 장면 썸네일</h3>
-                <div class="thumbnail-slider" id="thumbnailSlider">
-                  <!-- JS로 썸네일 동적 삽입 -->
+    <!-- 결과 섹션 -->
+    <section id="result-section" class="scroll-section result-section">
+      <div id="resultCard" class="card">
+        <div class="card-header">
+          <h2><i class="fas fa-play-circle"></i> 요약 결과</h2>
+        </div>
+        <div class="card-body">
+          <div class="video-container-group">
+            <div class="video-box original-video-box">
+              <h3><i class="fas fa-film"></i> 원본 영상</h3>
+              <div class="video-wrapper">
+                <video id="originalVideo" controls></video>
+                <img id="importanceOverlay" src="" alt="Frame Importance" class="frame-graph-overlay">
+                <div id="highlightBarContainer" class="highlight-overlay">
+                  <div class="time-markers">
+                    <span class="time-marker" style="left: 0%">00:00</span>
+                    <span class="time-marker" style="left: 25%">25%</span>
+                    <span class="time-marker" style="left: 50%">50%</span>
+                    <span class="time-marker" style="left: 75%">75%</span>
+                    <span class="time-marker" style="left: 100%">100%</span>
+                  </div>
                 </div>
               </div>
-            </div>
-            <!-- End of moved highlight section -->
-          </div>
-
-          <!-- Short-form Video Box -->
-          <div class="video-box shortform-video-box">
-            <h3><i class="fas fa-star"></i> 요약 영상</h3>
-            <video id="finalVideo" controls></video>
-            <!-- ===== 요약 영상 자막 스크립트 영역 -->
-            <div id="shortformTranscriptSection" class="shortform-transcript-section">
-              <div class="transcript-header">
-                <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
-                <!-- <input type="text" id="transcriptSearch" placeholder="자막 검색..."> -->
+              <div class="highlight-legend">
+                <span class="legend-item"><span class="legend-color original"></span> 프레임 중요도</span>
+                <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
               </div>
-              <ul id="transcriptList" class="transcript-list">
+              <div class="highlight-section">
+                <div class="highlight-thumbnails">
+                  <h3><i class="fas fa-images"></i> 주요 장면 썸네일</h3>
+                  <div class="thumbnail-slider" id="thumbnailSlider"></div>
+                </div>
+              </div>
+            </div>
+            <div class="video-box shortform-video-box">
+              <h3><i class="fas fa-star"></i> 요약 영상</h3>
+              <video id="finalVideo" controls></video>
+              <div id="shortformTranscriptSection" class="shortform-transcript-section">
+                <div class="transcript-header">
+                  <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
+                </div>
+                <ul id="transcriptList" class="transcript-list"></ul>
+              </div>
+            </div>
+            <div class="shortform-details-sidebar">
+              <div class="sidebar-header">
+                <i class="fas fa-award sidebar-title-icon"></i>
+                <h4 class="sidebar-title">요약 품질 점수</h4>
+              </div>
+              <div class="score-display">
+                <span class="score-value" id="summaryScoreValue">n</span>
+                <span class="score-max">/ 100</span>
+              </div>
+              <p class="score-description" id="summaryScoreDescription">
+                영상 내 중요도 순위를 기준으로, 요약된 부분들의 평균 순위가 높을수록 좋은 요약으로 평가되어 점수가 올라갑니다.
+              </p>
+              <ul class="summary-metrics-list">
+                <li class="metric-item">
+                  <div class="metric-icon-wrapper"><i class="fas fa-compress-alt"></i></div>
+                  <div class="metric-info"><span class="metric-label">원본 대비 압축률</span><span class="metric-value"
+                      id="compressionRateValue">n% <span class="metric-unit">압축</span></span></div>
+                </li>
+                <li class="metric-item">
+                  <div class="metric-icon-wrapper"><i class="fas fa-film"></i></div>
+                  <div class="metric-info"><span class="metric-label">핵심 장면</span><span class="metric-value"
+                      id="keyScenesCountValue">n개 <span class="metric-unit">추출됨</span></span></div>
+                </li>
+                <li class="metric-item">
+                  <div class="metric-icon-wrapper"><i class="fas fa-clock"></i></div>
+                  <div class="metric-info"><span class="metric-label">시청 시간</span><span class="metric-value"
+                      id="viewingTimeValue"><span class="time-original">n:n</span> → <span
+                        class="time-summary">n:n</span></span></div>
+                </li>
+                <li class="metric-item">
+                  <div class="metric-icon-wrapper"><i class="fas fa-filter"></i></div>
+                  <div class="metric-info"><span class="metric-label">요약 방식</span><span class="metric-value"
+                      id="summaryMethodValue">? 요약</span></div>
+                </li>
               </ul>
             </div>
-            <!-- ===== 요약 영상 자막 스크립트 영역 끝 ===== -->
           </div>
-          <!-- 요약 관련 점수 기능 (사이드바) -->
-          <div class="shortform-details-sidebar">
-            <div class="sidebar-header">
-              <i class="fas fa-award sidebar-title-icon"></i> <!-- 타이틀 아이콘 -->
-              <h4 class="sidebar-title">요약 품질 점수</h4>
-            </div>
-
-            <div class="score-display">
-              <span class="score-value" id="summaryScoreValue">n</span>
-              <span class="score-max">/ 100</span>
-            </div>
-            <p class="score-description" id="summaryScoreDescription">
-              영상 내 중요도 순위를 기준으로, 요약된 부분들의 평균 순위가 높을수록 좋은 요약으로 평가되어 점수가 올라갑니다.
-            </p>
-
-            <ul class="summary-metrics-list">
-              <li class="metric-item">
-                <div class="metric-icon-wrapper">
-                  <i class="fas fa-compress-alt"></i> <!-- 압축률 아이콘 -->
-                </div>
-                <div class="metric-info">
-                  <span class="metric-label">원본 대비 압축률</span>
-                  <span class="metric-value" id="compressionRateValue">n% <span class="metric-unit">압축</span></span>
-                </div>
-              </li>
-              <li class="metric-item">
-                <div class="metric-icon-wrapper">
-                  <i class="fas fa-film"></i> <!-- 핵심 장면 아이콘 -->
-                </div>
-                <div class="metric-info">
-                  <span class="metric-label">핵심 장면</span>
-                  <span class="metric-value" id="keyScenesCountValue">n개 <span class="metric-unit">추출됨</span></span>
-                </div>
-              </li>
-              <li class="metric-item">
-                <div class="metric-icon-wrapper">
-                  <i class="fas fa-clock"></i> <!-- 시청 시간 아이콘 -->
-                </div>
-                <div class="metric-info">
-                  <span class="metric-label">시청 시간</span>
-                  <span class="metric-value" id="viewingTimeValue">
-                    <span class="time-original">n:n</span> → <span class="time-summary">n:n</span>
-                  </span>
-                </div>
-              </li>
-              <li class="metric-item">
-                <div class="metric-icon-wrapper">
-                  <i class="fas fa-filter"></i> <!-- 요약 방식 아이콘 -->
-                </div>
-                <div class="metric-info">
-                  <span class="metric-label">요약 방식</span>
-                  <span class="metric-value" id="summaryMethodValue">? 요약</span>
-                </div>
-              </li>
-            </ul>
+          <div class="button-group">
+            <button id="newBtn" class="primary-btn default-action"><i class="fas fa-plus"></i> 새 영상 만들기</button>
+            <button id="shareBtn" class="accent-btn default-action"><i class="fas fa-share-alt"></i> 공유하기</button>
+            <button id="downloadBtn" class="secondary-btn default-action"><i class="fas fa-download"></i> 다운로드</button>
           </div>
-        </div>
-
-        <!-- Button Group remains at the bottom -->
-        <div class="button-group">
-          <button id="newBtn" class="primary-btn default-action">
-            <i class="fas fa-plus"></i> 새 영상 만들기
-          </button>
-          <button id="shareBtn" class="accent-btn default-action">
-            <i class="fas fa-share-alt"></i> 공유하기
-          </button>
-          <button id="downloadBtn" class="secondary-btn default-action">
-            <i class="fas fa-download"></i> 다운로드
-          </button>
         </div>
       </div>
-    </div>
-  </section>
-  <!-- 결과 섹션 끝 -->
+    </section>
 
   </div>
 
-  <!-- 페이지 내비게이션 -->
   <div class="page-navigation">
     <div class="nav-dot active" data-section="upload-section"></div>
     <div class="nav-dot" data-section="progress-section"></div>
