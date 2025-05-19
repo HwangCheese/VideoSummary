@@ -7,15 +7,13 @@ import {
   showToast,
   resetProgressSteps,
   updateProgressStep,
-  resetUI as resetUploadFormUI, // Renamed for clarity
+  resetUI as resetUploadFormUI,
   formatTime
 } from "./uiUtils.js";
 import { initHighlightEditor } from "./highlightEditor.js";
 
 let sseSource;
 let highlightEditor = null;
-
-// Global DOM element references
 const originalVideo = document.getElementById("originalVideo");
 const finalVideo = document.getElementById("finalVideo");
 const resultCard = document.getElementById("resultCard");
@@ -66,7 +64,7 @@ function startSSE() {
   sseSource.addEventListener("message", (e) => {
     try {
       const state = JSON.parse(e.data);
-      updateProgressUI(state); // Defined below
+      updateProgressUI(state);
     } catch (err) {
       console.error("SSE 메시지 처리 오류:", err, "원본 데이터:", e.data);
     }
@@ -104,22 +102,15 @@ function updateProgressUI(state) {
     sseSource.close();
     sseSource = null;
     stopElapsedTime();
-    // If processing new video, result loading is handled by finalVideo.loadedmetadata
-    // If this SSE 'done' message includes all necessary data, we could use it too.
-    // For now, keep result loading tied to video metadata event for consistency.
-    // However, if reportData is reliably sent here, use it.
     if (state.reportData) {
       updateSummaryMetricsFromServerData(state.reportData);
       const currentFile = currentUploadedFileNameFromHandler;
       if (currentFile && state.reportData.summary_score === undefined) {
         const cleanFileNameForScore = currentFile.replace(/\.mp4$/i, "");
-        // fetchSummaryScoreInternal might be better called by the main flow after video loads
       }
     }
   }
 }
-
-// --- Internal Helper Functions for Data Loading ---
 
 async function loadHighlightDataFromServerInternal(baseNameForJson, originalVideoElRef) {
   if (!highlightEditor) return;
@@ -156,7 +147,6 @@ async function loadAndRenderThumbnailsInternal(baseFilename) {
     if (!res.ok) {
       if (res.status === 404) slider.innerHTML = "<p>주요 장면 썸네일 정보가 없습니다.</p>";
       else slider.innerHTML = "<p>썸네일을 불러오지 못했습니다.</p>";
-      // No need to throw error here if we're just updating UI
       console.warn(`thumbs.json for ${baseFilename} not found or failed to load (${res.status})`);
       return;
     }
@@ -191,7 +181,7 @@ async function fetchReportAndScoreForUIInternal(baseFilenameForReport) {
   const originalFileForEndpoints = baseFilenameForReport + ".mp4";
   console.log(`[${baseFilenameForReport}] Report 및 score 데이터 요청 시작 (file: ${originalFileForEndpoints})`);
 
-  resetSummaryMetrics(true); // Reset metrics before fetching, keep score if already there
+  resetSummaryMetrics(true);
 
   try {
     const reportRes = await fetch(`/results/report/${originalFileForEndpoints}?t=${Date.now()}`);
@@ -200,11 +190,9 @@ async function fetchReportAndScoreForUIInternal(baseFilenameForReport) {
       updateSummaryMetricsFromServerData(reportData);
     } else {
       console.warn(`[${baseFilenameForReport}] Report 데이터 로드 실패: ${reportRes.status}`);
-      // updateSummaryMetricsFromServerData(null); // or let resetSummaryMetrics handle it
     }
   } catch (err) {
     console.warn(`[${baseFilenameForReport}] Report 데이터 요청 오류:`, err);
-    // updateSummaryMetricsFromServerData(null);
   }
 
   try {
@@ -224,7 +212,6 @@ async function fetchReportAndScoreForUIInternal(baseFilenameForReport) {
     console.warn(`[${baseFilenameForReport}] Score 데이터 요청 오류:`, err);
     if (summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
   }
-  // Trigger animations after data is potentially set
   if (document.getElementById('result-section')?.classList.contains('active-scroll-section')) {
     animateMetrics();
     animateScoreCounter();
@@ -261,7 +248,6 @@ async function loadAndDisplayShortformTranscriptInternal(baseFilenameForTranscri
   if (!transcriptListEl || !finalVideo) return;
   transcriptListEl.innerHTML = '<li><i class="fas fa-spinner fa-spin"></i> 자막 로딩 중...</li>';
   try {
-    // The reScript.json is in /clips/BASE_FILENAME/BASE_FILENAME_reScript.json
     const transcriptRes = await fetch(`/clips/${baseFilenameForTranscript}/${baseFilenameForTranscript}_reScript.json?t=${Date.now()}`);
     if (!transcriptRes.ok) {
       if (transcriptRes.status === 404) {
@@ -298,7 +284,7 @@ async function loadAndDisplayShortformTranscriptInternal(baseFilenameForTranscri
       transcriptListEl.appendChild(listItem);
     });
     if (finalVideo) {
-      finalVideo.removeEventListener('timeupdate', highlightCurrentTranscript); // Remove previous if any
+      finalVideo.removeEventListener('timeupdate', highlightCurrentTranscript);
       finalVideo.addEventListener('timeupdate', highlightCurrentTranscript);
     }
   } catch (err) {
@@ -307,7 +293,6 @@ async function loadAndDisplayShortformTranscriptInternal(baseFilenameForTranscri
   }
 }
 
-// --- UI Update Functions (resetSummaryMetrics, updateSummaryMetricsFromServerData, animations) ---
 export function resetSummaryMetrics(excludeScore = false) {
   if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
   if (compressionRateValueEl) compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">압축</span>';
@@ -321,7 +306,7 @@ function updateSummaryMetricsFromServerData(data) {
     resetSummaryMetrics();
     return;
   }
-  let summaryText = "균형 요약"; // Default for slider value 0.5
+  let summaryText = "균형 요약";
   const sliderVal = importanceSlider ? parseFloat(importanceSlider.value) : 0.5;
   if (!isNaN(sliderVal)) {
     if (sliderVal <= 0.4) summaryText = "하이라이트 요약";
@@ -347,7 +332,6 @@ function updateSummaryMetricsFromServerData(data) {
   }
 }
 
-// --- Animation Logic (largely as is) ---
 function easeOutQuart(x) { return 1 - Math.pow(1 - x, 4); }
 
 function animateCounter(element, start, end, decimalPlaces = 0, suffix = '', isComplexSuffix = false) {
@@ -355,11 +339,9 @@ function animateCounter(element, start, end, decimalPlaces = 0, suffix = '', isC
   const duration = 1500;
   const animStartTimeCounter = performance.now();
   const initialText = start.toFixed(decimalPlaces) + (isComplexSuffix && suffix ? ` ${suffix}` : suffix);
-
-  // If complex suffix (contains span), handle carefully
   if (isComplexSuffix && element.querySelector('.metric-unit') && suffix.includes('<span')) {
     const numberPart = start.toFixed(decimalPlaces);
-    element.innerHTML = `${numberPart} ${suffix}`; // Suffix already contains the span
+    element.innerHTML = `${numberPart} ${suffix}`;
   } else {
     element.textContent = initialText;
   }
@@ -395,7 +377,7 @@ function animateScoreCounter() {
   if (isNaN(endValue)) {
     summaryScoreValueEl.textContent = '0.0'; return;
   }
-  summaryScoreValueEl.textContent = '0.0'; // Start from 0.0
+  summaryScoreValueEl.textContent = '0.0';
   const duration = 1500;
   const animStartTime = performance.now();
   function updateScoreCounter(timestamp) {
@@ -425,22 +407,20 @@ function animateMetrics() {
 
       const valueElement = item.querySelector('.metric-value');
       if (valueElement) {
-        const originalHTML = valueElement.innerHTML; // Use innerHTML for complex content
-        const textContentForParsing = valueElement.textContent; // Use textContent for parsing numbers
+        const originalHTML = valueElement.innerHTML;
+        const textContentForParsing = valueElement.textContent;
 
         if (textContentForParsing === 'N/A' || !textContentForParsing || textContentForParsing.includes('n')) return;
 
-        if (valueElement.id === 'viewingTimeValue') { /* No specific counter animation */ }
+        if (valueElement.id === 'viewingTimeValue') { }
         else {
           const match = textContentForParsing.match(/([0-9.]+)(.*)/);
           if (match && match[1]) {
             const finalValue = parseFloat(match[1]);
-            // For complex suffixes like '% <span class="metric-unit">압축</span>'
-            // We need to pass the HTML suffix part.
             let suffix = '';
             let isComplex = false;
             if (originalHTML.includes('<span class="metric-unit">')) {
-              suffix = originalHTML.substring(originalHTML.indexOf('%') + 1).trim(); // Example
+              suffix = originalHTML.substring(originalHTML.indexOf('%') + 1).trim();
               if (valueElement.id === 'keyScenesCountValue') {
                 suffix = originalHTML.substring(originalHTML.indexOf('개') + 1).trim();
               }
@@ -448,7 +428,6 @@ function animateMetrics() {
             } else {
               suffix = match[2] ? match[2].trim() : '';
             }
-
             if (!isNaN(finalValue)) {
               animateCounter(valueElement, 0, finalValue, textContentForParsing.includes('.') ? 1 : 0, suffix, isComplex);
             }
@@ -459,10 +438,8 @@ function animateMetrics() {
   });
 }
 
-
-// --- NEW EXPORTED function for loading existing summary data ---
 export async function loadResultDataForExistingSummary(originalFile, baseName, summaryVideoPath) {
-  setGlobalUploadedFileName(originalFile); // Set the globally accessible filename
+  setGlobalUploadedFileName(originalFile);
 
   resetProgressSteps();
   stopElapsedTime();
@@ -470,11 +447,10 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
     highlightEditor.destroy();
     highlightEditor = null;
   }
-  resetSummaryMetrics(); // Clear out old metrics
+  resetSummaryMetrics();
 
-  // Set video sources
   if (originalVideo) originalVideo.src = `/uploads/${originalFile}?t=${Date.now()}`;
-  if (finalVideo) finalVideo.src = `${summaryVideoPath}?t=${Date.now()}`; // summaryVideoPath is like /clips/base/highlight_base.mp4
+  if (finalVideo) finalVideo.src = `${summaryVideoPath}?t=${Date.now()}`;
   if (importanceOverlay) importanceOverlay.src = `/images/frameScore/${baseName}_frameScoreGraph.png?t=${Date.now()}`;
 
   return new Promise((resolve, reject) => {
@@ -492,12 +468,10 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
             if (highlightEditor) highlightEditor.destroy();
             highlightEditor = initHighlightEditor(highlightBarContainer, originalVideo, currentUploadedFileNameFromHandler, resultCard);
             if (highlightEditor) {
-              // baseName is filename without extension
               await loadHighlightDataFromServerInternal(baseName, originalVideo);
               await loadAndRenderThumbnailsInternal(baseName);
             }
           }
-          // baseName is filename without extension
           await fetchReportAndScoreForUIInternal(baseName);
           if (transcriptListEl) await loadAndDisplayShortformTranscriptInternal(baseName);
 
@@ -508,7 +482,7 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
               link.href = finalVideo.src;
               const summaryPrefix = "summary";
               const weightSuffix = `_w${parseFloat(currentImportanceWeight).toFixed(1).replace('.', '')}`;
-              link.download = `${summaryPrefix}${weightSuffix}_${originalFile}`; // originalFile has extension
+              link.download = `${summaryPrefix}${weightSuffix}_${originalFile}`;
               document.body.appendChild(link);
               link.click();
               document.body.removeChild(link);
@@ -552,24 +526,21 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
     if (originalVideo) {
       originalVideo.addEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
       originalVideo.addEventListener("error", onVideoError);
-      if (originalVideo.readyState >= 2) onOriginalVideoMetadataLoaded(); // Already loaded
+      if (originalVideo.readyState >= 2) onOriginalVideoMetadataLoaded();
       else if (originalVideo.error) onVideoError({ target: originalVideo });
-    } else { originalVideoReady = true; /* No original video element, proceed without it */ }
+    } else { originalVideoReady = true; }
 
     if (finalVideo) {
       finalVideo.addEventListener("loadedmetadata", onFinalVideoMetadataLoaded);
       finalVideo.addEventListener("error", onVideoError);
-      if (finalVideo.readyState >= 2) onFinalVideoMetadataLoaded(); // Already loaded
+      if (finalVideo.readyState >= 2) onFinalVideoMetadataLoaded();
       else if (finalVideo.error) onVideoError({ target: finalVideo });
-    } else { finalVideoReady = true; /* No final video element */ }
+    } else { finalVideoReady = true; }
 
-    // If no video elements, proceed (though unlikely for this app)
     if (!originalVideo && !finalVideo) checkAndProceed();
   });
 }
 
-
-// --- Main initPipelineRunner (handles new processing) ---
 export function initPipelineRunner() {
   if (startBtn) {
     startBtn.addEventListener("click", async () => {
@@ -592,13 +563,13 @@ export function initPipelineRunner() {
 
       startElapsedTime();
       resetProgressSteps();
-      updateProgressStep(1); // Initial step
+      updateProgressStep(1);
 
       setTimeout(() => {
         document.getElementById("progress-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
       }, 100);
 
-      startSSE(); // Start SSE for live progress updates
+      startSSE();
 
       let processResponseData;
       try {
@@ -610,11 +581,6 @@ export function initPipelineRunner() {
           const errorMessage = processResponseData?.message || processResponseData?.error || `요청 처리 실패 (${processRes.status})`;
           throw new Error(errorMessage);
         }
-        // /upload/process acknowledged. SSE will give detailed progress.
-        // Result display will be triggered by finalVideo.loadedmetadata after SSE indicates completion.
-
-        // Set sources for videos - this will happen once Python script is done and files are available
-        // SSE 'done' should ideally be the trigger for this, or this assumes Python completes before timeout
         if (originalVideo) originalVideo.src = `/uploads/${currentUploadedFileNameFromHandler}?t=${Date.now()}`;
         const baseName = currentUploadedFileNameFromHandler.replace(/\.mp4$/i, "");
         if (finalVideo) finalVideo.src = `/clips/${baseName}/highlight_${baseName}.mp4?t=${Date.now()}`;
@@ -665,7 +631,6 @@ export function initPipelineRunner() {
           const videoType = e.target.id === "originalVideo" ? "원본" : "요약";
           console.error(`Error loading ${videoType} video after processing:`, e.target.error);
           showToast(`${videoType} 영상 로드 실패 (처리 후): ${e.target.error?.message || '알 수 없는 오류'}`, "error");
-          // UI should show error in statusDiv or progressCard
           if (statusDiv && !sseSource) statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${videoType} 영상 로드 실패`;
         };
 
@@ -697,18 +662,15 @@ export function initPipelineRunner() {
           };
         }
 
-      } catch (err) { // Catch for fetch /upload/process or setup errors
+      } catch (err) {
         console.error("요약 처리 시작 중 오류:", err);
         if (statusDiv) statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> 오류: ${err.message}`;
         showToast(`오류: ${err.message}`, "error");
         stopElapsedTime();
-        if (sseSource) { sseSource.close(); sseSource = null; } // Close SSE on initial error
+        if (sseSource) { sseSource.close(); sseSource = null; }
         startBtn.disabled = false;
         startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 시작';
       }
-      // `finally` removed for startBtn re-enable, as it should happen on SSE 'done' or error.
-      // If SSE 'error' occurs, or 'done' with error, it should re-enable.
-      // If initial fetch to /upload/process fails, it's re-enabled in catch.
     });
   }
 
@@ -727,41 +689,36 @@ export function initPipelineRunner() {
         highlightEditor = null;
       }
       resetSummaryMetrics();
-      resetUploadFormUI(); // This should call setUploadedFileName(null) internally or handle UI reset
+      resetUploadFormUI();
       if (sseSource) {
         sseSource.close();
         sseSource = null;
       }
-      if (startBtn) { // Re-enable start button if it was disabled by a completed/failed process
-        startBtn.disabled = true; // Should be disabled until a new file is uploaded
+      if (startBtn) {
+        startBtn.disabled = true;
         startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 시작';
       }
-      // Reset video players
       if (originalVideo) { originalVideo.src = ""; originalVideo.load(); }
       if (finalVideo) { finalVideo.src = ""; finalVideo.load(); }
       if (importanceOverlay) importanceOverlay.src = "";
-
-
       document.getElementById("upload-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   }
 
-  // Intersection observer for animations
   document.addEventListener('DOMContentLoaded', () => {
     const resultSection = document.getElementById('result-section');
     if (!resultSection) return;
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('active-scroll-section'); // Mark as active
+          entry.target.classList.add('active-scroll-section');
           animateMetrics();
           animateScoreCounter();
-          // observer.unobserve(entry.target); // Keep observing if needed, or unobserve if one-time
         } else {
           entry.target.classList.remove('active-scroll-section');
         }
       });
-    }, { threshold: 0.3 }); // Trigger when 30% visible
+    }, { threshold: 0.3 });
     observer.observe(resultSection);
   });
 }

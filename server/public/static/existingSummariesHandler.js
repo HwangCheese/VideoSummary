@@ -44,7 +44,6 @@ function hideLoadingOverlay() {
     }
 }
 
-
 export function initExistingSummariesHandler() {
     const toggleBtn = document.getElementById("toggleExistingSummariesBtn");
     const existingSummariesCard = document.getElementById("existingSummariesCard");
@@ -186,12 +185,10 @@ export function initExistingSummariesHandler() {
                     resultSection.scrollIntoView({ behavior: "smooth", block: "center" });
                 }, 100);
             }
-
             document.querySelectorAll('.page-navigation .nav-dot').forEach(dot => {
                 dot.classList.remove('active');
                 if (dot.dataset.section === "result-section") dot.classList.add('active');
             });
-
         } catch (error) {
             console.error("Failed to display existing summary:", error);
             hideLoadingOverlay();

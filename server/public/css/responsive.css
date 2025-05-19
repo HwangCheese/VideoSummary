@@ -11,7 +11,7 @@ server/public/css/responsive.css
     }
 
     header {
-        margin-bottom: 0.6rem; /* <<< 기존 3rem → 모바일은 1rem로 확 줄이기 */
+        margin-bottom: 0.6rem;
     }
 
     .container {
@@ -42,7 +42,7 @@ server/public/css/responsive.css
     }
 
     #dropZone {
-        min-height: 140px; /* 'auto'로 두는 것보다 최소 높이를 주는게 깔끔함 */
+        min-height: 140px;
         padding: 1.2rem;
     }
 
@@ -55,8 +55,6 @@ server/public/css/responsive.css
         flex-direction: column;
         gap: 0.8rem; /* 버튼 간 간격 추가 */
     }
-
-    /* 요약 옵션 버튼, 입력창 폰트 사이즈 조정 */
     .option-buttons {
         gap: 0.6rem;
     }

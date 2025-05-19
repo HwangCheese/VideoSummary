@@ -1,5 +1,8 @@
-/* ---------------------- */
-/* 기본 버튼 스타일 */
+/* 
+server/public/css/components.css 
+각종 버튼, 컴포넌트 css
+*/
+
 button {
     background-color: var(--primary-color);
     color: white;
@@ -30,7 +33,6 @@ button:not(:disabled):hover {
     transform: translateY(-2px);
 }
 
-/* ---------------------- */
 /* 버튼 Shine 효과 */
 .btn-shine {
     position: absolute;
@@ -52,7 +54,6 @@ button:not(:disabled):hover .btn-shine {
     left: 100%;
 }
 
-/* ---------------------- */
 /* 버튼 그룹 */
 .button-group {
     display: flex;
@@ -60,7 +61,6 @@ button:not(:disabled):hover .btn-shine {
     margin-top: 2rem;
 }
 
-/* ---------------------- */
 /* 기본 버튼 (새 영상, 공유, 다운로드) - 기본 보이게 */
 .default-action {
     opacity: 1;
@@ -71,7 +71,6 @@ button:not(:disabled):hover .btn-shine {
     visibility: visible;
 }
 
-/* ---------------------- */
 /* 편집 버튼 (customizeBtn) 항상 보임 */
 #customizeBtn {
     opacity: 1;
@@ -81,9 +80,6 @@ button:not(:disabled):hover .btn-shine {
         transform 0.4s ease;
 }
 
-/* (편집모드일 때도 커스터마이즈 버튼 안 숨김! 단 텍스트만 JS로 변경) */
-
-/* ---------------------- */
 /* 저장 버튼 (saveCustomBtn) 기본 숨김 */
 #saveCustomBtn {
     opacity: 0;
@@ -95,7 +91,6 @@ button:not(:disabled):hover .btn-shine {
     visibility: hidden;
 }
 
-/* ---------------------- */
 /* 버튼 타입별 스타일 */
 .primary-btn {
     background: var(--gradient);
@@ -258,7 +253,6 @@ button:not(:disabled):hover .btn-shine {
     }
 }
 
-/* ---------------------- */
 .summary-duration {
     display: flex;
     flex-direction: column;
@@ -287,7 +281,6 @@ button:not(:disabled):hover .btn-shine {
     box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 67, 97, 238), 0.2); /* 주 색상 기반 포커스 링 */
 }
 
-/* ---------------------- */
 /* 영상 요약 길이 입력 */
 .summary-duration {
     display: flex;

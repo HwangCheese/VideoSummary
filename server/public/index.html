@@ -46,7 +46,7 @@
               <span class="decoration d3"></span>
               <span class="decoration d4"></span>
             </div>
-          </div> <!-- #dropZone 끝 -->
+          </div>
 
           <div id="fileActionsContainer" style="display:none; margin-top: 0;">
             <div id="uploadInfo">
@@ -83,18 +83,15 @@
                 <input type="number" id="durationInput" placeholder="분 단위">
               </div>
             </div>
-          </div> <!-- #fileActionsContainer 끝 -->
-
+          </div>
           <button id="startBtn" disabled style="margin-top: 1.5rem;">
             <i class="fas fa-magic"></i> 요약 시작
             <span class="btn-shine"></span>
           </button>
-        </div> <!-- .card-body 끝 -->
+        </div>
         <input type="file" id="fileInput" accept=".mp4" style="display:none">
-      </div> <!-- #uploadCard 끝 -->
+      </div>
 
-
-      <!-- 새로운: 기존 요약 영상 목록 섹션 -->
       <div class="existing-summaries-container">
         <button id="toggleExistingSummariesBtn" class="secondary-btn">
           <i class="fas fa-history"></i> 지난 요약 다시보기
@@ -103,7 +100,6 @@
         <div id="existingSummariesCard" class="card animate__animated" style="display: none; margin-top: 20px;">
           <div class="card-header">
             <h2><i class="fas fa-list-ul"></i> 지난 요약 다시보기</h2>
-            <!-- !!!!! 수정된 닫기 버튼 !!!!! -->
             <button id="backToUploadBtn" class="icon-btn small-close-btn" title="업로드로 돌아가기">
               <i class="fas fa-times"></i>
             </button>

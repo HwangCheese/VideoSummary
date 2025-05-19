@@ -1,10 +1,13 @@
-/* --- 드롭존 --- */
+/*
+server/public/css/upload.css
+업로드 관련 부근 css
+*/
 #dropZone {
     width: 100%;
     min-height: 200px;
     border: 3px dashed #d1d8e0;
     border-radius: var(--border-radius);
-    display: flex; /* 초기 상태는 flex로 보이도록 설정 */
+    display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -20,7 +23,7 @@
     padding: 1.5rem;
 }
 
-/* 드롭존 내부 초기 안내 요소들 (이전과 동일) */
+/* 드롭존 내부 초기 안내 요소들 */
 .upload-icon-container {
     width: 60px;
     height: 60px;
@@ -104,23 +107,17 @@
     transform: scale(1.1);
 }
 
-/* --- #fileActionsContainer (파일 정보 및 옵션 전체 컨테이너) --- */
+/* 파일 정보 및 옵션 전체 컨테이너 */
 #fileActionsContainer {
-    display: none; /* JS가 파일 있을 때 보이도록 제어 (기본 숨김) */
-    /* margin-top: 1.5rem; 이전에 dropZone 바로 아래였을 때 사용, 이제 dropZone과 교체되므로 필요 없을 수 있음 */
+    display: none;
     width: 100%;
     opacity: 0;
-    transition: opacity 0.3s ease-in-out 0.1s; /* 나타날 때 약간의 딜레이와 함께 부드럽게 */
-}
-/* JS에서 이 클래스를 추가하여 보이게 함 */
-#fileActionsContainer.visible {
-    display: block; /* JS에서 display:none을 block으로 변경 후 이 클래스로 opacity 제어 */
-    opacity: 1;
+    transition: opacity 0.3s ease-in-out 0.1s;
 }
 
-/* #uploadInfo는 fileActionsContainer의 자식 */
-#uploadInfo {
-    /* 특별한 스타일 불필요, 부모가 block이므로 기본 block 동작 */
+#fileActionsContainer.visible {
+    display: block;
+    opacity: 1;
 }
 
 .file-info {
@@ -131,7 +128,7 @@
     padding: 0.8rem 1rem;
     border-radius: var(--border-radius);
     border: 1px solid #e9ecef;
-    margin-bottom: 1.5rem; /* 옵션 그룹과의 간격 */
+    margin-bottom: 1.5rem;
 }
 .file-icon {
     width: 35px;
@@ -188,10 +185,6 @@
     color: var(--dark-color);
 }
 
-/* --- 요약 옵션들의 레이아웃 --- */
-.summary-controls-group {
-    /* margin-top: 1.5rem; .file-info에 margin-bottom이 있으므로 제거 */
-}
 .summary-options,
 .summary-duration {
     background-color: #f8f9fa;
@@ -215,12 +208,6 @@
     margin-right: 0.5rem;
     color: var(--primary-color);
 }
-.weight-slider-container {
-    /* ... 슬라이더 관련 스타일 ... */
-}
-#durationInput {
-    /* ... 입력 필드 관련 스타일 ... */
-}
 
 /* 시작 버튼 */
 #startBtn {
@@ -228,7 +215,7 @@
     width: 100%;
 }
 
-/* --- #uploadCard 애니메이션 및 기존 요약 보기 관련 (이전 답변 내용 유지) --- */
+/* #uploadCard 애니메이션 및 기존 요약 보기 관련 */
 #uploadCard {
     transition:
         opacity 0.4s ease-out,

@@ -10,30 +10,26 @@ server/public/css/result.css
 }
 
 .card {
-    background-color: #fff; /* 또는 var(--light-color) */
+    background-color: #fff; 
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
-    /* padding: 2rem; */ /* 만약 카드 자체에 큰 패딩이 있다면 이 값을 줄이거나 제거 */
-    /* margin-bottom: 2rem; */ /* 카드 간 간격 */
 }
 
 .card-header {
-    padding: 1.5rem 2rem; /* 상하 패딩(1.5rem)을 줄일 수 있음. 예: 1rem 2rem */
+    padding: 1.5rem 2rem;
     border-bottom: 1px solid var(--light-gray);
-    /* margin-bottom: 1.5rem; */ /* 만약 헤더와 바디 사이에 마진이 있다면 줄이거나 제거 */
 }
 
 .card-header h2 {
     margin: 0;
-    font-size: 1.5rem; /* 필요시 약간 줄일 수 있음 */
+    font-size: 1.5rem; 
     /* ... */
 }
 
 .card-body {
-    padding: 2rem; /* 이 상하 패딩(2rem)을 줄이는 것이 효과적입니다. 예: 1.2rem 2rem 또는 1.5rem */
+    padding: 2rem; 
 }
 
-/* --- 비디오 컨테이너 그룹 --- */
 .video-container-group {
     display: flex;
     flex-direction: row;
@@ -47,7 +43,6 @@ server/public/css/result.css
     transition: gap 0.4s ease-out;
 }
 
-/* --- 개별 비디오 박스 --- */
 .video-box {
     flex-basis: 48%;
     flex-shrink: 1;
@@ -95,33 +90,32 @@ server/public/css/result.css
     color: var(--gray-color);
 }
 
-/* 2) highlight bar를 절대 위치로 overlay */
 #highlightBarContainer {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;            /* video 바로 위 */
-  height: 25px;         /* 원하는 높이 */
+  bottom: 0;     
+  height: 25px;      
   background: rgba(224,224,224,0.8);
   border-radius: 8px;
-  opacity: 0;           /* 기본 숨김 */
+  opacity: 0; 
   transition: opacity .3s ease;
-  pointer-events: none; /* video 컨트롤 방해 안 함 */
-  z-index: 20;          /* video 위에 뜨도록 충분히 크게 */
+  pointer-events: none; 
+  z-index: 20; 
 }
 
 .video-box > .highlight-legend {
-  margin-top: 7px;              /* 영상 아래 간격 */
+  margin-top: 7px;
   display: flex;
   justify-content: flex-start;
   gap: 1rem;
   font-size: 0.85rem;
   color: var(--gray-color);
-  position: relative;           /* overlay 영향 안 받도록 */
-  z-index: 1;                   /* overlay보다 아래 */
+  position: relative; 
+  z-index: 1; 
 }
 
-/* ===== 요약 품질 사이드바 스타일 (신규) ===== */
+/*요약 품질 사이드바 스타일*/
 .shortform-details-sidebar {
     background-color: #ffffff;
     padding: 25px 20px;
@@ -134,9 +128,6 @@ server/public/css/result.css
     max-width: 340px;
     height: fit-content;
     border: 1px solid var(--border-color, #e5e7eb);
-    /* 사이드바 위치는 video-container-group의 flex 속성 또는  */
-    /* shortform-video-box 내부에서의 정렬로 조절될 수 있습니다. */
-    /* 필요시 margin-left: 2rem; 등으로 video-container-group에 직접 추가 */
 }
 
 .sidebar-header {
@@ -184,7 +175,7 @@ server/public/css/result.css
     color: var(--text-muted, #6c757d);
     line-height: 1.6;
     text-align: left;
-    padding: 10px 12px; /* 패딩 약간 조정 */
+    padding: 10px 12px;
     background-color: var(--light-gray-color, #f9fafb);
     border-radius: var(--border-radius, 6px);
 }
@@ -205,7 +196,7 @@ server/public/css/result.css
     padding: 12px 15px;
     background-color: #fff;
     border: 1px solid var(--border-color, #e9ecef);
-    border-radius: var(--border-radius-lg, 8px); /* 이전 8px에서 var(--border-radius-lg) 사용 */
+    border-radius: var(--border-radius-lg, 8px);
     transition:
         transform 0.2s ease-in-out,
         box-shadow 0.2s ease-in-out,
@@ -246,7 +237,6 @@ server/public/css/result.css
 }
 
 .metric-info .metric-value {
-    /* .metric-info 스코프 명확히 */
     font-size: 1.05rem;
     font-weight: 600;
     color: var(--dark-color, #333);
@@ -272,7 +262,6 @@ server/public/css/result.css
     margin-left: 3px;
 }
 
-/* --- 타임 마커 & 범례 --- */
 .time-markers {
     position: absolute;
     width: 100%;
@@ -317,13 +306,12 @@ server/public/css/result.css
     border-radius: 3px;
 }
 .legend-color.original {
-    background-color: #e0e0e0; /* 직접 색상 사용 대신 var(--light-gray-color) 등 고려 가능 */
+    background-color: #e0e0e0; 
 }
 .legend-color.highlight {
     background-color: var(--accent-color);
 }
 
-/* --- 리사이즈 핸들 --- */
 .resize-handle {
     position: absolute;
     width: 10px;
@@ -339,16 +327,15 @@ server/public/css/result.css
     right: -5px;
 }
 
-/* ===== 요약 영상 자막 스크립트 영역 스타일 ===== */
 .shortform-transcript-section {
-    margin-top: 2rem; /* 요약 영상과의 간격 */
+    margin-top: 2rem; 
     padding: 1.5rem;
-    background-color: var(--light-color, #f8f9fa); /* 밝은 배경색 */
+    background-color: var(--light-color, #f8f9fa); 
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--light-gray, #e9ecef);
     max-height: 260px;
-    overflow-y: auto; /* 세로 스크롤 자동 표시 */
+    overflow-y: auto; 
 }
 
 .transcript-header {
@@ -374,28 +361,13 @@ server/public/css/result.css
     color: var(--primary-color);
 }
 
-/* (선택 사항) 자막 검색창 스타일
-#transcriptSearch {
-    padding: 0.5rem 0.8rem;
-    border-radius: calc(var(--border-radius) / 1.5);
-    border: 1px solid var(--light-gray);
-    font-size: 0.9rem;
-    min-width: 200px;
-}
-#transcriptSearch:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 67, 97, 238), 0.2);
-}
-*/
-
 .transcript-list {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem; /* 각 자막 아이템 사이 간격 */
+    gap: 0.8rem;
 }
 
 .transcript-list li {
@@ -408,20 +380,20 @@ server/public/css/result.css
         background-color 0.2s ease,
         transform 0.15s ease,
         border-color 0.2s ease;
-    display: flex; /* 시간과 텍스트를 가로로 배치 */
-    align-items: flex-start; /* 상단 정렬 */
-    gap: 0.8rem; /* 시간과 텍스트 사이 간격 */
+    display: flex; 
+    align-items: flex-start; 
+    gap: 0.8rem;
 }
 
 .transcript-list li:hover {
-    background-color: #f0f3ff; /* 호버 시 배경색 (primary-light 계열의 아주 연한 색) */
+    background-color: #f0f3ff; 
     border-color: var(--primary-light);
     transform: translateY(-1px);
 }
 
 .transcript-list li.active-transcript {
-    background-color: var(--primary-light); /* 현재 재생 중인 자막 배경색 */
-    color: white; /* 현재 재생 중인 자막 텍스트 색상 */
+    background-color: var(--primary-light);
+    color: white; 
     border-color: var(--primary-color);
     box-shadow: 0 2px 8px rgba(var(--primary-rgb, 67, 97, 238), 0.3);
 }
@@ -434,26 +406,22 @@ server/public/css/result.css
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--primary-color);
-    white-space: nowrap; /* 시간 정보가 줄바꿈되지 않도록 */
-    flex-shrink: 0; /* 시간 영역 크기 고정 */
-    min-width: 100px; /* 시간 표시 영역 최소 너비 (예: 00:00 ~ 00:00) */
+    white-space: nowrap; 
+    flex-shrink: 0;
+    min-width: 100px; /
 }
 
 .transcript-text {
     font-size: 0.95rem;
     color: var(--dark-color);
     line-height: 1.5;
-    flex-grow: 1; /* 텍스트 영역이 남은 공간을 모두 차지하도록 */
+    flex-grow: 1; 
 }
 
-/* ========= 편집 모드 스타일 ========= */
-
-/* 편집 모드일 때 컨테이너 gap 제거 */
+/* 편집 모드 스타일 */
 #resultCard.editing-mode .video-container-group {
     gap: 0;
 }
-
-/* 편집 모드일 때 원본 영상 영역 크기 유지 */
 #resultCard.editing-mode .original-video-box {
     flex-basis: 48%;
     max-width: 800px;
@@ -462,7 +430,6 @@ server/public/css/result.css
     margin: 0 auto;
 }
 
-/* 편집 모드일 때 원본 영상 높이 제한 */
 #resultCard.editing-mode .original-video-box video {
     width: 100%;
     height: auto;
@@ -513,7 +480,6 @@ server/public/css/result.css
     visibility: visible;
 }
 
-/* 편집 모드에서 highlight 바를 원본 박스 바깥까지 풀 너비로 늘리기 */
 #resultCard.editing-mode .highlight-section {
     width: 100%;
     max-width: none;
@@ -521,27 +487,24 @@ server/public/css/result.css
     box-sizing: border-box;
 }
 
-/* highlightBarContainer가 100% 너비를 쓰도록 보장 */
 #resultCard.editing-mode #highlightBarContainer {
     width: 100%;
 }
 
-/* ========= 반응형 스타일 ========= */
+/*반응형 스타일 */
 @media (max-width: 768px) {
     .video-container-group {
         flex-direction: column;
         align-items: center;
-        /* gap: 2rem; 이미 정의됨 */
     }
     .video-box {
-        /* .video-box 및 .shortform-details-sidebar 포함하도록 조정 */
         flex-basis: auto;
         width: 100%;
         max-width: 500px;
         min-width: auto;
-        transition: none; /* 모바일에서는 복잡한 전환 제거 가능 */
-        opacity: 1 !important; /* 편집 모드와 충돌 방지 */
-        pointer-events: auto !important; /* 편집 모드와 충돌 방지 */
+        transition: none; 
+        opacity: 1 !important; 
+        pointer-events: auto !important;
         padding: 0;
         margin: 0;
         border: none;
@@ -549,17 +512,17 @@ server/public/css/result.css
     }
 
     .shortform-details-sidebar {
-        max-width: 100%; /* 모바일에서는 가로 전체 사용 가능 */
-        margin-top: 1.5rem; /* 비디오 박스와의 간격 */
+        max-width: 100%;
+        margin-top: 1.5rem; 
     }
     .sidebar-title {
-        font-size: 1.15rem; /* 모바일 제목 크기 약간 줄임 */
+        font-size: 1.15rem; 
     }
     .score-display .score-value {
-        font-size: 2.8rem; /* 모바일 점수 크기 약간 줄임 */
+        font-size: 2.8rem;
     }
     .metric-item {
-        padding: 10px 12px; /* 모바일 항목 패딩 줄임 */
+        padding: 10px 12px;
         gap: 10px;
     }
     .metric-icon-wrapper {
@@ -572,16 +535,15 @@ server/public/css/result.css
     }
 
     #resultCard.editing-mode .video-container-group {
-        gap: 2rem; /* 편집 모드에서도 모바일 gap 유지 */
+        gap: 2rem;
     }
     #resultCard.editing-mode .original-video-box,
     #resultCard.editing-mode .shortform-video-box {
-        /* shortform-video-box는 숨겨지지만, 일관성 유지 */
         flex-basis: auto;
         width: 100%;
         max-width: 500px;
         min-width: auto;
-        opacity: 1; /* shortform-video-box는 어차피 display:none 될 것 */
+        opacity: 1; 
         pointer-events: auto;
         padding: 0;
         margin: 0;
@@ -591,8 +553,8 @@ server/public/css/result.css
 
 .video-wrapper {
     position: relative;
-    display: inline-block; /* 혹은 block */
-    overflow: visible;       /* overlay가 잘려 나가지 않도록 */
+    display: inline-block;
+    overflow: visible;
     width: 100%;
 }
 
@@ -608,15 +570,14 @@ server/public/css/result.css
     height: auto;
     display: block;
 }
-/* 프레임 점수 시각화 부분, (기본 숨김) 절대 위치로 아래에 붙이기 */
 .frame-graph-overlay {
     position: absolute;
     width: 100%;
     height: auto;
     display: block;
-    bottom: 25px; /* 영상 내부 하단에서 위로 약간 띄움 */
-    left: 0%; /* ⬅ 양쪽 여백 2% */
-    width: 100%; /* ⬅ 100% - 2%*2 */
+    bottom: 25px; 
+    left: 0%; 
+    width: 100%;
     height: 25px;
     object-fit: cover;
     opacity: 0;
@@ -625,35 +586,32 @@ server/public/css/result.css
     z-index: 11;
 }
 
-/* 타임바 부분, (기본 숨김) 절대 위치로 아래에 붙이기 */
 .highlight-overlay {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 0;               /* 비디오 하단에 밀착 */
-  height: 25px;            /* 원하는 높이 */
-  background: rgba(255,255,255,0.2); /* 반투명 배경 예시 */
+  bottom: 0; 
+  height: 25px; 
+  background: rgba(255,255,255,0.2); 
   border-radius: 8px;
   overflow: hidden;
-  pointer-events: none;    /* 영상 컨트롤 가리지 않게 */
+  pointer-events: none;  
   opacity: 0;
   transition: opacity .25s ease;
-  z-index: 1000;             /* 비디오 위로 올라오도록 충분히 크게 */
+  z-index: 1000;
 }
-#highlightBarContainer.highlight-overlay { /*ID+클래스 조합으로 override*/
+#highlightBarContainer.highlight-overlay { 
   height: 20px;
   bottom: 1px;
   background: transparent;
   border-radius: 1;
 }
 
-/* hover 시만 보이게 */
 .video-wrapper:hover .frame-graph-overlay,
 .video-wrapper:hover #highlightBarContainer {
   opacity: 1;
 }
 
-/* 썸네일 리스트 영역 */
 .highlight-thumbnails {
     margin-top: 1.5rem;
 }
