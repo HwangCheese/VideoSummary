@@ -1,5 +1,4 @@
-# 🧀 VideoSummary - 영상 요약 웹 시스템
-
+![](https://capsule-render.vercel.app/api?type=waving&color=auto&height=170&text=🧀%20VideoSummary%20-%20영상 요약 웹 시스템%20🙋‍♀️&textColor=ffffff&fontSize=39&animation=twinkling&section=header)
 AI 기술을 활용하여 스토리 중심 또는 하이라이트 중심의 핵심 장면만을 추출해  
 **고품질 요약 영상을 자동 생성**하는 웹 기반 시스템입니다.
 
