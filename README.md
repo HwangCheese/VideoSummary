@@ -1,4 +1,5 @@
-![](https://capsule-render.vercel.app/api?type=waving&color=auto&height=170&text=🧀%20VideoSummary%20-%20영상%20요약%20웹%20시스템%20🙋‍♀️&textColor=ffffff&fontSize=39&animation=twinkling&section=header)
+![](https://capsule-render.vercel.app/api?type=waving&color=auto&height=170&text=🧀%20VideoSummary%20-%20영상%20요약%20웹%20시스템&textColor=ffffff&fontSize=39&animation=twinkling&section=header)
+<br>
 AI 기술을 활용하여 스토리 중심 또는 하이라이트 중심의 핵심 장면만을 추출해  
 **고품질 요약 영상을 자동 생성**하는 웹 기반 시스템입니다.
 
