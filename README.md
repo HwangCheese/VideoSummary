@@ -1,7 +1,14 @@
-# 🧀 VideoSummary - 영상 요약 웹 시스템
-
-AI 기술을 활용하여 스토리 중심 또는 하이라이트 중심의 핵심 장면만을 추출해  
-**고품질 요약 영상을 자동 생성**하는 웹 기반 시스템입니다.
+<p align="center">
+  <img 
+    src="https://capsule-render.vercel.app/api?type=waving&color=auto&height=200&text=🧀%20VideoSummary%20-%20영상%20요약%20웹%20시스템&textColor=ffffff&fontSize=45&animation=twinkling&section=header" 
+    width="100%" 
+  />
+</p>
+<div align="center">
+AI 기술을 활용하여 스토리 중심 또는 하이라이트 중심의 핵심 장면만을 추출해
+<br>
+<strong>고품질 요약 영상을 자동 생성</strong>하는 웹 기반 시스템입니다.
+</div>
 
 ---
 
@@ -40,23 +47,26 @@ AI가 자동으로 **스토리 기반** 또는 **하이라이트 기반**으로 
 
 ---
 
+<div align="center">
+
 ## 📷 주요 화면
 
-| 업로드 및 옵션 선택 |
-|---------------------|
-| ![1](https://github.com/user-attachments/assets/1878b8cd-2bbf-4fb2-aca6-532cd38ae4dc) |
+<br>
 
----
+<img src="https://github.com/user-attachments/assets/1878b8cd-2bbf-4fb2-aca6-532cd38ae4dc" width="60%" />
+<br><sub>업로드 및 옵션 선택 화면</sub>
 
-| 요약 처리 과정 |
-|----------------|
-| ![2](https://github.com/user-attachments/assets/35f2ed3e-4e28-4192-acdb-5288e9e3d1eb) |
+<br><br>
 
----
+<img src="https://github.com/user-attachments/assets/35f2ed3e-4e28-4192-acdb-5288e9e3d1eb" width="60%" />
+<br><sub>요약 처리 과정</sub>
 
-| 요약 결과 |
-|-----------|
-| ![3](https://github.com/user-attachments/assets/0ac5f2b9-6856-4d14-8246-10129e40c634) |
+<br><br>
+
+<img src="https://github.com/user-attachments/assets/0ac5f2b9-6856-4d14-8246-10129e40c634" width="60%" />
+<br><sub>요약 결과 영상</sub>
+
+</div>
 
 ---
 
