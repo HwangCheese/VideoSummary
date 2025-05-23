@@ -569,19 +569,46 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
 }
 
 export function initPipelineRunner() {
+
+  const highlightRatioValueEl = document.getElementById('highlightRatioValue');
+  const storyRatioValueEl = document.getElementById('storyRatioValue');
+  const importanceSlider = document.getElementById('importanceSlider');
+  const currentImportanceWeight = importanceSlider ? importanceSlider.value : "0.5";
+
+  function updateSliderRatioDisplay() {
+    if (!importanceSlider || !highlightRatioValueEl || !storyRatioValueEl) {
+      return;
+    }
+    const sliderVal = parseFloat(importanceSlider.value); // 0.0 ~ 1.0
+
+    const highlightRatio = Math.round((1 - sliderVal) * 10);
+    const storyRatio = Math.round(sliderVal * 10);
+
+    highlightRatioValueEl.textContent = highlightRatio;
+    storyRatioValueEl.textContent = storyRatio;
+  }
+
+  if (importanceSlider) {
+    updateSliderRatioDisplay();
+    importanceSlider.addEventListener('input', updateSliderRatioDisplay);
+  } else {
+    console.warn("Importance slider element not found in initPipelineRunner.");
+  }
+
+
   if (startBtn) {
     startBtn.addEventListener("click", async () => {
       if (!currentUploadedFileNameFromHandler) {
         showToast("먼저 파일을 업로드해주세요.", "warning");
         return;
       }
-      const currentImportanceWeight = importanceSlider ? importanceSlider.value : "0.5";
       startBtn.disabled = true;
       startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
       if (highlightEditor) {
         highlightEditor.destroy();
         highlightEditor = null;
       }
+
       resetSummaryMetrics();
       if (progressCard) progressCard.style.display = "block";
       if (resultCard) resultCard.style.display = "none";
@@ -633,10 +660,6 @@ export function initPipelineRunner() {
 
             await fetchReportAndScoreForUIInternal(baseName);
             if (transcriptListEl) await loadAndDisplayShortformTranscriptInternal(baseName);
-
-            setTimeout(() => {
-              if (resultCard) resultCard.scrollIntoView({ behavior: "smooth", block: "center" });
-            }, 400);
           }
         };
         const onOriginalVideoMetadataLoaded = () => {

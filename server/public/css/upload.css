@@ -431,3 +431,52 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
         transform: translate3d(0, 10px, 0) scale(0.98);
     }
 }
+
+.weight-slider-container {
+    /* 기존 스타일 유지 */
+    margin-top: 0.5rem; /* 제목과의 간격 */
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--gray-color);
+    margin-bottom: 0.5rem; /* 슬라이더와의 간격 */
+}
+
+.slider-wrapper {
+    position: relative; /* 슬라이더 진행 상태 표시를 위함 (선택 사항) */
+    /* 필요시 추가 스타일 */
+}
+
+#importanceSlider {
+    width: 100%;
+    /* 기본 슬라이더 스타일 초기화 및 커스텀은 생략 (이미 잘 되어 있다고 가정) */
+}
+
+/* 슬라이더 값 표시 영역 스타일 */
+.slider-value-display {
+    display: flex;
+    justify-content: space-between; /* 양쪽 끝으로 정렬 */
+    align-items: center;
+    margin-top: 0.5rem; /* 슬라이더와의 간격 */
+    font-size: 1.1rem; /* 숫자 크기 */
+    font-weight: 600; /* 숫자 굵게 */
+    color: var(--dark-color);
+    padding: 0 5px; /* 슬라이더 양 끝과 숫자 정렬 맞추기 위한 약간의 패딩 */
+}
+
+#highlightRatioValue,
+#storyRatioValue {
+    /* 개별 숫자 스타일 필요시 */
+}
+
+.slider-value-colon {
+    font-weight: normal;
+    color: var(--gray-color);
+    font-size: 1rem;
+    position: absolute; /* 중앙 정렬 시도 */
+    left: 50%;
+    transform: translateX(-50%);
+}

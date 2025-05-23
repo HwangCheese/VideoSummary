@@ -80,45 +80,21 @@
                     <input type="range" id="importanceSlider" min="0" max="1" step="0.1" value="0.5">
                     <div class="slider-progress"></div>
                   </div>
+                  <div class="slider-value-display">
+                    <span id="highlightRatioValue">5</span>
+                    <span class="slider-value-colon"></span>
+                    <span id="storyRatioValue">5</span>
+                  </div>
                 </div>
               </div>
-              <div class="summary-duration" style="margin-top: 1rem;">
-                <label for="durationInput"><i class="fas fa-clock"></i> 요약 영상 길이</label>
-                <input type="number" id="durationInput" placeholder="분 단위">
-              </div>
             </div>
-          </div>
-          <button id="startBtn" disabled style="margin-top: 1.5rem;">
-            요약 시작
-            <span class="btn-shine"></span>
-          </button>
-        </div>
-        <input type="file" id="fileInput" accept=".mp4" style="display:none">
-      </div>
-
-      <div class="existing-summaries-container">
-        <button id="toggleExistingSummariesBtn" class="secondary-btn">
-          <i class="fas fa-history"></i> 지난 요약 다시보기
-        </button>
-
-        <div id="existingSummariesCard" class="card animate__animated" style="display: none; margin-top: 20px;">
-          <div class="card-header">
-            <h2><i class="fas fa-list-ul"></i> 지난 요약 다시보기</h2>
-            <button id="backToUploadBtn" class="icon-btn small-close-btn" title="업로드로 돌아가기">
-              <i class="fas fa-times"></i>
+            <button id="startBtn" disabled style="margin-top: 1.5rem;">
+              요약 시작
+              <span class="btn-shine"></span>
             </button>
           </div>
-          <div class="card-body">
-            <p>아래 목록에서 이전에 요약한 영상을 선택하여 결과를 바로 확인할 수 있습니다.</p>
-            <ul id="existingSummariesList" class="existing-summaries-list">
-              <!-- JS로 목록 동적 삽입 -->
-            </ul>
-            <div id="loadingExistingSummaries" style="display:none; text-align:center;">
-              <i class="fas fa-spinner fa-spin"></i> 목록을 불러오는 중...
-            </div>
-          </div>
+          <input type="file" id="fileInput" accept=".mp4" style="display:none">
         </div>
-      </div>
     </section>
 
     <!-- 진행률 섹션 -->
