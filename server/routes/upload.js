@@ -3,7 +3,7 @@ const express = require("express");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-const { spawn } = require("child_process");
+const { spawn, execFile } = require("child_process");
 
 const router = express.Router();
 
@@ -33,13 +33,93 @@ function broadcastProgressUpdate(progressState) {
   sseClients.forEach(client => client.write(`data: ${data}\n\n`));
 }
 
-router.post("/", upload.single("video"), (req, res) => {
+router.post("/", upload.single("video"), async (req, res) => {
+  console.log("========== /upload POST request received (async handler) ==========");
+  console.log("req.file (from multer):", req.file);
+
   if (!req.file) {
+    console.log("[SERVER ERROR] No file uploaded or multer failed.");
     return res.status(400).json({ message: "업로드된 파일이 없습니다." });
   }
   const filename = req.file.originalname;
-  broadcastProgressUpdate({ step: 0, message: "업로드 완료, 처리 대기 중...", done: false, percent: 0 });
-  res.json({ message: "업로드 완료", filename });
+  const filePath = req.file.path;
+  console.log(`[SERVER] File uploaded: ${filename}, Path: ${filePath}`);
+
+  broadcastProgressUpdate({ step: 0, message: "업로드 완료, 파일 정보 분석 중...", done: false, percent: 0 });
+
+  let videoInfo = { // 기본 구조 초기화
+    filename: filename,
+    duration: null,
+    video_codec: null,
+    audio_codec: null,
+    width: null,
+    height: null,
+    bit_rate: null
+  };
+
+  try {
+    console.log("[SERVER] Attempting to get video metadata...");
+    const metadata = await getVideoMetadata(filePath);
+    console.log("---------------- METADATA FROM FFPROBE ----------------");
+    console.log(JSON.stringify(metadata, null, 2)); // 전체 metadata 객체 로깅
+    console.log("-------------------------------------------------------");
+
+    let videoStream = null;
+    let audioStream = null;
+
+    if (metadata && metadata.streams && Array.isArray(metadata.streams)) {
+      videoStream = metadata.streams.find(s => s.codec_type === "video");
+      audioStream = metadata.streams.find(s => s.codec_type === "audio");
+    }
+
+    // 각 필드 추출 및 로깅
+    if (metadata && metadata.format && metadata.format.duration) {
+      videoInfo.duration = parseFloat(metadata.format.duration);
+      console.log(`[VIDEO_INFO_PARSED] Duration: ${videoInfo.duration}`);
+    } else {
+      console.log(`[VIDEO_INFO_PARSED] Duration: Not found in metadata.format.duration`);
+    }
+
+    if (videoStream) {
+      videoInfo.video_codec = videoStream.codec_long_name || videoStream.codec_name || null;
+      videoInfo.width = videoStream.width || null;
+      videoInfo.height = videoStream.height || null;
+      console.log(`[VIDEO_INFO_PARSED] Video Codec: ${videoInfo.video_codec}`);
+      console.log(`[VIDEO_INFO_PARSED] Width: ${videoInfo.width}`);
+      console.log(`[VIDEO_INFO_PARSED] Height: ${videoInfo.height}`);
+    } else {
+      console.log(`[VIDEO_INFO_PARSED] Video Stream: Not found or missing codec/resolution info.`);
+    }
+
+    if (audioStream) {
+      videoInfo.audio_codec = audioStream.codec_long_name || audioStream.codec_name || null;
+      console.log(`[VIDEO_INFO_PARSED] Audio Codec: ${videoInfo.audio_codec}`);
+    } else {
+      console.log(`[VIDEO_INFO_PARSED] Audio Stream: Not found or missing codec info.`);
+    }
+
+    if (metadata && metadata.format && metadata.format.bit_rate) {
+      videoInfo.bit_rate = parseInt(metadata.format.bit_rate, 10);
+      console.log(`[VIDEO_INFO_PARSED] Bit Rate: ${videoInfo.bit_rate}`);
+    } else {
+      console.log(`[VIDEO_INFO_PARSED] Bit Rate: Not found in metadata.format.bit_rate`);
+    }
+
+    console.log("---------------- FINAL VIDEO_INFO OBJECT ----------------");
+    console.log(JSON.stringify(videoInfo, null, 2)); // 최종 videoInfo 객체 로깅
+    console.log("-------------------------------------------------------");
+
+    broadcastProgressUpdate({ step: 0, message: "업로드 완료, 처리 대기 중...", done: false, percent: 0 });
+    res.json({ message: "업로드 완료", filename: filename, videoInfo: videoInfo });
+
+  } catch (error) {
+    console.error("---------------- ERROR DURING METADATA PROCESSING ----------------");
+    console.error("Error getting video metadata or constructing videoInfo:", error);
+    console.error("------------------------------------------------------------------");
+    broadcastProgressUpdate({ step: 0, message: "업로드 완료 (메타데이터 분석 실패), 처리 대기 중...", done: false, percent: 0, error: true });
+    // 오류 시에도 videoInfo 객체는 (대부분 null 값으로 채워진) 기본 구조로 전달됨
+    res.json({ message: "업로드 완료 (메타데이터 분석 실패)", filename: filename, videoInfo: videoInfo });
+  }
 });
 
 router.get("/process", (req, res) => {
@@ -217,5 +297,41 @@ router.get("/process", (req, res) => {
     }
   });
 });
+
+function getVideoMetadata(filePath) {
+  return new Promise((resolve, reject) => {
+    console.log(`[FFPROBE] Attempting to get metadata for: ${filePath}`);
+    const ffprobeArgs = [
+      "-v", "quiet",
+      "-print_format", "json",
+      "-show_format",
+      "-show_streams",
+      filePath
+    ];
+    console.log(`[FFPROBE] Executing: ffprobe ${ffprobeArgs.join(" ")}`);
+
+    execFile("ffprobe", ffprobeArgs, (error, stdout, stderr) => {
+      if (error) {
+        console.error("-------------------- FFPROBE ERROR --------------------");
+        console.error("[FFPROBE] Error object:", error);
+        console.error("[FFPROBE] Stderr:", stderr);
+        console.error("-----------------------------------------------------");
+        return reject(new Error(`ffprobe execution failed: ${stderr || error.message}`));
+      }
+      // console.log("[FFPROBE] Raw Stdout:", stdout); // 전체 stdout이 필요하면 이 줄의 주석을 해제하세요 (매우 길 수 있음)
+      try {
+        const parsedOutput = JSON.parse(stdout);
+        console.log("[FFPROBE] Successfully parsed JSON output.");
+        resolve(parsedOutput);
+      } catch (parseError) {
+        console.error("----------------- FFPROBE JSON PARSE ERROR -----------------");
+        console.error("[FFPROBE] JSON parse error:", parseError);
+        console.error("[FFPROBE] Failed to parse stdout (first 1000 chars):", stdout.substring(0, 1000));
+        console.error("----------------------------------------------------------");
+        reject(new Error(`Failed to parse ffprobe output: ${parseError.message}`));
+      }
+    });
+  });
+}
 
 module.exports = router;

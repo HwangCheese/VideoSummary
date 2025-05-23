@@ -1,5 +1,5 @@
 // public/static/uploadHandler.js
-import { showToast, formatFileSize } from "./uiUtils.js";
+import { showToast, formatFileSize, formatTime } from "./uiUtils.js"; // formatTime 임포트 확인
 
 export let uploadedFileName = "";
 
@@ -7,6 +7,10 @@ let dropZoneEl = null;
 let fileInputEl = null;
 let fileNameDisplayEl = null;
 let fileSizeDisplayEl = null;
+let fileDurationDisplayEl = null;
+let fileTypeDisplayEl = null;
+let fileResolutionDisplayEl = null;
+let fileBitrateDisplayEl = null;
 let removeFileBtnEl = null;
 let startBtnEl = null;
 let statusDivEl = null;
@@ -16,18 +20,22 @@ let durationInputEl = null;
 let fileActionsContainerEl = null;
 let existingSummariesContainerEl = null;
 
-export function setUploadedFileName(newFileName, fileSizeMB) {
+export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
   uploadedFileName = newFileName;
+
   if (!dropZoneEl) dropZoneEl = document.getElementById("dropZone");
   if (!fileNameDisplayEl) fileNameDisplayEl = document.getElementById("fileName");
   if (!fileSizeDisplayEl) fileSizeDisplayEl = document.getElementById("fileSize");
+  if (!fileDurationDisplayEl) fileDurationDisplayEl = document.getElementById("fileDuration");
+  if (!fileTypeDisplayEl) fileTypeDisplayEl = document.getElementById("fileType");
+  if (!fileResolutionDisplayEl) fileResolutionDisplayEl = document.getElementById("fileResolution");
+  if (!fileBitrateDisplayEl) fileBitrateDisplayEl = document.getElementById("fileBitrate");
   if (!fileActionsContainerEl) fileActionsContainerEl = document.getElementById("fileActionsContainer");
   if (!startBtnEl) startBtnEl = document.getElementById("startBtn");
   if (!importanceSliderEl) importanceSliderEl = document.getElementById('importanceSlider');
   if (!durationInputEl) durationInputEl = document.getElementById('durationInput');
   if (!fileInputEl) fileInputEl = document.getElementById("fileInput");
   if (!existingSummariesContainerEl) existingSummariesContainerEl = document.querySelector(".existing-summaries-container");
-
 
   if (newFileName) {
     if (fileNameDisplayEl) fileNameDisplayEl.textContent = newFileName;
@@ -39,6 +47,19 @@ export function setUploadedFileName(newFileName, fileSizeMB) {
       }
     }
 
+    if (fileDurationDisplayEl) {
+      fileDurationDisplayEl.textContent = videoInfo && videoInfo.duration ? formatTime(videoInfo.duration) : "N/A";
+    }
+    if (fileTypeDisplayEl) {
+      fileTypeDisplayEl.textContent = videoInfo && videoInfo.codec_name ? videoInfo.codec_name.split('/')[0].trim() : "N/A";
+    }
+    if (fileResolutionDisplayEl) {
+      fileResolutionDisplayEl.textContent = videoInfo && videoInfo.width && videoInfo.height ? `${videoInfo.width}x${videoInfo.height}` : "N/A";
+    }
+    if (fileBitrateDisplayEl) {
+      fileBitrateDisplayEl.textContent = videoInfo && videoInfo.bit_rate ? `${(videoInfo.bit_rate / 1000000).toFixed(2)} Mbps` : "N/A";
+    }
+
     if (dropZoneEl) {
       dropZoneEl.style.opacity = "0";
       setTimeout(() => {
@@ -47,13 +68,11 @@ export function setUploadedFileName(newFileName, fileSizeMB) {
         }
       }, 300);
     }
-
     if (fileActionsContainerEl) {
       fileActionsContainerEl.style.display = "block";
       void fileActionsContainerEl.offsetWidth;
       fileActionsContainerEl.classList.add("visible");
     }
-
     if (existingSummariesContainerEl) {
       existingSummariesContainerEl.style.opacity = "0";
       setTimeout(() => {
@@ -62,12 +81,15 @@ export function setUploadedFileName(newFileName, fileSizeMB) {
         }
       }, 300);
     }
-
     if (startBtnEl) startBtnEl.disabled = false;
 
   } else {
     if (fileNameDisplayEl) fileNameDisplayEl.textContent = "";
     if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = "";
+    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "";
+    if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = "";
+    if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "";
+    if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "";
 
     if (dropZoneEl) {
       dropZoneEl.style.display = "flex";
@@ -82,7 +104,6 @@ export function setUploadedFileName(newFileName, fileSizeMB) {
         }
       }, 300);
     }
-
     if (existingSummariesContainerEl) {
       existingSummariesContainerEl.style.display = "block";
       void existingSummariesContainerEl.offsetWidth;
@@ -100,6 +121,10 @@ export function initUploadHandler() {
   fileInputEl = document.getElementById("fileInput");
   fileNameDisplayEl = document.getElementById("fileName");
   fileSizeDisplayEl = document.getElementById("fileSize");
+  fileDurationDisplayEl = document.getElementById("fileDuration");
+  fileTypeDisplayEl = document.getElementById("fileType");
+  fileResolutionDisplayEl = document.getElementById("fileResolution");
+  fileBitrateDisplayEl = document.getElementById("fileBitrate");
   removeFileBtnEl = document.getElementById("removeFileBtn");
   startBtnEl = document.getElementById("startBtn");
   statusDivEl = document.getElementById("status");
@@ -134,15 +159,13 @@ export function initUploadHandler() {
     });
   }
 
-  /* 파일 입력 변경 이벤트 핸들러 */
   if (fileInputEl) {
     fileInputEl.addEventListener("change", () => {
       if (fileInputEl.files.length > 0) handleFile(fileInputEl.files[0]);
     });
   }
 
-  /* 선택된 파일 처리 함수 */
-  function handleFile(file) {
+  async function handleFile(file) {
     if (!file.type.startsWith("video/")) {
       showToast("비디오 파일만 업로드 가능합니다.", "warning");
       if (fileInputEl) fileInputEl.value = "";
@@ -152,6 +175,11 @@ export function initUploadHandler() {
 
     if (fileNameDisplayEl) fileNameDisplayEl.textContent = file.name;
     if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = formatFileSize(file.size);
+    if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = file.type || 'N/A';
+    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "정보 분석중...";
+    if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "";
+    if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "";
+
 
     if (dropZoneEl) {
       dropZoneEl.style.opacity = "0";
@@ -166,14 +194,28 @@ export function initUploadHandler() {
       existingSummariesContainerEl.style.opacity = "0";
       setTimeout(() => { if (existingSummariesContainerEl.style.opacity === "0") existingSummariesContainerEl.style.display = "none"; }, 300);
     }
-    if (startBtnEl) startBtnEl.disabled = false;
     uploadedFileName = file.name;
 
-    uploadFile(file);
+    uploadFileAndGetInfo(file);
   }
 
-  /* 실제 파일 업로드 (백엔드 통신) 함수 */
-  async function uploadFile(file) {
+  function getVideoDuration(file) {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement('video');
+      video.preload = 'metadata';
+      video.onloadedmetadata = function () {
+        window.URL.revokeObjectURL(video.src);
+        resolve(video.duration);
+      };
+      video.onerror = function () {
+        window.URL.revokeObjectURL(video.src);
+        reject("비디오 메타데이터 로드 오류");
+      };
+      video.src = URL.createObjectURL(file);
+    });
+  }
+
+  async function uploadFileAndGetInfo(file) {
     if (statusDivEl) statusDivEl.textContent = "⏳ 업로드 중...";
     if (startBtnEl) startBtnEl.disabled = true;
 
@@ -183,8 +225,49 @@ export function initUploadHandler() {
     try {
       const res = await fetch("/upload", { method: "POST", body: formData });
       const data = await res.json();
+      console.log("[DEBUG] Server response from /upload:", JSON.parse(JSON.stringify(data)));
 
-      if (res.ok) {
+      if (res.ok && data.filename) {
+        uploadedFileName = data.filename;
+        if (fileNameDisplayEl) fileNameDisplayEl.textContent = uploadedFileName;
+
+        if (data.videoInfo && typeof data.videoInfo === 'object') {
+          console.log("[DEBUG] Received videoInfo from server:", JSON.parse(JSON.stringify(data.videoInfo)));
+
+          if (fileDurationDisplayEl) {
+            fileDurationDisplayEl.textContent = data.videoInfo.duration && !isNaN(parseFloat(data.videoInfo.duration))
+              ? formatTime(parseFloat(data.videoInfo.duration))
+              : "N/A";
+          }
+          if (fileTypeDisplayEl) {
+            // 서버에서 video_codec 또는 codec_name 사용, 없으면 file.type
+            const serverCodec = data.videoInfo.video_codec || data.videoInfo.codec_name;
+            fileTypeDisplayEl.textContent = serverCodec ? serverCodec.split('/')[0].trim() : (file.type || 'N/A');
+          }
+          if (fileResolutionDisplayEl) {
+            fileResolutionDisplayEl.textContent = data.videoInfo.width && data.videoInfo.height
+              ? `${data.videoInfo.width}x${data.videoInfo.height}`
+              : "N/A";
+          }
+          if (fileBitrateDisplayEl) {
+            fileBitrateDisplayEl.textContent = data.videoInfo.bit_rate && !isNaN(parseInt(data.videoInfo.bit_rate))
+              ? `${(parseInt(data.videoInfo.bit_rate) / 1000000).toFixed(2)} Mbps`
+              : "N/A";
+          }
+        } else {
+          console.warn("서버에서 videoInfo를 받지 못했거나 유효하지 않습니다. 클라이언트에서 일부 정보만 다시 시도합니다.");
+          if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 계산 중...";
+          getVideoDuration(file)
+            .then(duration => {
+              if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = formatTime(duration);
+            })
+            .catch(() => {
+              if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 N/A";
+            });
+          if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = file.type || 'N/A'; // MIME 타입이라도 표시
+          if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "N/A";
+          if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "N/A";
+        }
         if (statusDivEl) statusDivEl.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
         showToast("업로드가 완료되었습니다!", "success");
         if (startBtnEl) startBtnEl.disabled = false;
@@ -194,23 +277,20 @@ export function initUploadHandler() {
         resetInternalUIOnFileActionFailure();
       }
     } catch (error) {
-      console.error("Upload error:", error);
-      if (statusDivEl) statusDivEl.textContent = "❌ 업로드 중 오류 발생";
-      showToast("업로드 중 오류가 발생했습니다.", "error");
+      console.error("Upload error or info request error:", error);
+      if (statusDivEl) statusDivEl.textContent = "❌ 업로드/정보 요청 중 오류 발생";
+      showToast("업로드 또는 파일 정보 분석 중 오류가 발생했습니다.", "error");
       resetInternalUIOnFileActionFailure();
     }
   }
 
-  /* 파일 관련 작업 실패 또는 명시적 리셋 시 UI 초기화 함수 */
   function resetInternalUIOnFileActionFailure() {
-    setUploadedFileName(null);
+    setUploadedFileName(null); // 모든 UI 초기화는 setUploadedFileName(null)에 위임
     if (statusDivEl) statusDivEl.textContent = "";
     if (progressBarInnerEl) progressBarInnerEl.style.width = "0%";
   }
 
-  /* 전체 UI 리셋 (removeFileBtn 클릭 시) */
   function resetUploadUIInternally() {
-    console.log("Executing resetUploadUIInternally to clear all selections and options.");
     const oldInput = document.getElementById("fileInput");
     if (oldInput && oldInput.parentNode) {
       const newInput = oldInput.cloneNode(true);
@@ -224,8 +304,7 @@ export function initUploadHandler() {
     } else if (fileInputEl) {
       fileInputEl.value = "";
     }
-
-    resetInternalUIOnFileActionFailure(); // 공통 UI 초기화
+    resetInternalUIOnFileActionFailure();
   }
 
   if (removeFileBtnEl) {

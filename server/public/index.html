@@ -51,14 +51,23 @@
                 </div>
                 <div class="file-details">
                   <span id="fileName"></span>
-                  <span id="fileSize"></span>
+                  <div class="file-meta-data">
+                    <span id="fileSize"></span>
+                    <span class="meta-divider">|</span>
+                    <span id="fileDuration"></span>
+                    <span class="meta-divider">|</span>
+                    <span id="fileType" title="코덱 정보"></span>
+                    <span class="meta-divider">|</span>
+                    <span id="fileResolution" title="해상도"></span>
+                    <span class="meta-divider">|</span>
+                    <span id="fileBitrate" title="비트 전송률"></span>
+                  </div>
                 </div>
                 <button id="removeFileBtn" class="icon-btn">
                   <i class="fas fa-times"></i>
                 </button>
               </div>
             </div>
-
             <div class="summary-controls-group" style="margin-top: 1.5rem;">
               <div class="summary-options">
                 <h3><i class="fas fa-sliders-h"></i> 요약 성향 선택</h3>

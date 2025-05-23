@@ -1,7 +1,20 @@
 /*
-server/public/css/upload.css
-업로드 관련 부근 css
+server/public/css/upload.css (또는 style.css에 통합될 내용)
+업로드 관련 부근 CSS - 파일 정보 표시 스타일 통일
 */
+
+/* --- 변수 (기존 style.css에 있다면 이 부분은 style.css에 두거나 여기서도 정의) --- */
+:root {
+    --primary-color: #4361ee;
+    --primary-light: #e0e6fc;
+    --gray-color: #6c757d;
+    --light-gray: #f0f2f5;
+    --dark-color: #343a40;
+    --border-radius: 8px;
+    --transition: all 0.3s ease-in-out;
+}
+
+/* --- 드롭존 --- */
 #dropZone {
     width: 100%;
     min-height: 200px;
@@ -15,7 +28,8 @@ server/public/css/upload.css
     cursor: pointer;
     transition:
         opacity 0.3s ease-out,
-        visibility 0.3s ease-out; /* 부드러운 사라짐/나타남 효과 */
+        visibility 0.3s ease-out,
+        display 0s linear 0.3s;
     color: var(--gray-color);
     position: relative;
     overflow: hidden;
@@ -41,11 +55,13 @@ server/public/css/upload.css
     transition: var(--transition);
 }
 #dropZone > p {
+    /* 드롭존의 직접 자식인 p 태그 (안내 문구) */
     font-size: 1.1rem;
     margin: 0;
     font-weight: 500;
 }
 #dropZone > .small {
+    /* 드롭존의 직접 자식인 small 태그 (작은 안내 문구) */
     font-size: 0.9rem;
     opacity: 0.7;
 }
@@ -107,19 +123,26 @@ server/public/css/upload.css
     transform: scale(1.1);
 }
 
-/* 파일 정보 및 옵션 전체 컨테이너 */
+/* --- 파일 정보 및 옵션 전체 컨테이너 --- */
 #fileActionsContainer {
     display: none;
     width: 100%;
     opacity: 0;
-    transition: opacity 0.3s ease-in-out 0.1s;
+    transition:
+        opacity 0.3s ease-in-out 0.1s,
+        display 0s linear 0s;
 }
-
 #fileActionsContainer.visible {
     display: block;
     opacity: 1;
 }
 
+/* #uploadInfo는 fileActionsContainer의 자식 */
+#uploadInfo {
+    /* 특별한 스타일이 현재는 필요 없을 수 있음 */
+}
+
+/* .file-info: 파일 아이콘, 파일 상세정보, 제거 버튼을 감싸는 컨테이너 */
 .file-info {
     display: flex;
     align-items: center;
@@ -128,8 +151,13 @@ server/public/css/upload.css
     padding: 0.8rem 1rem;
     border-radius: var(--border-radius);
     border: 1px solid #e9ecef;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.5rem; /* 아래 옵션 그룹과의 간격 */
 }
+.file-info:hover {
+    background-color: #eef1f5; /* 약간 더 부드러운 호버 색상 */
+}
+
+/* .file-icon: 파일 아이콘 스타일 */
 .file-icon {
     width: 35px;
     height: 35px;
@@ -141,28 +169,60 @@ server/public/css/upload.css
     flex-shrink: 0;
 }
 .file-info i.fa-file-video {
+    /* 파일 아이콘 내부 FontAwesome 아이콘 */
     color: white;
     font-size: 1rem;
 }
+
+/* .file-details: 파일 이름(#fileName)과 추가 정보(.file-meta-data)를 감싸는 컨테이너 */
 .file-details {
     display: flex;
-    flex-direction: column;
-    flex-grow: 1;
-    min-width: 0;
+    flex-direction: column; /* 이름과 메타 정보가 세로로 쌓이도록 */
+    flex-grow: 1; /* 남은 공간을 모두 차지 */
+    min-width: 0; /* 내용이 길어져도 부모를 벗어나지 않도록 (ellipsis 작동 위함) */
 }
+
+/* #fileName: 업로드된 파일 이름 */
 #fileName {
-    font-weight: 500;
+    font-weight: 600; /* 기존 500에서 변경하여 약간 더 강조 */
     color: var(--dark-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap; /* 한 줄로 표시 */
+    overflow: hidden; /* 넘치는 텍스트 숨김 */
+    text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
     font-size: 0.95rem;
+    margin-bottom: 0.4rem; /* 파일 이름과 아래 메타 데이터 사이의 간격 */
+    line-height: 1.3; /* 줄 간격 */
 }
-#fileSize {
-    color: var(--gray-color);
-    font-size: 0.85rem;
-    margin-top: 0.1rem;
+
+/* .file-meta-data: 파일 크기, 길이, 타입 등 추가 정보를 감싸는 컨테이너 */
+.file-meta-data {
+    display: flex; /* 메타 정보들을 가로로 나열 */
+    align-items: center; /* 수직 중앙 정렬 */
+    flex-wrap: wrap; /* 공간이 부족하면 다음 줄로 넘어가도록 (선택 사항) */
+    gap: 0.3rem 0.6rem; /* 수직 간격 0.3rem, 수평 간격 0.6rem (구분자 포함) */
+    font-size: 0.8rem; /* 메타 정보 폰트 크기 */
+    color: var(--gray-color); /* 메타 정보 폰트 색상 */
+    line-height: 1.2;
 }
+
+/* .file-meta-data 내부의 각 정보 항목 (span) */
+#fileSize,
+#fileDuration,
+#fileType,
+#fileResolution,
+#fileBitrate {
+    white-space: nowrap; /* 각 정보 항목은 줄바꿈되지 않도록 */
+}
+
+/* .meta-divider: 정보 항목 사이의 구분선 스타일 */
+.meta-divider {
+    color: #d1d8e0; /* 구분선 색상 */
+    /* margin은 gap으로 대체되었으므로 제거 또는 조정 */
+    font-size: 0.75rem; /* 구분선 크기 약간 작게 */
+    padding: 0 0.15rem; /* 구분선 좌우 약간의 내부 여백 (선택 사항) */
+}
+
+/* .icon-btn: 파일 제거 버튼 스타일 */
 .icon-btn {
     background: none;
     border: none;
@@ -185,6 +245,10 @@ server/public/css/upload.css
     color: var(--dark-color);
 }
 
+/* --- 요약 옵션들의 레이아웃 --- */
+.summary-controls-group {
+    /* 특별한 스타일이 현재는 필요 없을 수 있음. #fileActionsContainer가 block이므로 자동 수직 배치 */
+}
 .summary-options,
 .summary-duration {
     background-color: #f8f9fa;
@@ -193,7 +257,7 @@ server/public/css/upload.css
     border: 1px solid #e9ecef;
 }
 .summary-duration {
-    margin-top: 1rem;
+    margin-top: 1rem; /* summary-options와의 간격 */
 }
 .summary-options h3,
 .summary-duration label {
@@ -208,14 +272,15 @@ server/public/css/upload.css
     margin-right: 0.5rem;
     color: var(--primary-color);
 }
+/* .weight-slider-container, #durationInput 등 내부 요소 스타일은 생략 (기존 스타일 유지 가정) */
 
-/* 시작 버튼 */
+/* --- 시작 버튼 --- */
 #startBtn {
     margin-top: 1.5rem;
     width: 100%;
 }
 
-/* #uploadCard 애니메이션 및 기존 요약 보기 관련 */
+/* --- #uploadCard 애니메이션 및 기존 요약 보기 관련 (이전과 동일) --- */
 #uploadCard {
     transition:
         opacity 0.4s ease-out,
@@ -240,7 +305,10 @@ server/public/css/upload.css
 .existing-summaries-container {
     margin-top: 1.5rem;
     text-align: center;
-}
+    transition:
+        opacity 0.3s ease-out,
+        visibility 0.3s ease-out;
+} /* transition 추가 */
 #toggleExistingSummariesBtn {
     padding: 12px 25px;
     font-size: 1rem;
@@ -284,7 +352,7 @@ server/public/css/upload.css
 #backToUploadBtn {
     font-size: 1.2rem;
     color: var(--gray-color);
-}
+} /* icon-btn 클래스도 가짐 */
 #backToUploadBtn:hover {
     color: var(--dark-color);
 }
