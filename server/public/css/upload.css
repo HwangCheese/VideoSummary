@@ -1,26 +1,48 @@
 /*
 server/public/css/upload.css (또는 style.css에 통합될 내용)
-업로드 관련 부근 CSS - 파일 정보 표시 스타일 통일
+- 중복 제거 및 스타일 정리
+- HTML 구조 변경 반영
+- "원하는 요약 영상 길이" 섹션 스타일 개선
 */
 
-/* --- 변수 (기존 style.css에 있다면 이 부분은 style.css에 두거나 여기서도 정의) --- */
+/* --- CSS 변수 정의 --- */
 :root {
     --primary-color: #4361ee;
-    --primary-light: #e0e6fc;
-    --gray-color: #6c757d;
-    --light-gray: #f0f2f5;
-    --dark-color: #343a40;
-    --border-radius: 8px;
-    --transition: all 0.3s ease-in-out;
+    --primary-light: #e0e6fc; /* InceptionV3, TransNetV2 등에서 사용된 라이트 블루 계열 */
+    --secondary-color: #6c757d; /* 버튼 등에 사용된 회색 계열 */
+    --success-color: #28a745; /* 성공 메시지, 아이콘 등 */
+    --danger-color: #dc3545; /* 오류 메시지, 아이콘 등 */
+    --warning-color: #ffc107; /* 경고 메시지, 아이콘 등 */
+
+    --gray-color: #6c757d; /* 일반 텍스트, 보조 텍스트 */
+    --light-gray: #f0f2f5; /* 드롭존 배경, 카드 배경 등 */
+    --medium-gray: #d1d8e0; /* 테두리, 구분선 등 */
+    --dark-gray: #495057; /* 약간 더 어두운 텍스트 */
+    --dark-color: #343a40; /* 주요 텍스트, 제목 등 */
+
+    --white-color: #ffffff;
+    --black-color: #000000;
+
+    --border-radius: 8px; /* 컴포넌트 둥근 모서리 */
+    --border-color: #e9ecef; /* 기본 테두리 색상 */
+
+    --font-family-base: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+        sans-serif;
+
+    --box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+
+    --transition-base: all 0.3s ease-in-out;
+    --primary-rgb: 67, 97, 238; /* focus-within 등에서 사용 */
 }
 
 /* --- 드롭존 --- */
 #dropZone {
     width: 100%;
     min-height: 200px;
-    border: 3px dashed #d1d8e0;
+    border: 3px dashed var(--medium-gray);
     border-radius: var(--border-radius);
-    display: flex;
+    display: flex; /* JS에서 파일 선택 시 none으로 변경됨 */
     flex-direction: column;
     justify-content: center;
     align-items: center;
@@ -29,12 +51,19 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     transition:
         opacity 0.3s ease-out,
         visibility 0.3s ease-out,
-        display 0s linear 0.3s;
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        transform 0.2s ease;
     color: var(--gray-color);
     position: relative;
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0.6);
     padding: 1.5rem;
+}
+#dropZone.hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    border-color: var(--primary-color);
+    transform: scale(1.01);
 }
 
 /* 드롭존 내부 초기 안내 요소들 */
@@ -42,29 +71,43 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background: #e9ecef;
+    background: #e9ecef; /* 약간 밝은 회색 */
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: var(--transition);
+    transition: var(--transition-base);
     margin-bottom: 0.5rem;
 }
+#dropZone.hover .upload-icon-container {
+    background-color: var(--primary-light);
+}
+
 #dropZone i.fa-cloud-upload-alt {
+    /* 드롭존 메인 아이콘 */
     font-size: 2rem;
     color: var(--primary-color);
-    transition: var(--transition);
+    transition: var(--transition-base);
 }
+#dropZone.hover i.fa-cloud-upload-alt {
+    color: var(--white-color);
+    transform: scale(1.1);
+}
+
 #dropZone > p {
-    /* 드롭존의 직접 자식인 p 태그 (안내 문구) */
+    /* 드롭존 직접 자식 p (메인 텍스트) */
     font-size: 1.1rem;
     margin: 0;
     font-weight: 500;
+    color: var(--dark-gray);
 }
 #dropZone > .small {
-    /* 드롭존의 직접 자식인 small 태그 (작은 안내 문구) */
+    /* 드롭존 직접 자식 .small (보조 텍스트) */
     font-size: 0.9rem;
     opacity: 0.7;
+    color: var(--gray-color);
 }
+
+/* 드롭존 장식 요소 */
 .upload-decorations {
     position: absolute;
     width: 100%;
@@ -110,54 +153,37 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     right: 10%;
     transition-delay: 0.4s;
 }
-#dropZone.hover {
-    background-color: rgba(67, 97, 238, 0.05);
-    border-color: var(--primary-color);
-    transform: scale(1.01);
-}
-#dropZone.hover .upload-icon-container {
-    background-color: var(--primary-light);
-}
-#dropZone.hover i.fa-cloud-upload-alt {
-    color: white;
-    transform: scale(1.1);
-}
 
-/* --- 파일 정보 및 옵션 전체 컨테이너 --- */
+/* --- 파일 정보 및 옵션 컨테이너 --- */
 #fileActionsContainer {
-    display: none;
+    display: none; /* JS가 파일 선택 시 block으로 변경 */
     width: 100%;
     opacity: 0;
-    transition:
-        opacity 0.3s ease-in-out 0.1s,
-        display 0s linear 0s;
+    transition: opacity 0.3s ease-in-out 0.1s; /* display는 JS에서 즉시 변경, opacity로 부드럽게 */
 }
 #fileActionsContainer.visible {
-    display: block;
     opacity: 1;
 }
 
-/* #uploadInfo는 fileActionsContainer의 자식 */
+/* #uploadInfo: 파일 정보 전체를 감싸는 div */
 #uploadInfo {
-    /* 특별한 스타일이 현재는 필요 없을 수 있음 */
+    margin-bottom: 1.5rem; /* 아래 요약 옵션 그룹과의 간격 */
 }
 
-/* .file-info: 파일 아이콘, 파일 상세정보, 제거 버튼을 감싸는 컨테이너 */
+/* .file-info: 아이콘, 상세정보, 제거버튼을 포함하는 한 줄 */
 .file-info {
     display: flex;
     align-items: center;
     gap: 1rem;
-    background-color: #f8f9fa;
+    background-color: var(--light-gray);
     padding: 0.8rem 1rem;
     border-radius: var(--border-radius);
-    border: 1px solid #e9ecef;
-    margin-bottom: 1.5rem; /* 아래 옵션 그룹과의 간격 */
+    border: 1px solid var(--border-color);
 }
 .file-info:hover {
-    background-color: #eef1f5; /* 약간 더 부드러운 호버 색상 */
+    background-color: #e9ecef;
 }
 
-/* .file-icon: 파일 아이콘 스타일 */
 .file-icon {
     width: 35px;
     height: 35px;
@@ -169,60 +195,54 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     flex-shrink: 0;
 }
 .file-info i.fa-file-video {
-    /* 파일 아이콘 내부 FontAwesome 아이콘 */
-    color: white;
+    /* 파일 아이콘 내부 FontAwesome */
+    color: var(--white-color);
     font-size: 1rem;
 }
 
-/* .file-details: 파일 이름(#fileName)과 추가 정보(.file-meta-data)를 감싸는 컨테이너 */
+/* .file-details: 파일명과 메타데이터(크기, 길이 등)를 감쌈 */
 .file-details {
     display: flex;
-    flex-direction: column; /* 이름과 메타 정보가 세로로 쌓이도록 */
-    flex-grow: 1; /* 남은 공간을 모두 차지 */
-    min-width: 0; /* 내용이 길어져도 부모를 벗어나지 않도록 (ellipsis 작동 위함) */
+    flex-direction: column; /* 파일명 아래에 메타데이터 */
+    flex-grow: 1;
+    min-width: 0; /* ellipsis 작동을 위해 */
 }
 
-/* #fileName: 업로드된 파일 이름 */
 #fileName {
-    font-weight: 600; /* 기존 500에서 변경하여 약간 더 강조 */
+    font-weight: 600;
     color: var(--dark-color);
-    white-space: nowrap; /* 한 줄로 표시 */
-    overflow: hidden; /* 넘치는 텍스트 숨김 */
-    text-overflow: ellipsis; /* 넘치는 텍스트 ... 처리 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     font-size: 0.95rem;
-    margin-bottom: 0.4rem; /* 파일 이름과 아래 메타 데이터 사이의 간격 */
-    line-height: 1.3; /* 줄 간격 */
+    margin-bottom: 0.4rem; /* 메타데이터와의 간격 */
+    line-height: 1.3;
 }
 
-/* .file-meta-data: 파일 크기, 길이, 타입 등 추가 정보를 감싸는 컨테이너 */
+/* .file-meta-data: 파일 크기, 길이 등 상세 정보 그룹 */
 .file-meta-data {
-    display: flex; /* 메타 정보들을 가로로 나열 */
-    align-items: center; /* 수직 중앙 정렬 */
-    flex-wrap: wrap; /* 공간이 부족하면 다음 줄로 넘어가도록 (선택 사항) */
-    gap: 0.3rem 0.6rem; /* 수직 간격 0.3rem, 수평 간격 0.6rem (구분자 포함) */
-    font-size: 0.8rem; /* 메타 정보 폰트 크기 */
-    color: var(--gray-color); /* 메타 정보 폰트 색상 */
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap; /* 화면 작을 때 줄바꿈 */
+    gap: 0.3rem 0.6rem; /* 아이템 간 간격 (수직 수평) */
+    font-size: 0.8rem;
+    color: var(--gray-color);
     line-height: 1.2;
 }
-
-/* .file-meta-data 내부의 각 정보 항목 (span) */
 #fileSize,
 #fileDuration,
 #fileType,
 #fileResolution,
 #fileBitrate {
-    white-space: nowrap; /* 각 정보 항목은 줄바꿈되지 않도록 */
+    white-space: nowrap; /* 각 정보는 한 줄로 */
 }
-
-/* .meta-divider: 정보 항목 사이의 구분선 스타일 */
 .meta-divider {
-    color: #d1d8e0; /* 구분선 색상 */
-    /* margin은 gap으로 대체되었으므로 제거 또는 조정 */
-    font-size: 0.75rem; /* 구분선 크기 약간 작게 */
-    padding: 0 0.15rem; /* 구분선 좌우 약간의 내부 여백 (선택 사항) */
+    color: var(--medium-gray);
+    font-size: 0.75rem;
+    padding: 0 0.1rem; /* 좌우 미세 간격 */
 }
 
-/* .icon-btn: 파일 제거 버튼 스타일 */
+/* .icon-btn: 제거 버튼 등 */
 .icon-btn {
     background: none;
     border: none;
@@ -245,34 +265,132 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     color: var(--dark-color);
 }
 
-/* --- 요약 옵션들의 레이아웃 --- */
+/* --- 요약 옵션 (성향 선택, 길이 설정) --- */
 .summary-controls-group {
-    /* 특별한 스타일이 현재는 필요 없을 수 있음. #fileActionsContainer가 block이므로 자동 수직 배치 */
+    /* 이 그룹 자체는 특별한 스타일 불필요 */
 }
 .summary-options,
 .summary-duration {
-    background-color: #f8f9fa;
-    padding: 1rem;
+    background-color: var(--light-gray);
+    padding: 1.2rem 1.5rem;
     border-radius: var(--border-radius);
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
 }
 .summary-duration {
-    margin-top: 1rem; /* summary-options와의 간격 */
+    margin-top: 1rem; /* 요약 성향 선택과의 간격 */
 }
+
+/* 옵션 제목 (요약 성향 선택, 원하는 요약 영상 길이) */
 .summary-options h3,
-.summary-duration label {
+.summary-duration > label {
+    /* label이 직접적인 자식일 때 */
     display: block;
-    margin-bottom: 0.8rem;
-    font-weight: 500;
+    margin-bottom: 1rem;
+    font-weight: 600;
     color: var(--dark-color);
-    font-size: 0.95rem;
+    font-size: 1rem;
 }
 .summary-options h3 i,
-.summary-duration label i {
-    margin-right: 0.5rem;
+.summary-duration > label i {
+    margin-right: 0.6rem;
     color: var(--primary-color);
 }
-/* .weight-slider-container, #durationInput 등 내부 요소 스타일은 생략 (기존 스타일 유지 가정) */
+
+/* 요약 성향 슬라이더 */
+.weight-slider-container {
+    margin-top: 0.5rem;
+}
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--gray-color);
+    margin-bottom: 0.5rem;
+}
+.slider-wrapper {
+    position: relative; /* 내부 .slider-progress를 위함 */
+}
+#importanceSlider {
+    width: 100%;
+    cursor: pointer;
+}
+.slider-value-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.7rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--dark-color);
+    padding: 0 5px;
+}
+#highlightRatioValue,
+#storyRatioValue {
+    /* 개별 숫자 스타일 */
+}
+.slider-value-colon {
+    font-weight: normal;
+    color: var(--gray-color);
+    font-size: 1.1rem;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* 원하는 요약 영상 길이 입력 그룹 */
+.duration-input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* 가로 중앙 정렬 */
+    gap: 0.8rem;
+    background-color: var(--white-color);
+    padding: 0.8rem 1rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--medium-gray);
+    margin-top: 0.5rem; /* 레이블과의 간격 */
+    box-shadow: var(--box-shadow-sm);
+}
+.duration-input-group input[type="number"],
+.duration-input-group input[type="text"]#calculatedDurationOutput {
+    border: none;
+    outline: none;
+    padding: 0.5rem 0.3rem;
+    font-size: 1.2rem; /* 글씨 크기 키움 */
+    text-align: center;
+    background-color: transparent;
+    box-shadow: none;
+}
+.duration-input-group input[type="number"]#durationPercentageInput {
+    width: 70px;
+    font-weight: 700;
+    color: var(--primary-color);
+    -moz-appearance: textfield; /* Firefox */
+}
+.duration-input-group input[type="number"]#durationPercentageInput::-webkit-outer-spin-button,
+.duration-input-group input[type="number"]#durationPercentageInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.duration-input-group input[type="text"]#calculatedDurationOutput {
+    width: 85px;
+    color: var(--dark-color);
+    font-weight: 600;
+    cursor: default;
+}
+.duration-input-group .unit {
+    font-size: 1rem;
+    color: var(--gray-color);
+    font-weight: 500;
+}
+.duration-input-group .duration-arrow {
+    color: var(--primary-color);
+    font-size: 1rem;
+    margin: 0 0.5rem;
+}
+.duration-input-group:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
 
 /* --- 시작 버튼 --- */
 #startBtn {
@@ -280,18 +398,7 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     width: 100%;
 }
 
-/* --- #uploadCard 애니메이션 및 기존 요약 보기 관련 (이전과 동일) --- */
-#uploadCard {
-    transition:
-        opacity 0.4s ease-out,
-        transform 0.4s ease-out,
-        max-height 0.6s ease-in-out,
-        padding 0.6s ease-in-out,
-        margin 0.6s ease-in-out,
-        border 0.3s ease-in-out;
-    overflow: hidden;
-    max-height: 1000px;
-}
+/* --- #uploadCard 숨김/표시 애니메이션 --- */
 #uploadCard.hidden-anim {
     opacity: 0;
     transform: translateY(-10px) scale(0.98);
@@ -302,13 +409,15 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     margin-bottom: 0 !important;
     border-width: 0 !important;
 }
+
+/* --- 기존 요약 보기 관련 --- */
 .existing-summaries-container {
     margin-top: 1.5rem;
     text-align: center;
     transition:
         opacity 0.3s ease-out,
         visibility 0.3s ease-out;
-} /* transition 추가 */
+}
 #toggleExistingSummariesBtn {
     padding: 12px 25px;
     font-size: 1rem;
@@ -322,13 +431,13 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
         background-color 0.3s ease,
         transform 0.2s ease,
         box-shadow 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--box-shadow-sm);
     min-width: 220px;
 }
 #toggleExistingSummariesBtn:hover {
     background-color: #3a53c0;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: var(--box-shadow);
 }
 #toggleExistingSummariesBtn:disabled {
     background-color: #ccc;
@@ -352,7 +461,7 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
 #backToUploadBtn {
     font-size: 1.2rem;
     color: var(--gray-color);
-} /* icon-btn 클래스도 가짐 */
+}
 #backToUploadBtn:hover {
     color: var(--dark-color);
 }
@@ -362,7 +471,7 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     margin-top: 10px;
     max-height: 350px;
     overflow-y: auto;
-    border: 1px solid #e9ecef;
+    border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
 }
 .existing-summaries-list li {
@@ -377,7 +486,7 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
     border-bottom: none;
 }
 .existing-summaries-list li:hover {
-    background-color: #f8f9fa;
+    background-color: var(--light-gray);
 }
 .existing-summaries-list li i.fa-film {
     font-size: 1.2rem;
@@ -430,53 +539,4 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
         opacity: 0;
         transform: translate3d(0, 10px, 0) scale(0.98);
     }
-}
-
-.weight-slider-container {
-    /* 기존 스타일 유지 */
-    margin-top: 0.5rem; /* 제목과의 간격 */
-}
-
-.slider-labels {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    color: var(--gray-color);
-    margin-bottom: 0.5rem; /* 슬라이더와의 간격 */
-}
-
-.slider-wrapper {
-    position: relative; /* 슬라이더 진행 상태 표시를 위함 (선택 사항) */
-    /* 필요시 추가 스타일 */
-}
-
-#importanceSlider {
-    width: 100%;
-    /* 기본 슬라이더 스타일 초기화 및 커스텀은 생략 (이미 잘 되어 있다고 가정) */
-}
-
-/* 슬라이더 값 표시 영역 스타일 */
-.slider-value-display {
-    display: flex;
-    justify-content: space-between; /* 양쪽 끝으로 정렬 */
-    align-items: center;
-    margin-top: 0.5rem; /* 슬라이더와의 간격 */
-    font-size: 1.1rem; /* 숫자 크기 */
-    font-weight: 600; /* 숫자 굵게 */
-    color: var(--dark-color);
-    padding: 0 5px; /* 슬라이더 양 끝과 숫자 정렬 맞추기 위한 약간의 패딩 */
-}
-
-#highlightRatioValue,
-#storyRatioValue {
-    /* 개별 숫자 스타일 필요시 */
-}
-
-.slider-value-colon {
-    font-weight: normal;
-    color: var(--gray-color);
-    font-size: 1rem;
-    position: absolute; /* 중앙 정렬 시도 */
-    left: 50%;
-    transform: translateX(-50%);
 }

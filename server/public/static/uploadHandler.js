@@ -2,6 +2,9 @@
 import { showToast, formatFileSize, formatTime } from "./uiUtils.js"; // formatTime 임포트 확인
 
 export let uploadedFileName = "";
+let originalVideoDurationSeconds = 0;
+let durationPercentageInputEl = null; // 비율 입력 필드
+let calculatedDurationOutputEl = null; // 계산된 시간 표시 필드
 
 let dropZoneEl = null;
 let fileInputEl = null;
@@ -133,9 +136,32 @@ export function initUploadHandler() {
   durationInputEl = document.getElementById('durationInput');
   fileActionsContainerEl = document.getElementById("fileActionsContainer");
   existingSummariesContainerEl = document.querySelector(".existing-summaries-container");
+  durationPercentageInputEl = document.getElementById("durationPercentageInput");
+  calculatedDurationOutputEl = document.getElementById("calculatedDurationOutput");
 
   if (fileActionsContainerEl) fileActionsContainerEl.style.display = "none";
   if (existingSummariesContainerEl) existingSummariesContainerEl.style.display = "block";
+
+  function calculateAndUpdateDuration() {
+    if (!durationPercentageInputEl || !calculatedDurationOutputEl || originalVideoDurationSeconds <= 0) {
+      if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00";
+      return;
+    }
+
+    const percentage = parseFloat(durationPercentageInputEl.value);
+    if (isNaN(percentage) || percentage < 1 || percentage > 100) {
+      calculatedDurationOutputEl.value = "00:00";
+      // showToast("1부터 100 사이의 비율을 입력해주세요.", "warning"); // 필요시 경고
+      return;
+    }
+
+    const calculatedSeconds = (originalVideoDurationSeconds * percentage) / 100;
+    calculatedDurationOutputEl.value = formatTime(calculatedSeconds);
+  }
+
+  if (durationPercentageInputEl) {
+    durationPercentageInputEl.addEventListener('input', calculateAndUpdateDuration);
+  }
 
   if (dropZoneEl) {
     ["dragenter", "dragover"].forEach((eventName) =>
@@ -173,13 +199,32 @@ export function initUploadHandler() {
       return;
     }
 
+    // 파일 기본 정보 우선 표시
     if (fileNameDisplayEl) fileNameDisplayEl.textContent = file.name;
     if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = formatFileSize(file.size);
-    if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = file.type || 'N/A';
-    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "정보 분석중...";
-    if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "";
-    if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "";
+    // 기타 메타 정보는 서버 응답 후 또는 아래에서 설정
 
+    // "원하는 요약 영상 길이" 섹션의 % 입력 필드 기본값 설정
+    if (durationPercentageInputEl) {
+      durationPercentageInputEl.value = "20"; // 기본값 20%
+    }
+    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00"; // 초기에는 00:00으로
+
+    // 원본 영상 길이 가져오기 및 저장 (클라이언트 사이드)
+    // fileDurationDisplayEl은 file-meta-data 내의 원본 전체 길이를 표시하는 요소임
+    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 분석중...";
+    originalVideoDurationSeconds = 0; // 이전 값 초기화
+
+    try {
+      const duration = await getVideoDuration(file);
+      originalVideoDurationSeconds = duration;
+      if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = formatTime(duration);
+      calculateAndUpdateDuration(); // % 입력 필드의 기본값(20)에 맞춰 시간 계산 및 표시
+    } catch (error) {
+      console.error("원본 영상 길이 가져오기 실패:", error);
+      if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "N/A";
+      calculateAndUpdateDuration(); // originalVideoDurationSeconds가 0이므로 00:00으로 표시됨
+    }
 
     if (dropZoneEl) {
       dropZoneEl.style.opacity = "0";

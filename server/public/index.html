@@ -87,6 +87,16 @@
                   </div>
                 </div>
               </div>
+              <div class="summary-duration" style="margin-top: 1rem;">
+                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 길이</label>
+                <div class="duration-input-group">
+                  <input type="number" id="durationPercentageInput" min="1" max="100">
+                  <span class="unit">%</span>
+                  <i class="fas fa-arrow-right duration-arrow"></i>
+                  <input type="text" id="calculatedDurationOutput" placeholder="00:00" readonly>
+                  <span class="unit"></span>
+                </div>
+              </div>
             </div>
             <button id="startBtn" disabled style="margin-top: 1.5rem;">
               요약 시작
