@@ -306,11 +306,24 @@ function updateSummaryMetricsFromServerData(data) {
     resetSummaryMetrics();
     return;
   }
-  let summaryText = "균형 요약";
-  const sliderVal = importanceSlider ? parseFloat(importanceSlider.value) : 0.5;
-  if (!isNaN(sliderVal)) {
-    if (sliderVal <= 0.4) summaryText = "하이라이트 요약";
-    else if (sliderVal >= 0.6) summaryText = "스토리 요약";
+  let summaryText = "맞춤형 요약";
+  const sliderElement = document.getElementById('importanceSlider');
+  if (sliderElement) {
+    const sliderVal = parseFloat(sliderElement.value);
+    if (!isNaN(sliderVal)) {
+      const highlightPercentage = Math.round((1 - sliderVal) * 100);
+      const storyPercentage = Math.round(sliderVal * 100);
+      if (sliderVal <= 0.5) {
+        summaryText = `하이라이트 ${highlightPercentage}% / 스토리 ${storyPercentage}%`;
+      } else {
+        summaryText = `스토리 ${storyPercentage}% / 하이라이트 ${highlightPercentage}%`;
+      }
+      if (sliderVal === 0) {
+        summaryText = "하이라이트 중심 (100%)";
+      } else if (sliderVal === 1) {
+        summaryText = "스토리 중심 (100%)";
+      }
+    }
   }
 
   if (summaryScoreValueEl) {
@@ -319,14 +332,28 @@ function updateSummaryMetricsFromServerData(data) {
   if (compressionRateValueEl) {
     compressionRateValueEl.innerHTML = data.compression_ratio !== undefined ? `${parseFloat(data.compression_ratio).toFixed(1)}% <span class="metric-unit">압축</span>` : 'N/A <span class="metric-unit">압축</span>';
   }
+
   if (keyScenesCountValueEl) {
-    keyScenesCountValueEl.innerHTML = data.segment_count !== undefined ? `${data.segment_count}개 <span class="metric-unit">추출됨</span>` : 'N/A <span class="metric-unit">추출됨</span>';
+    const selectedCount = data.selected_segment_count;
+    const totalCount = data.total_scene_count;
+
+    if (selectedCount !== undefined && totalCount !== undefined && totalCount > 0) {
+      keyScenesCountValueEl.innerHTML =
+        `${totalCount}개 중 <strong class="highlight-value">${selectedCount}개</strong> <span class="metric-unit">추출</span>`;
+    } else if (selectedCount !== undefined) {
+      keyScenesCountValueEl.innerHTML =
+        `<strong class="highlight-value">${selectedCount}개</strong> <span class="metric-unit">추출됨</span>`;
+    } else {
+      keyScenesCountValueEl.innerHTML = 'N/A <span class="metric-unit">추출됨</span>';
+    }
   }
+
   if (viewingTimeValueEl) {
     const originalTimeFormatted = data.full_duration !== undefined ? formatTime(data.full_duration) : 'N/A';
     const summaryTimeFormatted = data.summary_duration !== undefined ? formatTime(data.summary_duration) : 'N/A';
     viewingTimeValueEl.innerHTML = `<span class="time-original">${originalTimeFormatted}</span> → <span class="time-summary">${summaryTimeFormatted}</span>`;
   }
+
   if (summaryMethodValueEl) {
     summaryMethodValueEl.textContent = data.summary_type_text || summaryText;
   }

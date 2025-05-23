@@ -254,29 +254,68 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
 
     # 10. 요약 메타 정보 저장
     print("\n📊 요약 리포트 정보 계산 중...", flush=True)
+    
+    if not os.path.exists(scene_json):
+        print(f"⚠️ 경고: 전체 장면 정보 파일({scene_json})을 찾을 수 없습니다. 'total_scene_count'는 0으로 설정됩니다.")
+        total_scene_count = 0
+    else:
+        try:
+            with open(scene_json, encoding="utf-8") as f:
+                all_scenes_data = json.load(f)
+                total_scene_count = len(all_scenes_data)
+        except Exception as e:
+            print(f"⚠️ 경고: 전체 장면 정보 파일({scene_json}) 로드 또는 파싱 중 오류 발생: {e}. 'total_scene_count'는 0으로 설정됩니다.")
+            total_scene_count = 0
+            all_scenes_data = [] 
 
-    with open(scene_json, encoding="utf-8") as f:
-        full_segments = json.load(f)
+    if not os.path.exists(refined_json):
+        print(f"⚠️ 경고: 선택된 세그먼트 파일({refined_json})을 찾을 수 없습니다. 요약 관련 지표는 0으로 설정됩니다.")
+        selected_segments_data = []
+    else:
+        try:
+            with open(refined_json, encoding="utf-8") as f:
+                selected_segments_data = json.load(f)
+        except Exception as e:
+            print(f"⚠️ 경고: 선택된 세그먼트 파일({refined_json}) 로드 또는 파싱 중 오류 발생: {e}. 요약 관련 지표는 0으로 설정됩니다.")
+            selected_segments_data = []
 
-    with open(refined_json, encoding="utf-8") as f:
-        selected_segments = json.load(f)
+    full_duration = 0
+    if all_scenes_data:
+        try:
+            full_duration = max(seg.get("end_time", 0) for seg in all_scenes_data)
+        except Exception as e:
+            print(f"⚠️ 경고: 전체 영상 길이 계산 중 오류 발생 (scene_json 구조 확인 필요): {e}. full_duration은 0으로 설정됩니다.")
+            full_duration = 0
+    else: 
+        print(f"⚠️ 정보: scene_json을 사용할 수 없어, full_duration은 0으로 설정됩니다. (정확한 압축률 계산 불가)")
 
-    full_duration = max(seg["end_time"] for seg in full_segments)
-    summary_duration = sum(seg["end_time"] - seg["start_time"] for seg in selected_segments)
-    segment_count = len(selected_segments)
-    compression_ratio = round((1 - summary_duration / full_duration) * 100, 1)
+    summary_duration = sum(seg.get("end_time", 0) - seg.get("start_time", 0) for seg in selected_segments_data)
+    selected_segment_count = len(selected_segments_data) 
+
+    compression_ratio = 0
+    if full_duration > 0: 
+        compression_ratio = round((1 - summary_duration / full_duration) * 100, 1)
+    else:
+        print(f"⚠️ 경고: 전체 영상 길이가 0이거나 계산 불가하여 압축률을 0으로 설정합니다.")
 
     report = {
-        "full_duration": round(full_duration, 2), 
+        "full_duration": round(full_duration, 2),
         "summary_duration": round(summary_duration, 2),
-        "compression_ratio": compression_ratio, 
-        "segment_count": segment_count         
+        "compression_ratio": compression_ratio,
+        "selected_segment_count": selected_segment_count, 
+        "total_scene_count": total_scene_count 
     }
 
     report_path = os.path.join(output_dir, f"{base}_report.json")
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
+    print(f"📄 요약 리포트 저장 완료: {report_path}")
+    print(f"  - 전체 영상 길이: {report['full_duration']:.2f}초")
+    print(f"  - 요약 영상 길이: {report['summary_duration']:.2f}초")
+    print(f"  - 압축률: {report['compression_ratio']}%")
+    print(f"  - 전체 탐지 장면 수: {report['total_scene_count']}")
+    print(f"  - 추출된 핵심 장면 수: {report['selected_segment_count']}")
     print(f"📄 요약 리포트 저장 완료: {report_path}")
 
     # 11. 모든 파이프라인 완료

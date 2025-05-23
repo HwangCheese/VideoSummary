@@ -97,7 +97,7 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
     # 기본 프레임 점수 (lightgray)
     ax.bar(times, scores,
            width=widths,
-           color="lightgray",
+           color="gray",
            align="edge")
 
     # 선택된 세그먼트 구간 배경 (crimson, alpha=0.3)
