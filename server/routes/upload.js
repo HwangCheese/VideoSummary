@@ -334,4 +334,86 @@ function getVideoMetadata(filePath) {
   });
 }
 
+router.post("/update-highlights", (req, res) => {
+  console.log("REQ BODY:", req.body);
+
+  const { filename, segments } = req.body;
+
+  if (!filename || !segments) {
+    return res.status(400).json({ message: "파일명 또는 segments 누락" });
+  }
+
+  const baseName = filename.split('.').slice(0, -1).join('.');
+  const jsonPath = path.join(__dirname, "..", "..", "clips", `highlight_${baseName}.json`);
+
+  // JSON 저장
+  fs.writeFile(jsonPath, JSON.stringify({
+    segments,
+    updated_at: new Date().toISOString()
+  }, null, 2), async (err) => {
+    if (err) {
+      console.error("숏폼 JSON 저장 실패:", err);
+      return res.status(500).json({ message: "파일 저장 실패" });
+    }
+
+    // 영상 재생성 - Python 모듈 호출
+    const videoModulePath = path.resolve(__dirname, "..", "..", "src", "video_module.py");
+    const uploadsDir = path.resolve(__dirname, "..", "uploads");
+    const clipsDir = path.resolve(__dirname, "..", "..", "clips");
+    const videoPath = path.join(uploadsDir, filename);
+
+    // 원본 영상 파일 존재 확인
+    if (!fs.existsSync(videoPath)) {
+      console.error("원본 영상이 존재하지 않습니다:", videoPath);
+      return res.status(404).json({ message: "원본 영상 파일 없음" });
+    }
+
+    const regenerate = spawn("conda", [
+      "run", "-n", "mrhisum", "--live-stream", "python", "-u",
+      videoModulePath,
+      videoPath,
+      jsonPath
+    ]);
+
+    let error = '';
+    let output = '';
+
+    regenerate.stdout.on("data", (data) => {
+      const text = data.toString();
+      output += text;
+      console.log("VIDEO MODULE OUT:", text);
+    });
+
+    regenerate.stderr.on("data", (data) => {
+      error += data.toString();
+      console.error("VIDEO MODULE ERR:", data.toString());
+    });
+
+    regenerate.on("close", (code) => {
+      if (code !== 0) {
+        console.error("비디오 재생성 실패:", error);
+        return res.status(500).json({
+          message: "하이라이트 재생성 실패",
+          error: error
+        });
+      }
+
+      // 생성된 영상 파일 확인
+      const outputVideoPath = path.join(clipsDir, `highlight_${baseName}.mp4`);
+      if (!fs.existsSync(outputVideoPath)) {
+        return res.status(500).json({
+          message: "하이라이트 영상 생성 실패: 파일이 존재하지 않음",
+          output: output
+        });
+      }
+
+      return res.json({
+        message: "하이라이트 업데이트 성공",
+        video_path: `/clips/highlight_${baseName}.mp4?${Date.now()}`, // 캐시 방지용 타임스탬프
+        segments_count: segments.length
+      });
+    });
+  });
+});
+
 module.exports = router;
