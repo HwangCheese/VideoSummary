@@ -162,15 +162,15 @@
               <span>특징 추출</span>
             </div>
             <div class="step" data-step="2">
-              <div class="step-icon"><i class="fas fa-film"></i></div>
+              <div class="step-icon"><i class="fas fa-th-large"></i></div>
               <span>장면 분할</span>
             </div>
             <div class="step" data-step="3">
-              <div class="step-icon"><i class="fas fa-film"></i></div>
+              <div class="step-icon"><i class="fas fa-microphone-alt"></i></div>
               <span>오디오 추출</span>
             </div>
             <div class="step" data-step="4">
-              <div class="step-icon"><i class="fas fa-film"></i></div>
+              <div class="step-icon"><i class="fas fa-closed-captioning"></i></div>
               <span>문장 추출</span>
             </div>
             <div class="step" data-step="5">
@@ -189,13 +189,10 @@
     <!-- 결과 섹션 -->
     <section id="result-section" class="scroll-section result-section">
       <div id="resultCard" class="card">
-        <div class="card-header">
-          <h2><i class="fas fa-play-circle"></i> 요약 결과</h2>
-        </div>
         <div class="card-body">
           <div class="video-container-group">
             <div class="video-box original-video-box">
-              <h3><i class="fas fa-film"></i> 원본 영상</h3>
+              <h3>원본 영상</h3>
               <div class="video-wrapper">
                 <video id="originalVideo" controls></video>
                 <img id="importanceOverlay" src="" alt="Frame Importance" class="frame-graph-overlay">
@@ -221,12 +218,12 @@
               </div>
             </div>
             <div class="video-box shortform-video-box">
-              <h3><i class="fas fa-star"></i> 요약 영상</h3>
+              <h3> 요약 영상</h3>
               <video id="finalVideo" controls></video>
+              <div class="transcript-header">
+                <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
+              </div>
               <div id="shortformTranscriptSection" class="shortform-transcript-section">
-                <div class="transcript-header">
-                  <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
-                </div>
                 <ul id="transcriptList" class="transcript-list"></ul>
               </div>
             </div>

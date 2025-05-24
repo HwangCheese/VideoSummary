@@ -3,14 +3,19 @@ server/public/css/result.css
 결과 영상, 하이라이트 구간 시각화
 */
 
-/* --- 카드 크기 조정 --- */
 #resultCard {
     max-width: 1600px;
     width: 95%;
 }
 
+.scroll-section.result-section {
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding-top: calc(var(--header-height) + 1rem); /*상단 여백*/
+}
+
 .card {
-    background-color: #fff; 
+    background-color: #fff;
     border-radius: var(--border-radius);
     box-shadow: var(--shadow);
 }
@@ -22,12 +27,12 @@ server/public/css/result.css
 
 .card-header h2 {
     margin: 0;
-    font-size: 1.5rem; 
+    font-size: 1.5rem;
     /* ... */
 }
 
 .card-body {
-    padding: 2rem; 
+    padding: 2rem;
 }
 
 .video-container-group {
@@ -91,28 +96,28 @@ server/public/css/result.css
 }
 
 #highlightBarContainer {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;     
-  height: 25px;      
-  background: rgba(224,224,224,0.8);
-  border-radius: 8px;
-  opacity: 0; 
-  transition: opacity .3s ease;
-  pointer-events: none; 
-  z-index: 20; 
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 25px;
+    background: rgba(224, 224, 224, 0.8);
+    border-radius: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 20;
 }
 
 .video-box > .highlight-legend {
-  margin-top: 7px;
-  display: flex;
-  justify-content: flex-start;
-  gap: 1rem;
-  font-size: 0.85rem;
-  color: var(--gray-color);
-  position: relative; 
-  z-index: 1; 
+    margin-top: 7px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--gray-color);
+    position: relative;
+    z-index: 1;
 }
 
 /*요약 품질 사이드바 스타일*/
@@ -306,7 +311,7 @@ server/public/css/result.css
     border-radius: 3px;
 }
 .legend-color.original {
-    background-color: #e0e0e0; 
+    background-color: #e0e0e0;
 }
 .legend-color.highlight {
     background-color: var(--accent-color);
@@ -328,23 +333,23 @@ server/public/css/result.css
 }
 
 .shortform-transcript-section {
-    margin-top: 2rem; 
+    margin-top: 0rem; /* MODIFIED: Reduced from 2rem, header's margin-bottom will control space */
     padding: 1.5rem;
-    background-color: var(--light-color, #f8f9fa); 
+    background-color: var(--light-color, #f8f9fa);
     border-radius: var(--border-radius);
     box-shadow: var(--shadow-sm);
     border: 1px solid var(--light-gray, #e9ecef);
     max-height: 260px;
-    overflow-y: auto; 
+    overflow-y: auto;
 }
 
 .transcript-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem; /* MODIFIED: Reduced from 1rem */
+    margin-top: 2rem; /* MODIFIED: Reduced from 3.5rem */
     padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--light-gray, #e9ecef);
 }
 
 .transcript-header h4 {
@@ -367,11 +372,11 @@ server/public/css/result.css
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.8rem;
+    gap: 0.2rem;
 }
 
 .transcript-list li {
-    padding: 0.8rem 1rem;
+    padding: 0.4rem 1rem;
     background-color: #ffffff;
     border-radius: calc(var(--border-radius) / 1.5);
     border: 1px solid var(--light-gray, #e9ecef);
@@ -380,20 +385,20 @@ server/public/css/result.css
         background-color 0.2s ease,
         transform 0.15s ease,
         border-color 0.2s ease;
-    display: flex; 
-    align-items: flex-start; 
+    display: flex;
+    align-items: flex-start;
     gap: 0.8rem;
 }
 
 .transcript-list li:hover {
-    background-color: #f0f3ff; 
+    background-color: #f0f3ff;
     border-color: var(--primary-light);
     transform: translateY(-1px);
 }
 
 .transcript-list li.active-transcript {
     background-color: var(--primary-light);
-    color: white; 
+    color: white;
     border-color: var(--primary-color);
     box-shadow: 0 2px 8px rgba(var(--primary-rgb, 67, 97, 238), 0.3);
 }
@@ -406,16 +411,16 @@ server/public/css/result.css
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--primary-color);
-    white-space: nowrap; 
+    white-space: nowrap;
     flex-shrink: 0;
-    min-width: 100px; /
+    min-width: 100px;
 }
 
 .transcript-text {
     font-size: 0.95rem;
     color: var(--dark-color);
     line-height: 1.5;
-    flex-grow: 1; 
+    flex-grow: 1;
 }
 
 /* 편집 모드 스타일 */
@@ -502,21 +507,21 @@ server/public/css/result.css
         width: 100%;
         max-width: 500px;
         min-width: auto;
-        transition: none; 
-        opacity: 1 !important; 
+        transition: none;
+        opacity: 1 !important;
         pointer-events: auto !important;
         padding: 0;
         margin: 0;
         border: none;
-        overflow: visible
+        overflow: visible;
     }
 
     .shortform-details-sidebar {
         max-width: 100%;
-        margin-top: 1.5rem; 
+        margin-top: 1.5rem;
     }
     .sidebar-title {
-        font-size: 1.15rem; 
+        font-size: 1.15rem;
     }
     .score-display .score-value {
         font-size: 2.8rem;
@@ -543,7 +548,7 @@ server/public/css/result.css
         width: 100%;
         max-width: 500px;
         min-width: auto;
-        opacity: 1; 
+        opacity: 1;
         pointer-events: auto;
         padding: 0;
         margin: 0;
@@ -575,8 +580,8 @@ server/public/css/result.css
     width: 100%;
     height: auto;
     display: block;
-    bottom: 25px; 
-    left: 0%; 
+    bottom: 25px;
+    left: 0%;
     width: 100%;
     height: 25px;
     object-fit: cover;
@@ -587,29 +592,29 @@ server/public/css/result.css
 }
 
 .highlight-overlay {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0; 
-  height: 25px; 
-  background: rgba(255,255,255,0.2); 
-  border-radius: 8px;
-  overflow: hidden;
-  pointer-events: none;  
-  opacity: 0;
-  transition: opacity .25s ease;
-  z-index: 1000;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 25px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 1000;
 }
-#highlightBarContainer.highlight-overlay { 
-  height: 20px;
-  bottom: 1px;
-  background: transparent;
-  border-radius: 1;
+#highlightBarContainer.highlight-overlay {
+    height: 20px;
+    bottom: 1px;
+    background: transparent;
+    border-radius: 1;
 }
 
 .video-wrapper:hover .frame-graph-overlay,
 .video-wrapper:hover #highlightBarContainer {
-  opacity: 1;
+    opacity: 1;
 }
 
 .highlight-thumbnails {
