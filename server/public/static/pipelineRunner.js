@@ -516,7 +516,6 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
               document.body.removeChild(link);
             };
           }
-          scrollToSectionExternally(2, false); // 또는 true
           resolve();
         } catch (err) {
           console.error("Error processing metadata for existing summary:", err);
