@@ -3,10 +3,15 @@ server/public/css/result.css
 결과 영상, 하이라이트 구간 시각화
 */
 
-/* --- 카드 크기 조정 --- */
 #resultCard {
     max-width: 1600px;
     width: 95%;
+}
+
+.scroll-section.result-section {
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding-top: calc(var(--header-height) + 1rem); /*상단 여백*/
 }
 
 .card {
