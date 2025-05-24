@@ -31,9 +31,9 @@
         }
 
         body {
-            background: linear-gradient(-45deg, var(--bg-start), var(--bg-mid), var(--bg-end), var(--accent1));
+            background: radial-gradient(circle at 30% 60%, #4c66ff, #b967ff, #ff95e9);
             background-size: 400% 400%;
-            animation: grad 15s ease infinite;
+            animation: grad 10s ease infinite;
             color: var(--text-light);
             overflow-x: hidden;
             padding-top: var(--header-height);
@@ -55,10 +55,11 @@
 
         #particles-js {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 22%;
+            left: 25%;
+            right: 10%;
+            width: 70%;
+            height: 60%;
             z-index: 0;
         }
 
@@ -185,40 +186,48 @@
             z-index: 1;
             min-height: calc(100vh - var(--header-height));
             /* Make hero fill remaining viewport height */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
-        }
-
-        /* Hero */
-        .hero {
-            position: relative;
-            z-index: 1;
             height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 0 20px;
+            justify-content: flex-start;
+            align-items: flex-start;
+            text-align: left;
+            padding: 30vh 10vw 0 15vw;
+        }
+
+        .hero-content {
+            max-width: 600px;
+            width: fit-content;
+        }
+
+        .scissors-icon {
+            height: 6.5rem;
+            vertical-align: middle;
+            margin-bottom: 1rem;
+            display: inline-block;
         }
 
         .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4rem);
-            font-weight: 700;
+            font-size: clamp(3.5rem, 8vw, 6rem);
+            font-weight: 800;
             margin-bottom: 1rem;
+            background: linear-gradient(90deg, #ffffff, #dbff87);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 4px 12px rgba(151, 222, 255, 0.24); /* ✅ 입체감 핵심 */
         }
 
         .hero h1 .pink {
-            color: #ff88b7;
+            color: #ffffff;
+        }
+
+        .hero h1 .white {
+            color: #ffffff;
         }
 
         .hero p {
             font-size: clamp(1rem, 2.5vw, 1.2rem);
             line-height: 1.5;
+            margin-top: 2rem;
             margin-bottom: 2rem;
             opacity: .9;
         }
@@ -249,39 +258,60 @@
             font-size: 1.2rem;
         }
 
-        /* 시작버튼 */
-        .cta-button {
-            background: #fff;
-            color: #2193b0;
-            border: none;
-            padding: 15px 35px;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            position: relative;
+        .cta-wrapper {
+            display: inline-flex;
+            align-items: stretch;
+            /* ✅ 높이 완전 맞추기 */
+            gap: 0;
+            border-radius: 5px;
             overflow: hidden;
-            text-decoration: none;
-            margin-bottom: 40px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
             margin-top: 30px;
         }
 
-        .cta-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+        /* 왼쪽 레이블 */
+        .cta-label {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ff88b7;
+            border: 2px solid #ffffff;
+            padding: 12px 120px;
+            background-color: transparent;
+            display: flex;
+            align-items: center;
+            border-right: none;
+            /* ✅ 연결된 느낌을 위해 오른쪽 선 제거 */
+            border-radius: 5px 0 0 5px;
+            /* 왼쪽만 둥글게 */
+            height: 100%;
         }
 
-        .cta-button:active {
-            transform: translateY(1px);
+        /* 오른쪽 버튼 */
+        .cta-button {
+            background: #ffffff;
+            color: #000000;
+            border: none;
+            padding: 0 20px;
+            /* 수직 padding은 제거 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            border-radius: 0 5px 5px 0;
+            /* 오른쪽만 둥글게 */
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
         }
 
         .cta-button i {
-            margin-right: 10px;
-            font-size: 1.2rem;
+            font-size: 1.4rem;
+            line-height: 1;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
         }
 
         .cta-button .btn-shine {
@@ -675,14 +705,23 @@
 
     <!-- Hero -->
     <section class="hero">
-        <h1><span class="pink">VideoSummary</span></h1>
-        <p>
-            AI가 핵심 장면만 골라주니까, 클릭 한 번이면 요약 끝!
-        </p>
-        <a href="index.html" class="cta-button">
-            <i class="fas fa-rocket"></i> 바로 요약
-        </a>
-
+        <div class="hero-content">
+            <h1>
+                <img src="/images/scissors.png" alt="Scissors Icon" class="scissors-icon" />
+                <span class="pink">Video</span>
+                <br>
+                <span class="white">Summary</span>
+            </h1>
+            <p>
+                AI가 핵심 장면만 골라주니까, 클릭 한 번이면 요약 끝!
+            </p>
+            <div class="cta-wrapper">
+                <span class="cta-label">지금 바로 요약하기</span>
+                <a href="index.html" class="cta-button">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+            </div>
+        </div>
         <!-- 스크롤 다운 화살표 추가 -->
         <div class="scroll-down" onclick="scrollToFeatures()">
             <span></span>
@@ -793,7 +832,7 @@
                     size: { value: 2, random: true },
                     line_linked: {
                         enable: true,
-                        distance: 200,
+                        distance: 250,
                         color: "#ffffff",
                         opacity: 0.5,
                         width: 1.2
