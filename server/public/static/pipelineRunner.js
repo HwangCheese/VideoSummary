@@ -646,7 +646,7 @@ export function initPipelineRunner() {
 
         const checkAndProceed = async () => {
           if (originalVideoReady && finalVideoReady && !errorOccurred) {
-            if (progressCard) progressCard.style.display = "none";
+            // if (progressCard) progressCard.style.display = "none";
             if (resultCard) resultCard.style.display = "block";
 
             if (highlightBarContainer && originalVideo && currentUploadedFileNameFromHandler && resultCard) {

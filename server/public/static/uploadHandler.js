@@ -1,10 +1,10 @@
 // public/static/uploadHandler.js
-import { showToast, formatFileSize, formatTime } from "./uiUtils.js"; // formatTime 임포트 확인
+import { showToast, formatFileSize, formatTime } from "./uiUtils.js";
 
 export let uploadedFileName = "";
 let originalVideoDurationSeconds = 0;
-let durationPercentageInputEl = null; // 비율 입력 필드
-let calculatedDurationOutputEl = null; // 계산된 시간 표시 필드
+let durationPercentageInputEl = null;
+let calculatedDurationOutputEl = null;
 
 let dropZoneEl = null;
 let fileInputEl = null;
@@ -151,7 +151,6 @@ export function initUploadHandler() {
     const percentage = parseFloat(durationPercentageInputEl.value);
     if (isNaN(percentage) || percentage < 1 || percentage > 100) {
       calculatedDurationOutputEl.value = "00:00";
-      // showToast("1부터 100 사이의 비율을 입력해주세요.", "warning"); // 필요시 경고
       return;
     }
 
@@ -199,31 +198,25 @@ export function initUploadHandler() {
       return;
     }
 
-    // 파일 기본 정보 우선 표시
     if (fileNameDisplayEl) fileNameDisplayEl.textContent = file.name;
     if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = formatFileSize(file.size);
-    // 기타 메타 정보는 서버 응답 후 또는 아래에서 설정
-
-    // "원하는 요약 영상 길이" 섹션의 % 입력 필드 기본값 설정
     if (durationPercentageInputEl) {
       durationPercentageInputEl.value = "20"; // 기본값 20%
     }
-    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00"; // 초기에는 00:00으로
+    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00";
 
-    // 원본 영상 길이 가져오기 및 저장 (클라이언트 사이드)
-    // fileDurationDisplayEl은 file-meta-data 내의 원본 전체 길이를 표시하는 요소임
     if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 분석중...";
-    originalVideoDurationSeconds = 0; // 이전 값 초기화
+    originalVideoDurationSeconds = 0;
 
     try {
       const duration = await getVideoDuration(file);
       originalVideoDurationSeconds = duration;
       if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = formatTime(duration);
-      calculateAndUpdateDuration(); // % 입력 필드의 기본값(20)에 맞춰 시간 계산 및 표시
+      calculateAndUpdateDuration();
     } catch (error) {
       console.error("원본 영상 길이 가져오기 실패:", error);
       if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "N/A";
-      calculateAndUpdateDuration(); // originalVideoDurationSeconds가 0이므로 00:00으로 표시됨
+      calculateAndUpdateDuration();
     }
 
     if (dropZoneEl) {
@@ -285,7 +278,6 @@ export function initUploadHandler() {
               : "N/A";
           }
           if (fileTypeDisplayEl) {
-            // 서버에서 video_codec 또는 codec_name 사용, 없으면 file.type
             const serverCodec = data.videoInfo.video_codec || data.videoInfo.codec_name;
             fileTypeDisplayEl.textContent = serverCodec ? serverCodec.split('/')[0].trim() : (file.type || 'N/A');
           }
@@ -314,7 +306,6 @@ export function initUploadHandler() {
           if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "N/A";
         }
         if (statusDivEl) statusDivEl.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
-        showToast("업로드가 완료되었습니다!", "success");
         if (startBtnEl) startBtnEl.disabled = false;
       } else {
         if (statusDivEl) statusDivEl.textContent = `❌ 업로드 실패: ${data.message || '알 수 없는 오류'}`;
