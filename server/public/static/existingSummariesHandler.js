@@ -39,72 +39,77 @@ function hideLoadingOverlay() {
     if (overlay) {
         overlay.style.opacity = "0";
         setTimeout(() => {
-            overlay.style.display = "none";
-        }, 300);
+            if (overlay.style.opacity === "0") {
+                overlay.style.display = "none";
+            }
+        }, 100);
     }
 }
 
 export function initExistingSummariesHandler() {
     const toggleBtn = document.getElementById("toggleExistingSummariesBtn");
-    const existingSummariesCard = document.getElementById("existingSummariesCard");
-    const uploadCard = document.getElementById("uploadCard");
+    const sidebarEl = document.getElementById("existingSummariesCard");
     const listElement = document.getElementById("existingSummariesList");
     const loadingElement = document.getElementById("loadingExistingSummaries");
-    const backToUploadBtn = document.getElementById("backToUploadBtn");
 
+    const scrollContainer = document.querySelector(".scroll-container");
     const uploadSection = document.getElementById("upload-section");
     const progressSection = document.getElementById("progress-section");
     const resultSection = document.getElementById("result-section");
-    const resultCardFromPipeline = document.getElementById("resultCard");
 
-    if (!toggleBtn || !existingSummariesCard || !uploadCard || !listElement || !loadingElement || !backToUploadBtn || !progressSection) {
-        console.warn("필수 UI 요소 중 일부를 찾을 수 없습니다 (ExistingSummariesHandler).");
+    const uploadCard = document.getElementById("uploadCard");
+    const resultCard = document.getElementById("resultCard");
+
+    const siteHeader = document.querySelector(".site-header");
+
+    if (!toggleBtn || !sidebarEl || !listElement || !loadingElement ||
+        !scrollContainer || !uploadSection || !progressSection || !resultSection || !uploadCard || !resultCard) {
+        console.warn("ExistingSummariesHandler: 필수 UI 요소 중 일부를 찾을 수 없습니다.");
         return;
     }
 
     let summariesLoaded = false;
+    const originalToggleBtnHTML = toggleBtn.innerHTML;
 
-    toggleBtn.addEventListener("click", async () => {
-        if (existingSummariesCard.style.display === "none") {
+    async function openSidebar() {
+        sidebarEl.classList.add("visible");
+        scrollContainer.classList.add("sidebar-open");
+        toggleBtn.setAttribute("aria-expanded", "true");
+        if (siteHeader) siteHeader.classList.add("no-shadow");
+        if (!summariesLoaded) {
+            const currentBtnContent = toggleBtn.innerHTML;
             toggleBtn.disabled = true;
-            toggleBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> 목록 로딩 중...`;
-            uploadCard.classList.add("hidden-anim");
+            toggleBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+            await loadAndDisplayExistingSummaries(listElement, loadingElement);
+            summariesLoaded = true;
+            toggleBtn.disabled = false;
+            toggleBtn.innerHTML = currentBtnContent; // Restore icon before spinner
+        }
+    }
 
-            if (!summariesLoaded) {
-                await loadAndDisplayExistingSummaries(listElement, loadingElement);
-                summariesLoaded = true;
-            }
+    function closeSidebar() {
+        sidebarEl.classList.remove("visible");
+        scrollContainer.classList.remove("sidebar-open");
+        toggleBtn.setAttribute("aria-expanded", "false");
+    }
 
-            setTimeout(() => {
-                existingSummariesCard.style.display = "block";
-                existingSummariesCard.classList.remove('animate__fadeOutDownSm');
-                existingSummariesCard.classList.add('animate__fadeInUpSm');
-                toggleBtn.innerHTML = `<i class="fas fa-upload"></i> 새 영상 업로드하기`;
-                toggleBtn.disabled = false;
-            }, 300);
-
+    toggleBtn.addEventListener("click", () => {
+        if (sidebarEl.classList.contains("visible")) {
+            closeSidebar();
         } else {
-            hideExistingSummariesShowUpload();
+            openSidebar();
         }
     });
 
-    backToUploadBtn.addEventListener("click", () => {
-        hideExistingSummariesShowUpload();
+    document.addEventListener('click', (event) => {
+        if (!sidebarEl.contains(event.target) && !toggleBtn.contains(event.target) && sidebarEl.classList.contains('visible')) {
+            closeSidebar();
+        }
     });
-
-    function hideExistingSummariesShowUpload() {
-        existingSummariesCard.classList.remove('animate__fadeInUpSm');
-        existingSummariesCard.classList.add('animate__fadeOutDownSm');
-        setTimeout(() => {
-            existingSummariesCard.style.display = "none";
-            uploadCard.classList.remove("hidden-anim");
-            toggleBtn.innerHTML = `<i class="fas fa-history"></i> 기존 요약 영상 보기`;
-        }, 300);
-    }
 
     async function loadAndDisplayExistingSummaries(listEl, loadingEl) {
         loadingEl.style.display = "block";
-        listEl.innerHTML = "";
+        listEl.innerHTML = ""; // Clear previous items
 
         try {
             const response = await fetch("/results/clips");
@@ -114,29 +119,28 @@ export function initExistingSummariesHandler() {
             if (data.clips && data.clips.length > 0) {
                 data.clips.forEach(clipPath => {
                     const parts = clipPath.split('/');
-                    if (parts.length < 4) return;
-                    const baseName = parts[2];
-                    const originalFilename = baseName + ".mp4";
+                    if (parts.length < 3) {
+                        console.warn("Unexpected clip path format:", clipPath);
+                        return;
+                    }
+                    const baseName = parts[parts.length - 2];
+                    const originalFilenameFromServer = baseName + ".mp4";
 
                     const listItem = document.createElement("li");
-                    listItem.innerHTML = `<i class="fas fa-film"></i> ${originalFilename}`;
-                    listItem.dataset.originalFilename = originalFilename;
+                    listItem.innerHTML = `<i class="fas fa-film"></i> ${originalFilenameFromServer}`;
+                    listItem.dataset.originalFilename = originalFilenameFromServer;
                     listItem.dataset.baseName = baseName;
                     listItem.dataset.summaryPath = clipPath;
 
                     listItem.addEventListener("click", async () => {
-                        existingSummariesCard.classList.remove('animate__fadeInUpSm');
-                        existingSummariesCard.classList.add('animate__fadeOutDownSm');
+                        closeSidebar();
+                        showLoadingOverlay(`'${listItem.dataset.originalFilename}' 요약 결과를 불러옵니다...`);
 
-                        setTimeout(async () => {
-                            existingSummariesCard.style.display = "none";
-                            showLoadingOverlay(`'${listItem.dataset.originalFilename}' 요약 결과를 불러옵니다...`);
-                            await handleExistingSummaryClick(
-                                listItem.dataset.originalFilename,
-                                listItem.dataset.baseName,
-                                listItem.dataset.summaryPath
-                            );
-                        }, 400);
+                        await handleExistingSummaryClick(
+                            listItem.dataset.originalFilename,
+                            listItem.dataset.baseName,
+                            listItem.dataset.summaryPath
+                        );
                     });
                     listEl.appendChild(listItem);
                 });
@@ -154,46 +158,40 @@ export function initExistingSummariesHandler() {
 
     async function handleExistingSummaryClick(originalFilename, baseName, summaryPath) {
         setUploadedFileName(originalFilename);
-        if (progressSection) progressSection.style.display = "none";
-        const progressCardEl = document.getElementById("progressCard");
-        if (progressCardEl) progressCardEl.style.display = "none";
-
-        if (resultCardFromPipeline) resultCardFromPipeline.style.display = "none";
         resetSummaryMetrics();
-        if (uploadSection) uploadSection.style.display = "block";
-        if (resultSection) resultSection.style.display = "block";
-
+        uploadSection.style.display = "none";
+        uploadCard.style.display = "none";
+        progressSection.style.display = "none";
+        resultSection.style.display = "block";
+        resultCard.style.display = "block";
 
         try {
-            // 데이터 로드
             await loadResultDataForExistingSummary(originalFilename, baseName, summaryPath);
-            // 데이터 로드 완료 후
             hideLoadingOverlay();
-            if (uploadCard && !uploadCard.classList.contains("hidden-anim")) {
-                uploadCard.classList.add("hidden-anim");
-            }
-            if (toggleBtn) {
-                toggleBtn.innerHTML = `<i class="fas fa-upload"></i> 새 영상 업로드하기`;
-            }
 
-            if (resultCardFromPipeline) {
-                resultCardFromPipeline.style.display = "block";
-            }
+            setTimeout(() => {
+                resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
 
-            if (resultSection) {
-                setTimeout(() => {
-                    resultSection.scrollIntoView({ behavior: "smooth", block: "center" });
-                }, 100);
-            }
             document.querySelectorAll('.page-navigation .nav-dot').forEach(dot => {
                 dot.classList.remove('active');
                 if (dot.dataset.section === "result-section") dot.classList.add('active');
             });
+
         } catch (error) {
             console.error("Failed to display existing summary:", error);
             hideLoadingOverlay();
             showToast("기존 요약 영상 표시 중 오류 발생", "error");
-            if (resultCardFromPipeline) resultCardFromPipeline.style.display = "none";
+
+            uploadSection.style.display = "block";
+            uploadCard.style.display = "block";
+            resultSection.style.display = "none";
+            resultCard.style.display = "none";
+
+            document.querySelectorAll('.page-navigation .nav-dot').forEach(dot => {
+                dot.classList.remove('active');
+                if (dot.dataset.section === "upload-section") dot.classList.add('active');
+            });
         }
     }
 }

@@ -17,6 +17,10 @@ server/public/css/header.css
     align-items: center;
 }
 
+.site-header.no-shadow {
+    box-shadow: none;
+}
+
 .header-container {
     width: 100%;
     max-width: 1200px;
@@ -29,7 +33,7 @@ server/public/css/header.css
 .logo-area {
     display: flex;
     align-items: center;
-    margin-left: -150px; /* 상단 로고 왼쪽으로 이동시키는 값 */
+    margin-left: -200px; /* 상단 로고 왼쪽으로 이동시키는 값 */
 }
 
 .menu-toggle {
@@ -106,21 +110,19 @@ server/public/css/header.css
     background-color: #6242a7;
 }
 
-/* server/public/css/existing-summaries.css */
-
 .existing-summaries-sidebar {
     position: fixed;
-    top: var(--header-height); /* 헤더 바로 아래부터 시작 */
-    left: -300px; /* 초기에는 화면 왼쪽에 숨김 (너비만큼 음수) */
-    width: 280px; /* 사이드바 너비 (스크린샷에 맞춰 조절) */
-    height: calc(100vh - var(--header-height)); /* 헤더 높이를 제외한 전체 화면 높이 */
-    background-color: #f8f9fa; /* 스크린샷과 유사한 밝은 배경색 */
-    border-right: 1px solid #e0e0e0; /* 오른쪽에 구분선 */
-    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* 오른쪽에 그림자 */
-    z-index: 998; /* 헤더(1000)보다는 낮고, 메인 콘텐츠보다는 높게 */
+    top: calc(var(--header-height) - 22px); /*상단 로고와 간격*/
+    left: -300px;
+    width: 280px;
+    height: calc(100vh - var(--header-height) + 2px);
+    background-color: #f8f9fa;
+    border-right: 1px solid #e0e0e0;
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+    z-index: 998;
     overflow-y: auto;
-    transition: left 0.3s ease-in-out; /* 왼쪽으로 슬라이드 애니메이션 */
-    padding-top: 15px; /* 상단 내부 여백 */
+    transition: left 0.3s ease-in-out;
+    padding-top: 15px;
 }
 
 .existing-summaries-sidebar.visible {
