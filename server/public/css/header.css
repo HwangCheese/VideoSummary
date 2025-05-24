@@ -1,0 +1,203 @@
+/* 
+server/public/css/header.css 
+상단의 헤더 관련 css
+*/
+
+.site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height);
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 20px 0 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+}
+
+.header-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    margin-left: -150px; /* 상단 로고 왼쪽으로 이동시키는 값 */
+}
+
+.menu-toggle {
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    color: #333333;
+    cursor: pointer;
+    margin-right: 15px;
+    padding: 5px;
+}
+
+.logo-link {
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.logo-text-container {
+    display: flex;
+    align-items: baseline;
+}
+
+.logo-video {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #e91e63;
+}
+
+.logo-summary {
+    font-size: 1.7rem;
+    font-weight: bold;
+    color: #673ab7;
+}
+
+.logo-sub {
+    font-size: 0.65rem;
+    color: #757575;
+    margin-top: -5px;
+    line-height: 1;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+    color: #333333;
+}
+
+.user-icon {
+    font-size: 1.3rem;
+    margin-right: 8px;
+    color: #555555;
+}
+
+.user-greeting {
+    margin-right: 15px;
+    font-size: 0.9rem;
+}
+
+.logout-button {
+    background-color: #7554c7;
+    color: white;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 20px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.logout-button:hover {
+    background-color: #6242a7;
+}
+
+/* server/public/css/existing-summaries.css */
+
+.existing-summaries-sidebar {
+    position: fixed;
+    top: var(--header-height); /* 헤더 바로 아래부터 시작 */
+    left: -300px; /* 초기에는 화면 왼쪽에 숨김 (너비만큼 음수) */
+    width: 280px; /* 사이드바 너비 (스크린샷에 맞춰 조절) */
+    height: calc(100vh - var(--header-height)); /* 헤더 높이를 제외한 전체 화면 높이 */
+    background-color: #f8f9fa; /* 스크린샷과 유사한 밝은 배경색 */
+    border-right: 1px solid #e0e0e0; /* 오른쪽에 구분선 */
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* 오른쪽에 그림자 */
+    z-index: 998; /* 헤더(1000)보다는 낮고, 메인 콘텐츠보다는 높게 */
+    overflow-y: auto;
+    transition: left 0.3s ease-in-out; /* 왼쪽으로 슬라이드 애니메이션 */
+    padding-top: 15px; /* 상단 내부 여백 */
+}
+
+.existing-summaries-sidebar.visible {
+    left: 0; /* 보이게 할 때 왼쪽으로 슬라이드 */
+}
+
+.existing-summaries-sidebar .sidebar-header {
+    padding: 0 15px 10px 15px; /* 내부 여백 */
+    /* border-bottom: 1px solid #dee2e6; */ /* 필요시 하단 구분선 */
+    margin-bottom: 5px;
+}
+
+.existing-summaries-sidebar .sidebar-header h3 {
+    font-size: 1.1rem;
+    margin: 0;
+    color: #343a40; /* 약간 어두운 텍스트 색상 */
+    font-weight: 600;
+}
+
+.existing-summaries-sidebar .sidebar-body {
+    padding: 0;
+}
+
+#existingSummariesList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#existingSummariesList li {
+    padding: 10px 15px; /* 리스트 아이템 내부 여백 */
+    /* border-bottom: 1px solid #e9ecef; */ /* 아이템 간 구분선 (선택적) */
+    cursor: pointer;
+    font-size: 0.9rem; /* 폰트 크기 약간 줄임 */
+    color: #495057;
+    display: flex;
+    align-items: center;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+#existingSummariesList li:hover {
+    background-color: #e9ecef; /* 호버 시 배경색 */
+    color: #007bff; /* 호버 시 텍스트 색상 */
+}
+
+#existingSummariesList li i.fa-film {
+    /* Font Awesome 아이콘 */
+    margin-right: 10px;
+    color: #6c757d; /* 아이콘 기본 색상 */
+    font-size: 1.1em; /* 아이콘 크기 */
+}
+#existingSummariesList li:hover i.fa-film {
+    color: #007bff; /* 호버 시 아이콘 색상 */
+}
+
+#loadingExistingSummaries {
+    padding: 20px;
+    text-align: center;
+}
+#loadingExistingSummaries i {
+    color: #007bff;
+}
+#loadingExistingSummaries p {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* 메인 콘텐츠가 사이드바에 의해 밀리는 효과 */
+#mainContentContainer.sidebar-open {
+    margin-left: 280px; /* 사이드바 너비만큼 왼쪽 마진 */
+    transition: margin-left 0.3s ease-in-out;
+}
+#mainContentContainer {
+    /* 기본 상태 */
+    margin-left: 0;
+    transition: margin-left 0.3s ease-in-out;
+}

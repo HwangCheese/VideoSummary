@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>VidSummary</title>
+    <title>VideoSummary</title>
     <link rel="icon" type="image/png" href="/images/head-icon.png" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -27,6 +27,7 @@
             --text-light: #f0f0f0;
             --card-bg: rgba(20, 25, 40, 0.8);
             --border-light: rgba(255, 255, 255, 0.3);
+            --header-height: 70px;
         }
 
         body {
@@ -35,6 +36,7 @@
             animation: grad 15s ease infinite;
             color: var(--text-light);
             overflow-x: hidden;
+            padding-top: var(--header-height);
         }
 
         @keyframes grad {
@@ -58,6 +60,137 @@
             width: 100%;
             height: 100%;
             z-index: 0;
+        }
+
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: var(--header-height);
+            background-color: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0 20px 0 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+        }
+
+        .header-container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            /*왼쪽 상단 로고 위치조정 */
+            margin-left: -150px;
+        }
+
+        .menu-toggle {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            color: #333333;
+            cursor: pointer;
+            margin-right: 15px;
+            padding: 5px;
+        }
+
+        .logo-link {
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .logo-text-container {
+            display: flex;
+            align-items: baseline;
+            /* Aligns "Video" and "Summary" nicely */
+        }
+
+        .logo-video {
+            font-size: 1.7rem;
+            /* Adjust as needed */
+            font-weight: bold;
+            color: #E91E63;
+            /* Pink color for "Video" */
+        }
+
+        .logo-summary {
+            font-size: 1.7rem;
+            /* Adjust as needed */
+            font-weight: bold;
+            color: #673AB7;
+            /* Purple color for "Summary" */
+        }
+
+        .logo-sub {
+            font-size: 0.65rem;
+            color: #757575;
+            /* Grey color for sub-text */
+            margin-top: -5px;
+            /* Adjust for tight vertical spacing */
+            line-height: 1;
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            color: #333333;
+            /* Text color for greeting */
+        }
+
+        .user-icon {
+            /* Style for the new user icon */
+            font-size: 1.3rem;
+            /* Adjust size as needed */
+            margin-right: 8px;
+            /* Space between icon and greeting text */
+            color: #555555;
+            /* Icon color */
+        }
+
+        .user-greeting {
+            margin-right: 15px;
+            font-size: 0.9rem;
+        }
+
+        .logout-button {
+            background-color: #7554c7;
+            /* Purple color for logout button */
+            color: white;
+            padding: 8px 18px;
+            border: none;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #6242a7;
+        }
+
+        /* Adjust Hero section if necessary, body padding-top should handle it */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: calc(100vh - var(--header-height));
+            /* Make hero fill remaining viewport height */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 0 20px;
         }
 
         /* Hero */
@@ -514,16 +647,40 @@
 </head>
 
 <body>
+    <header class="site-header">
+        <div class="header-container">
+            <div class="logo-area">
+                <button class="menu-toggle" aria-label="메뉴 토글">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a href="index.html" class="logo-link">
+                    <div class="logo-text-container">
+                        <span class="logo-video">Video</span><span class="logo-summary">Summary</span>
+                    </div>
+                    <span class="logo-sub">HwangCheeze</span>
+                </a>
+            </div>
+            <!-- <nav class="main-nav"> -->
+            <!-- Navigation links can go here if needed in the future -->
+            <!-- <a href="#">Link 1</a> -->
+            <!-- <a href="#">Link 2</a> -->
+            <!-- </nav> -->
+            <div class="user-actions">
+                <span class="user-greeting">안녕하세요, 황치즈님.</span>
+                <a href="#" class="logout-button">로그아웃</a>
+            </div>
+        </div>
+    </header>
     <div id="particles-js"></div>
 
     <!-- Hero -->
     <section class="hero">
-        <h1><span class="pink">VidSummary</span></h1>
+        <h1><span class="pink">VideoSummary</span></h1>
         <p>
             AI가 핵심 장면만 골라주니까, 클릭 한 번이면 요약 끝!
         </p>
         <a href="index.html" class="cta-button">
-            <i class="fas fa-rocket"></i> 바로 생성하기
+            <i class="fas fa-rocket"></i> 바로 요약
         </a>
 
         <!-- 스크롤 다운 화살표 추가 -->

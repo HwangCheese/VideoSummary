@@ -418,36 +418,7 @@ server/public/css/upload.css (또는 style.css에 통합될 내용)
         opacity 0.3s ease-out,
         visibility 0.3s ease-out;
 }
-#toggleExistingSummariesBtn {
-    padding: 12px 25px;
-    font-size: 1rem;
-    font-weight: 500;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    transition:
-        background-color 0.3s ease,
-        transform 0.2s ease,
-        box-shadow 0.3s ease;
-    box-shadow: var(--box-shadow-sm);
-    min-width: 220px;
-}
-#toggleExistingSummariesBtn:hover {
-    background-color: #3a53c0;
-    transform: translateY(-1px);
-    box-shadow: var(--box-shadow);
-}
-#toggleExistingSummariesBtn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-#toggleExistingSummariesBtn i {
-    margin-right: 8px;
-}
+
 #existingSummariesCard {
     text-align: left;
     margin-top: 1.5rem;

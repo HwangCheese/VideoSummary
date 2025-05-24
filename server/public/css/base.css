@@ -4,6 +4,7 @@ server/public/css/base.css
 */
 
 :root {
+  --header-height: 70px;
   --primary-color: #4361ee;
   --primary-light: #7592ff;
   --primary-dark: #2945b8;
@@ -50,4 +51,5 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
+  padding-top: var(--header-height);
 }

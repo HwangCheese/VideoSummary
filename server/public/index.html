@@ -14,6 +14,42 @@
 </head>
 
 <body>
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <button class="menu-toggle" id="toggleExistingSummariesBtn" aria-label="이전 요약 목록 토글">
+          <i class="fas fa-bars"></i>
+        </button>
+        <a href="index.html" class="logo-link">
+          <div class="logo-text-container">
+            <span class="logo-video">Video</span><span class="logo-summary">Summary</span>
+          </div>
+          <span class="logo-sub">HwangCheeze</span>
+        </a>
+      </div>
+      <div class="user-actions">
+        <i class="fas fa-user-circle user-icon"></i>
+        <span class="user-greeting">안녕하세요, 황치즈님.</span>
+        <a href="#" class="logout-button">로그아웃</a>
+      </div>
+    </div>
+  </header>
+
+  <div id="existingSummariesCard" class="existing-summaries-sidebar">
+    <div class="sidebar-header">
+      <h3>영상 요약</h3>
+      <button id="closeExistingSummariesBtn" class="close-btn" aria-label="닫기">×</button>
+    </div>
+    <div class="sidebar-body">
+      <div id="loadingExistingSummaries" style="display: none; text-align: center; padding: 20px;">
+        <i class="fas fa-spinner fa-spin fa-2x"></i>
+        <p>목록을 불러오는 중...</p>
+      </div>
+      <ul id="existingSummariesList">
+      </ul>
+    </div>
+  </div>
+
   <div class="background-shapes">
     <div class="shape shape1"></div>
     <div class="shape shape2"></div>
