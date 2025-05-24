@@ -34,8 +34,6 @@ function broadcastProgressUpdate(progressState) {
 }
 
 router.post("/", upload.single("video"), async (req, res) => {
-  console.log("========== /upload POST request received (async handler) ==========");
-  console.log("req.file (from multer):", req.file);
 
   if (!req.file) {
     console.log("[SERVER ERROR] No file uploaded or multer failed.");
@@ -43,7 +41,6 @@ router.post("/", upload.single("video"), async (req, res) => {
   }
   const filename = req.file.originalname;
   const filePath = req.file.path;
-  console.log(`[SERVER] File uploaded: ${filename}, Path: ${filePath}`);
 
   broadcastProgressUpdate({ step: 0, message: "업로드 완료, 파일 정보 분석 중...", done: false, percent: 0 });
 
@@ -58,12 +55,7 @@ router.post("/", upload.single("video"), async (req, res) => {
   };
 
   try {
-    console.log("[SERVER] Attempting to get video metadata...");
     const metadata = await getVideoMetadata(filePath);
-    console.log("---------------- METADATA FROM FFPROBE ----------------");
-    console.log(JSON.stringify(metadata, null, 2)); // 전체 metadata 객체 로깅
-    console.log("-------------------------------------------------------");
-
     let videoStream = null;
     let audioStream = null;
 
@@ -75,7 +67,6 @@ router.post("/", upload.single("video"), async (req, res) => {
     // 각 필드 추출 및 로깅
     if (metadata && metadata.format && metadata.format.duration) {
       videoInfo.duration = parseFloat(metadata.format.duration);
-      console.log(`[VIDEO_INFO_PARSED] Duration: ${videoInfo.duration}`);
     } else {
       console.log(`[VIDEO_INFO_PARSED] Duration: Not found in metadata.format.duration`);
     }
@@ -84,38 +75,26 @@ router.post("/", upload.single("video"), async (req, res) => {
       videoInfo.video_codec = videoStream.codec_long_name || videoStream.codec_name || null;
       videoInfo.width = videoStream.width || null;
       videoInfo.height = videoStream.height || null;
-      console.log(`[VIDEO_INFO_PARSED] Video Codec: ${videoInfo.video_codec}`);
-      console.log(`[VIDEO_INFO_PARSED] Width: ${videoInfo.width}`);
-      console.log(`[VIDEO_INFO_PARSED] Height: ${videoInfo.height}`);
     } else {
       console.log(`[VIDEO_INFO_PARSED] Video Stream: Not found or missing codec/resolution info.`);
     }
 
     if (audioStream) {
       videoInfo.audio_codec = audioStream.codec_long_name || audioStream.codec_name || null;
-      console.log(`[VIDEO_INFO_PARSED] Audio Codec: ${videoInfo.audio_codec}`);
     } else {
       console.log(`[VIDEO_INFO_PARSED] Audio Stream: Not found or missing codec info.`);
     }
 
     if (metadata && metadata.format && metadata.format.bit_rate) {
       videoInfo.bit_rate = parseInt(metadata.format.bit_rate, 10);
-      console.log(`[VIDEO_INFO_PARSED] Bit Rate: ${videoInfo.bit_rate}`);
     } else {
       console.log(`[VIDEO_INFO_PARSED] Bit Rate: Not found in metadata.format.bit_rate`);
     }
-
-    console.log("---------------- FINAL VIDEO_INFO OBJECT ----------------");
-    console.log(JSON.stringify(videoInfo, null, 2)); // 최종 videoInfo 객체 로깅
-    console.log("-------------------------------------------------------");
 
     broadcastProgressUpdate({ step: 0, message: "업로드 완료, 처리 대기 중...", done: false, percent: 0 });
     res.json({ message: "업로드 완료", filename: filename, videoInfo: videoInfo });
 
   } catch (error) {
-    console.error("---------------- ERROR DURING METADATA PROCESSING ----------------");
-    console.error("Error getting video metadata or constructing videoInfo:", error);
-    console.error("------------------------------------------------------------------");
     broadcastProgressUpdate({ step: 0, message: "업로드 완료 (메타데이터 분석 실패), 처리 대기 중...", done: false, percent: 0, error: true });
     // 오류 시에도 videoInfo 객체는 (대부분 null 값으로 채워진) 기본 구조로 전달됨
     res.json({ message: "업로드 완료 (메타데이터 분석 실패)", filename: filename, videoInfo: videoInfo });
@@ -125,6 +104,7 @@ router.post("/", upload.single("video"), async (req, res) => {
 router.get("/process", (req, res) => {
   const filename = req.query.filename;
   const importanceWeightFromSlider = req.query.importanceWeight;
+  const topRatioFromClient = req.query.topRatio; // <-- New parameter
 
   const inputPath = path.resolve(__dirname, "..", "uploads", filename);
   const ckptPath = path.resolve(__dirname, "..", "..", "dataset", "pgl_sum1_best_f1.pkl");
@@ -145,19 +125,34 @@ router.get("/process", (req, res) => {
   const progressState = { step: 0, message: "파이프라인 시작 중...", done: false, percent: 0, filename: filename };
   broadcastProgressUpdate(progressState);
 
+  // Importance Weight (for highlight vs story focus)
   let pythonImportanceWeight;
   if (importanceWeightFromSlider !== undefined) {
     const parsedWeight = parseFloat(importanceWeightFromSlider);
     if (!isNaN(parsedWeight) && parsedWeight >= 0 && parsedWeight <= 1) {
-      pythonImportanceWeight = parseFloat((1 - parsedWeight).toFixed(2));
-      console.log(`Slider value: ${parsedWeight}, Python importance_weight: ${pythonImportanceWeight.toFixed(2)} 사용`);
+      // Python script's importance_weight: 0 for general/story, 1 for highlight
+      // JS slider: 0 for highlight, 1 for story
+      // So, pythonImportanceWeight = 1 - parsedWeight
+      pythonImportanceWeight = parseFloat((1 - parsedWeight).toFixed(2)); // Invert and fix decimals
     } else {
-      pythonImportanceWeight = 0.5;
+      pythonImportanceWeight = 0.5; // Default if parse fails (Python script might have its own default like 0.8)
       console.warn(`잘못된 importanceWeight 값 수신: ${importanceWeightFromSlider}. 기본값 ${pythonImportanceWeight}(Python) 사용.`);
     }
   } else {
-    pythonImportanceWeight = 0.5;
+    pythonImportanceWeight = 0.5; // Default if not provided
     console.warn(`importanceWeight 값이 전달되지 않았습니다. 기본값 ${pythonImportanceWeight}(Python) 사용.`);
+  }
+
+  let pythonTopRatio = 0.2;
+  if (topRatioFromClient !== undefined) {
+    const parsedRatio = parseFloat(topRatioFromClient);
+    if (!isNaN(parsedRatio) && parsedRatio > 0 && parsedRatio <= 1.0) {
+      pythonTopRatio = parsedRatio;
+    } else {
+      console.warn(`잘못된 topRatio 값 수신: ${topRatioFromClient}. 기본값 ${pythonTopRatio}(Python) 사용.`);
+    }
+  } else {
+    console.warn(`topRatio 값이 전달되지 않았습니다. 기본값 ${pythonTopRatio}(Python) 사용.`);
   }
 
   const pipelineArgs = [
@@ -166,10 +161,11 @@ router.get("/process", (req, res) => {
     "--fine_ckpt", ckptPath,
     "--output_dir", outputDir,
     "--device", "cpu",
-    "--importance_weight", pythonImportanceWeight.toString()
+    "--importance_weight", pythonImportanceWeight.toString(),
+    "--top_ratio", pythonTopRatio.toString()
   ];
 
-  console.log("Spawning pipeline with args:", pipelineArgs);
+  console.log("Spawning pipeline with args:", ["conda", "run", "-n", "mrhisum", "--live-stream", "python", "-u", ...pipelineArgs].join(" "));
   const pipeline = spawn("conda", [
     "run", "-n", "mrhisum", "--live-stream", "python", "-u",
     ...pipelineArgs
@@ -185,8 +181,6 @@ router.get("/process", (req, res) => {
       stdoutBuffer = stdoutBuffer.substring(newlineIndex + 1);
 
       if (!line) continue;
-
-      console.log("PYTHON STDOUT:", line);
       let updated = false;
 
       if (line.includes("프레임 특징") || line.includes("[1/6]")) {
@@ -197,22 +191,22 @@ router.get("/process", (req, res) => {
         progressState.step = 2;
         progressState.message = "🎬 장면 분할 중...";
         updated = true;
-      } else if (line.includes("[2/6]")) {
+      } else if (line.includes("[2/6]")) { // Note: Python script step 2 is Audio
         progressState.step = 3;
         progressState.message = "🔊 오디오 추출 중...";
         progressState.percent = Math.max(progressState.percent, 60);
         updated = true;
-      } else if (line.includes("[3/6]")) {
+      } else if (line.includes("[3/6]")) { // Python script step 3 is Whisper
         progressState.step = 4;
         progressState.message = "🧠 문장 추출 중...";
         progressState.percent = Math.max(progressState.percent, 65);
         updated = true;
-      } else if (line.includes("[4/6]")) {
+      } else if (line.includes("[4/6]")) { // Python script step 4 is PGL-SUM (AI Analysis)
         progressState.step = 5;
         progressState.message = "🎯 AI 분석 중...";
         progressState.percent = Math.max(progressState.percent, 80);
         updated = true;
-      } else if (line.includes("[6/6]") && !line.includes("기존 파일 발견")) {
+      } else if (line.includes("[6/6]") && !line.includes("기존 파일 발견")) { // Python script step 6 is Video Gen
         progressState.step = 6;
         progressState.message = "🎞️ 요약 영상 생성 중...";
         progressState.percent = Math.max(progressState.percent, 85);
@@ -274,7 +268,7 @@ router.get("/process", (req, res) => {
         return res.status(500).json({ message: "파이프라인 처리 실패", code: code });
       }
     } else {
-      if (!progressState.done) {
+      if (!progressState.done) { // If "✅ 파이프라인 완료!" was missed
         progressState.percent = 100;
         progressState.message = "✅ 요약 영상 생성 완료!";
         progressState.done = true;
@@ -300,7 +294,6 @@ router.get("/process", (req, res) => {
 
 function getVideoMetadata(filePath) {
   return new Promise((resolve, reject) => {
-    console.log(`[FFPROBE] Attempting to get metadata for: ${filePath}`);
     const ffprobeArgs = [
       "-v", "quiet",
       "-print_format", "json",
@@ -308,7 +301,6 @@ function getVideoMetadata(filePath) {
       "-show_streams",
       filePath
     ];
-    console.log(`[FFPROBE] Executing: ffprobe ${ffprobeArgs.join(" ")}`);
 
     execFile("ffprobe", ffprobeArgs, (error, stdout, stderr) => {
       if (error) {
@@ -318,10 +310,8 @@ function getVideoMetadata(filePath) {
         console.error("-----------------------------------------------------");
         return reject(new Error(`ffprobe execution failed: ${stderr || error.message}`));
       }
-      // console.log("[FFPROBE] Raw Stdout:", stdout); // 전체 stdout이 필요하면 이 줄의 주석을 해제하세요 (매우 길 수 있음)
       try {
         const parsedOutput = JSON.parse(stdout);
-        console.log("[FFPROBE] Successfully parsed JSON output.");
         resolve(parsedOutput);
       } catch (parseError) {
         console.error("----------------- FFPROBE JSON PARSE ERROR -----------------");
@@ -335,7 +325,6 @@ function getVideoMetadata(filePath) {
 }
 
 router.post("/update-highlights", (req, res) => {
-  console.log("REQ BODY:", req.body);
 
   const { filename, segments } = req.body;
 
@@ -381,7 +370,6 @@ router.post("/update-highlights", (req, res) => {
     regenerate.stdout.on("data", (data) => {
       const text = data.toString();
       output += text;
-      console.log("VIDEO MODULE OUT:", text);
     });
 
     regenerate.stderr.on("data", (data) => {

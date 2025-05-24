@@ -574,8 +574,7 @@ export function initPipelineRunner() {
 
   const highlightRatioValueEl = document.getElementById('highlightRatioValue');
   const storyRatioValueEl = document.getElementById('storyRatioValue');
-  const importanceSlider = document.getElementById('importanceSlider');
-  const currentImportanceWeight = importanceSlider ? importanceSlider.value : "0.5";
+  const importanceSlider = document.getElementById('importanceSlider'); // This is for importance_weight
 
   function updateSliderRatioDisplay() {
     if (!importanceSlider || !highlightRatioValueEl || !storyRatioValueEl) {
@@ -627,7 +626,27 @@ export function initPipelineRunner() {
 
       let processResponseData;
       try {
-        const processUrl = `/upload/process?filename=${encodeURIComponent(currentUploadedFileNameFromHandler)}&importanceWeight=${currentImportanceWeight}`;
+        const currentImportanceWeight = importanceSlider ? importanceSlider.value : "0.5";
+        const durationPercentageInput = document.getElementById('durationPercentageInput');
+        let topRatioForPython = 0.2;
+
+        if (durationPercentageInput && durationPercentageInput.value) {
+          const percentage = parseFloat(durationPercentageInput.value);
+          if (!isNaN(percentage) && percentage >= 1 && percentage <= 100) {
+            topRatioForPython = (percentage / 100.0);
+          } else {
+            console.warn(`Invalid duration percentage: ${durationPercentageInput.value}. Using default top_ratio: ${topRatioForPython}`);
+            showToast(`요약 비율 입력 값(${durationPercentageInput.value}%)이 잘못되어 기본값(20%)으로 처리합니다.`, "warning");
+          }
+        } else {
+          console.warn(`Duration percentage input not found or empty. Using default top_ratio: ${topRatioForPython}`);
+          showToast(`요약 비율이 설정되지 않아 기본값(20%)으로 처리합니다.`, "warning");
+        }
+
+        const processUrl = `/upload/process?filename=${encodeURIComponent(currentUploadedFileNameFromHandler)}&importanceWeight=${currentImportanceWeight}&topRatio=${topRatioForPython}`;
+
+        console.log("Requesting pipeline process with URL:", processUrl);
+
         const processRes = await fetch(processUrl);
         processResponseData = await processRes.json();
 
