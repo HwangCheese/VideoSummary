@@ -11,6 +11,7 @@ import {
   formatTime
 } from "./uiUtils.js";
 import { initHighlightEditor } from "./highlightEditor.js";
+import { scrollToSectionExternally } from "./scrollHandler.js";
 
 let sseSource;
 let highlightEditor = null;
@@ -515,6 +516,7 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
               document.body.removeChild(link);
             };
           }
+          scrollToSectionExternally(2, false); // 또는 true
           resolve();
         } catch (err) {
           console.error("Error processing metadata for existing summary:", err);
@@ -619,9 +621,7 @@ export function initPipelineRunner() {
       resetProgressSteps();
       updateProgressStep(1);
 
-      setTimeout(() => {
-        document.getElementById("progress-section")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      }, 100);
+      scrollToSectionExternally(1, true);
 
       startSSE();
 
@@ -660,8 +660,21 @@ export function initPipelineRunner() {
 
             await fetchReportAndScoreForUIInternal(baseName);
             if (transcriptListEl) await loadAndDisplayShortformTranscriptInternal(baseName);
+            setTimeout(() => {
+              const resultSection = document.getElementById('result-section');
+              const allSectionsNodeList = document.querySelectorAll('.scroll-section');
+              const allSectionsArray = Array.from(allSectionsNodeList);
+              const resultSectionIndex = allSectionsArray.indexOf(resultSection);
+
+              if (resultSectionIndex !== -1) {
+                scrollToSectionExternally(2, true);
+              } else {
+                console.warn("Result section not found for auto-scroll in pipelineRunner.");
+              }
+            }, 400);
           }
         };
+
         const onOriginalVideoMetadataLoaded = () => {
           originalVideo.removeEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
           originalVideo.removeEventListener("error", onVideoError);

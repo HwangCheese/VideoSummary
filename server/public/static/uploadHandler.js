@@ -1,5 +1,6 @@
 // public/static/uploadHandler.js
 import { showToast, formatFileSize, formatTime } from "./uiUtils.js";
+import { scrollToSectionExternally } from "./scrollHandler.js";
 
 export let uploadedFileName = "";
 let originalVideoDurationSeconds = 0;
@@ -49,6 +50,7 @@ export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
         fileSizeDisplayEl.textContent = "";
       }
     }
+    scrollToSectionExternally(0, false);
 
     if (fileDurationDisplayEl) {
       fileDurationDisplayEl.textContent = videoInfo && videoInfo.duration ? formatTime(videoInfo.duration) : "N/A";
@@ -116,6 +118,7 @@ export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
     if (startBtnEl) startBtnEl.disabled = true;
     if (importanceSliderEl) importanceSliderEl.value = "0.5";
     if (durationInputEl) durationInputEl.value = "";
+    scrollToSectionExternally(0, false);
   }
 }
 
@@ -233,7 +236,7 @@ export function initUploadHandler() {
       setTimeout(() => { if (existingSummariesContainerEl.style.opacity === "0") existingSummariesContainerEl.style.display = "none"; }, 300);
     }
     uploadedFileName = file.name;
-
+    scrollToSectionExternally(0, false);
     uploadFileAndGetInfo(file);
   }
 
@@ -263,15 +266,11 @@ export function initUploadHandler() {
     try {
       const res = await fetch("/upload", { method: "POST", body: formData });
       const data = await res.json();
-      console.log("[DEBUG] Server response from /upload:", JSON.parse(JSON.stringify(data)));
 
       if (res.ok && data.filename) {
         uploadedFileName = data.filename;
         if (fileNameDisplayEl) fileNameDisplayEl.textContent = uploadedFileName;
-
         if (data.videoInfo && typeof data.videoInfo === 'object') {
-          console.log("[DEBUG] Received videoInfo from server:", JSON.parse(JSON.stringify(data.videoInfo)));
-
           if (fileDurationDisplayEl) {
             fileDurationDisplayEl.textContent = data.videoInfo.duration && !isNaN(parseFloat(data.videoInfo.duration))
               ? formatTime(parseFloat(data.videoInfo.duration))
@@ -324,6 +323,7 @@ export function initUploadHandler() {
     setUploadedFileName(null); // 모든 UI 초기화는 setUploadedFileName(null)에 위임
     if (statusDivEl) statusDivEl.textContent = "";
     if (progressBarInnerEl) progressBarInnerEl.style.width = "0%";
+    scrollToSectionExternally(0, false);
   }
 
   function resetUploadUIInternally() {
