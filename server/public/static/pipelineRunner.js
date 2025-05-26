@@ -307,22 +307,34 @@ function updateSummaryMetricsFromServerData(data) {
     resetSummaryMetrics();
     return;
   }
-  let summaryText = "맞춤형 요약";
+
+  let summaryHtmlContent = "맞춤형 요약"; // HTML 적용을 위한 변수, 기본값
+
   const sliderElement = document.getElementById('importanceSlider');
   if (sliderElement) {
     const sliderVal = parseFloat(sliderElement.value);
     if (!isNaN(sliderVal)) {
       const highlightPercentage = Math.round((1 - sliderVal) * 100);
       const storyPercentage = Math.round(sliderVal * 100);
-      if (sliderVal <= 0.5) {
-        summaryText = `하이라이트 ${highlightPercentage}% / 스토리 ${storyPercentage}%`;
-      } else {
-        summaryText = `스토리 ${storyPercentage}% / 하이라이트 ${highlightPercentage}%`;
-      }
+
+      const highlightText = `하이라이트 ${highlightPercentage}%`;
+      const storyText = `스토리 ${storyPercentage}%`;
+
+      const highlightedStyle = "color: red; font-size: 1.1em; font-weight: bold;";
+      const normalStyle = "";
+
       if (sliderVal === 0) {
-        summaryText = "하이라이트 중심 (100%)";
+        summaryHtmlContent = `<span style="${highlightedStyle}">하이라이트 중심 (100%)</span>`;
       } else if (sliderVal === 1) {
-        summaryText = "스토리 중심 (100%)";
+        summaryHtmlContent = `<span style="${highlightedStyle}">스토리 중심 (100%)</span>`;
+      } else {
+        if (highlightPercentage > storyPercentage) {
+          summaryHtmlContent = `<span style="${highlightedStyle}">${highlightText}</span><br><span style="${normalStyle}">${storyText}</span>`;
+        } else if (storyPercentage > highlightPercentage) {
+          summaryHtmlContent = `<span style="${highlightedStyle}">${storyText}</span><br><span style="${normalStyle}">${highlightText}</span>`;
+        } else {
+          summaryHtmlContent = `<span style="${highlightedStyle}">${highlightText}</span><br><span style="${highlightedStyle}">${storyText}</span>`
+        }
       }
     }
   }
@@ -356,7 +368,14 @@ function updateSummaryMetricsFromServerData(data) {
   }
 
   if (summaryMethodValueEl) {
-    summaryMethodValueEl.textContent = data.summary_type_text || summaryText;
+    // 서버에서 summary_type_text가 오면 그것을 우선 사용
+    // 그렇지 않으면 슬라이더 값에 따라 생성된 HTML을 사용
+    if (data.summary_type_text) {
+      summaryMethodValueEl.textContent = data.summary_type_text;
+    } else {
+      // summaryHtmlContent를 innerHTML로 설정하여 스타일과 줄바꿈(<br>) 적용
+      summaryMethodValueEl.innerHTML = summaryHtmlContent;
+    }
   }
 }
 
