@@ -104,7 +104,7 @@
             </div>
             <div class="summary-controls-group" style="margin-top: 1.5rem;">
               <div class="summary-options">
-                <h3><i class="fas fa-sliders-h"></i> 요약 성향 선택</h3>
+                <h3><i class="fas fa-sliders-h"></i> 요약 방식 선택</h3>
                 <div class="weight-slider-container">
                   <div class="slider-labels">
                     <span class="label-left"> <b> 하이라이트 중심 </b> </span>
@@ -145,7 +145,7 @@
     <section id="progress-section" class="scroll-section progress-section">
       <div id="progressCard" class="card">
         <div class="card-header">
-          <h2><i class="fas fa-tasks"></i> 요약 과정</h2>
+          <h2><i class="fas fa-tasks"></i> 요약 진행 중 ...</h2>
         </div>
         <div class="card-body">
           <p id="status" class="status-message"><i class="fas fa-spinner fa-spin"></i> 영상 분석중...</p>
@@ -243,7 +243,7 @@
               <ul class="summary-metrics-list">
                 <li class="metric-item">
                   <div class="metric-icon-wrapper"><i class="fas fa-compress-alt"></i></div>
-                  <div class="metric-info"><span class="metric-label">원본 대비 압축률</span><span class="metric-value"
+                  <div class="metric-info"><span class="metric-label">원본 대비 요약 비율</span><span class="metric-value"
                       id="compressionRateValue">n% <span class="metric-unit">압축</span></span></div>
                 </li>
                 <li class="metric-item">
@@ -260,15 +260,15 @@
                 <li class="metric-item">
                   <div class="metric-icon-wrapper"><i class="fas fa-filter"></i></div>
                   <div class="metric-info"><span class="metric-label">요약 방식</span><span class="metric-value"
-                      id="summaryMethodValue">? 요약</span></div>
+                      id="summaryMethodValue"></span></div>
                 </li>
               </ul>
             </div>
           </div>
           <div class="button-group">
+            <button id="downloadBtn" class="secondary-btn default-action"><i class="fas fa-download"></i> 다운로드</button>
             <button id="newBtn" class="primary-btn default-action"><i class="fas fa-plus"></i> 새 영상 만들기</button>
             <button id="shareBtn" class="accent-btn default-action"><i class="fas fa-share-alt"></i> 공유하기</button>
-            <button id="downloadBtn" class="secondary-btn default-action"><i class="fas fa-download"></i> 다운로드</button>
           </div>
         </div>
       </div>

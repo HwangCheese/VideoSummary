@@ -257,7 +257,6 @@ server/public/css/result.css
 .metric-info .metric-value .time-original {
     color: var(--text-muted, #6c757d);
     font-weight: 400;
-    text-decoration: line-through;
     margin-right: 3px;
 }
 

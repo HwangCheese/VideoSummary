@@ -12,23 +12,95 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         return null;
     }
 
+    // "직접 편집" 버튼 생성
     const customizeBtn = document.createElement("button");
     customizeBtn.id = "customizeBtn";
-    customizeBtn.className = "secondary-btn";
+    customizeBtn.className = "secondary-btn default-action";
     customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
 
+    // "변경사항 저장" 버튼 생성
     const saveCustomBtn = document.createElement("button");
     saveCustomBtn.id = "saveCustomBtn";
     saveCustomBtn.className = "primary-btn";
     saveCustomBtn.innerHTML = '<i class="fas fa-save"></i> 변경사항 저장';
-    saveCustomBtn.style.display = "none";
+    saveCustomBtn.style.display = "none"; // 기본적으로 숨김
 
-    const buttonGroup = document.querySelector("#resultCard .button-group");
-    if (buttonGroup) {
-        buttonGroup.insertBefore(saveCustomBtn, buttonGroup.firstChild);
-        buttonGroup.insertBefore(customizeBtn, saveCustomBtn);
+    // "편집 취소" 버튼 생성
+    const cancelEditBtn = document.createElement("button");
+    cancelEditBtn.id = "cancelEditBtn";
+    cancelEditBtn.className = "secondary-btn";
+    cancelEditBtn.innerHTML = '<i class="fas fa-times"></i> 편집 취소';
+    cancelEditBtn.style.display = "none"; // 기본적으로 숨김
+
+
+    // 버튼 그룹 및 기준이 될 버튼들 참조
+    const buttonGroup = resultCard.querySelector(".button-group");
+    const downloadBtnEl = document.getElementById("downloadBtn");
+    const newBtnEl = document.getElementById("newBtn");
+    const shareBtnEl = document.getElementById("shareBtn");
+
+    if (buttonGroup && downloadBtnEl && newBtnEl && shareBtnEl) {
+        // 편집 관련 버튼들을 newBtnEl 앞에 삽입 (이 순서대로 DOM에 들어감)
+        // 최종 순서: 다운로드 - 직접 편집 - (편집 시: 편집 취소 - 변경사항 저장) - 새 영상 - 공유하기
+        buttonGroup.insertBefore(saveCustomBtn, newBtnEl);    // 저장 버튼을 "새 영상" 앞에
+        buttonGroup.insertBefore(cancelEditBtn, saveCustomBtn); // 취소 버튼을 "저장" 버튼 바로 앞에
+
+        // "직접 편집" 버튼을 "다운로드" 다음, "새 영상 만들기" 앞에 (즉, 취소/저장 버튼들 앞에 위치하게 됨)
+        buttonGroup.insertBefore(customizeBtn, cancelEditBtn); // cancelEditBtn이 newBtnEl 앞에 있으므로 이 위치가 맞음
     } else {
-        console.error("버튼 그룹(.button-group)을 찾을 수 없습니다.");
+        console.error("버튼 그룹 또는 기준 버튼(downloadBtn, newBtn, shareBtn)을 찾을 수 없습니다. 버튼 배치에 실패했습니다.");
+    }
+
+    // 버튼 표시 상태를 관리하는 함수
+    function setButtonVisibility(isEditingMode) {
+        // 기본 액션 버튼들 (HTML에 원래 있던 버튼들 + customizeBtn)
+        if (downloadBtnEl) downloadBtnEl.style.display = isEditingMode ? "none" : "inline-block";
+        if (newBtnEl) newBtnEl.style.display = isEditingMode ? "none" : "inline-block";
+        if (shareBtnEl) shareBtnEl.style.display = isEditingMode ? "none" : "inline-block";
+
+        // 편집 플로우 관련 버튼들
+        customizeBtn.style.display = isEditingMode ? "none" : "inline-block";   // "직접 편집" 버튼
+        saveCustomBtn.style.display = isEditingMode ? "inline-block" : "none";    // "변경사항 저장" 버튼
+        cancelEditBtn.style.display = isEditingMode ? "inline-block" : "none";    // "편집 취소" 버튼
+    }
+
+    // "직접 편집" 버튼 클릭 시 -> 편집 모드 진입
+    function enterEditMode() {
+        if (isEditMode) return;
+
+        backupSegments = JSON.parse(JSON.stringify(highlightSegments));
+        isEditMode = true;
+        setButtonVisibility(true);
+        resultCard.classList.add('editing-mode');
+        highlightBarContainer.style.cursor = "crosshair";
+        showToast("편집 모드 활성화", "info");
+        showHighlightBar();
+    }
+
+    // "편집 취소" 버튼 클릭 시 또는 로직상 취소 시 -> 편집 모드 종료 (변경사항 복원)
+    function cancelEditing() {
+        if (!isEditMode) return;
+
+        if (backupSegments) {
+            highlightSegments = JSON.parse(JSON.stringify(backupSegments));
+            backupSegments = null;
+        }
+        isEditMode = false;
+        setButtonVisibility(false);
+        resultCard.classList.remove('editing-mode');
+        highlightBarContainer.style.cursor = "default";
+        showToast("편집이 취소되었습니다.", "info");
+        showHighlightBar();
+    }
+
+    // "변경사항 저장" 성공 후 -> 편집 모드 종료 (변경사항 유지)
+    function exitEditModeAfterSave() {
+        backupSegments = null;
+        isEditMode = false;
+        setButtonVisibility(false);
+        resultCard.classList.remove('editing-mode');
+        highlightBarContainer.style.cursor = "default";
+        showHighlightBar();
     }
 
     function showHighlightBar() {
@@ -120,17 +192,17 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 setupResizeHandle(rightHandle, seg, false);
 
                 block.addEventListener("click", (e) => {
+                    // 핸들 클릭 시에는 삭제 로직 실행 안 함
+                    if (e.target.classList.contains('resize-handle')) return;
                     e.stopPropagation();
                     if (confirm("이 구간을 삭제하시겠습니까?")) {
                         const segId = parseInt(block.dataset.segmentId, 10);
                         highlightSegments.splice(segId, 1);
-                        showHighlightBar();
+                        showHighlightBar(); // 삭제 후 바 즉시 업데이트
                     }
                 });
-
                 setupDragAndDrop(block, seg);
             }
-
             highlightBarContainer.appendChild(block);
         });
     }
@@ -138,37 +210,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     function loadHighlightData(segments, duration) {
         highlightSegments = segments.map(s => ({ ...s }));
         originalDuration = duration;
-        showHighlightBar();
-    }
-
-    function toggleEditMode() {
-        if (!isEditMode) {
-            backupSegments = JSON.parse(JSON.stringify(highlightSegments));
-            isEditMode = true;
-            saveCustomBtn.style.display = "inline-block";
-            customizeBtn.innerHTML = '<i class="fas fa-times"></i> 편집 취소';
-            resultCard.classList.add('editing-mode');
-            highlightBarContainer.style.cursor = "crosshair";
-            showToast("편집 모드 활성화. 구간을 드래그 하세요.", "info");
-        } else {
-            if (backupSegments) highlightSegments = backupSegments;
-            isEditMode = false;
-            saveCustomBtn.style.display = "none";
-            customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
-            resultCard.classList.remove('editing-mode');
-            highlightBarContainer.style.cursor = "default";
-            showToast("편집 모드 비활성화.", "info");
-        }
-        showHighlightBar();
-    }
-
-    function exitEditModeAfterSave() {
-        backupSegments = null;
-        isEditMode = false;
-        saveCustomBtn.style.display = "none";
-        customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
-        resultCard.classList.remove('editing-mode');
-        highlightBarContainer.style.cursor = "default";
         showHighlightBar();
     }
 
@@ -183,7 +224,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             const containerWidth = highlightBarContainer.getBoundingClientRect().width;
             const initialStart = seg.start_time;
             const initialEnd = seg.end_time;
-            const minDuration = 0.5;
+            const minDuration = 0.5; // 최소 구간 길이
 
             const ghost = handle.closest('.highlight-segment').cloneNode(true);
             ghost.style.opacity = '0.5';
@@ -195,21 +236,26 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 if (!isDragging) return;
                 const dx = moveEvent.clientX - startX;
                 const dt = (dx / containerWidth) * originalDuration;
-                let newStart = seg.start_time;
-                let newEnd = seg.end_time;
+                let newStart = seg.start_time; // seg 직접 수정 전 임시 변수
+                let newEnd = seg.end_time;   // seg 직접 수정 전 임시 변수
 
                 if (isLeft) {
                     newStart = Math.max(0, Math.min(initialStart + dt, initialEnd - minDuration));
-                    seg.start_time = newStart;
                 } else {
                     newEnd = Math.min(originalDuration, Math.max(initialEnd + dt, initialStart + minDuration));
-                    seg.end_time = newEnd;
                 }
 
-                const newLeft = (seg.start_time / originalDuration) * 100;
-                const newWidth = ((seg.end_time - seg.start_time) / originalDuration) * 100;
-                ghost.style.left = `${newLeft}%`;
-                ghost.style.width = `${newWidth}%`;
+                // 유효성 검사 후 seg 업데이트
+                if (newEnd - newStart >= minDuration) {
+                    if (isLeft) seg.start_time = newStart;
+                    else seg.end_time = newEnd;
+                }
+
+
+                const newLeftGhost = (seg.start_time / originalDuration) * 100;
+                const newWidthGhost = ((seg.end_time - seg.start_time) / originalDuration) * 100;
+                ghost.style.left = `${newLeftGhost}%`;
+                ghost.style.width = `${Math.max(0, newWidthGhost)}%`; // 너비가 음수가 되지 않도록
                 const tooltip = ghost.querySelector('.highlight-tooltip');
                 if (tooltip) tooltip.textContent = `${formatTime(seg.start_time)} ~ ${formatTime(seg.end_time)}`;
             };
@@ -219,7 +265,8 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 document.removeEventListener("mousemove", onMouseMove);
                 document.removeEventListener("mouseup", onMouseUp);
                 ghost.remove();
-                showHighlightBar();
+                highlightSegments.sort((a, b) => a.start_time - b.start_time); // 정렬
+                showHighlightBar(); // 최종 UI 업데이트
             };
 
             document.addEventListener("mousemove", onMouseMove);
@@ -233,12 +280,27 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             return;
         }
 
+        // 중복 구간 및 유효성 검사 (선택적이지만 권장)
+        for (let i = 0; i < highlightSegments.length; i++) {
+            if (highlightSegments[i].end_time <= highlightSegments[i].start_time) {
+                showToast(`잘못된 구간이 있습니다: ${formatTime(highlightSegments[i].start_time)}~${formatTime(highlightSegments[i].end_time)}`, "error");
+                return;
+            }
+            for (let j = i + 1; j < highlightSegments.length; j++) {
+                if (Math.max(highlightSegments[i].start_time, highlightSegments[j].start_time) < Math.min(highlightSegments[i].end_time, highlightSegments[j].end_time)) {
+                    showToast("겹치는 구간이 있습니다. 수정해주세요.", "warning");
+                    return;
+                }
+            }
+        }
+
         const totalDuration = highlightSegments.reduce((sum, seg) => sum + (seg.end_time - seg.start_time), 0);
         console.log("총 숏폼 길이:", totalDuration.toFixed(1) + "초");
 
         try {
             saveCustomBtn.disabled = true;
             saveCustomBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 저장 중...';
+            cancelEditBtn.disabled = true; // 저장 중에는 취소도 비활성화
 
             const res = await fetch(`/upload/update-highlights`, {
                 method: "POST",
@@ -247,13 +309,16 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             });
 
             saveCustomBtn.disabled = false;
+            cancelEditBtn.disabled = false; // 저장 완료 후 취소 버튼 다시 활성화
 
             if (res.ok) {
                 showToast("숏폼 변경사항이 저장되었습니다!", "success");
                 exitEditModeAfterSave();
                 const videoBaseName = uploadedFileName.replace(/\.mp4$/i, "");
-                finalVideo.src = `/clips/${videoBaseName}/highlight_${videoBaseName}.mp4?t=${Date.now()}`;
-                finalVideo.load();
+                if (finalVideo) {
+                    finalVideo.src = `/clips/${videoBaseName}/highlight_${videoBaseName}.mp4?t=${Date.now()}`;
+                    finalVideo.load();
+                }
             } else {
                 const errorData = await res.json().catch(() => ({ message: "알 수 없는 오류" }));
                 showToast(`변경사항 저장 실패: ${errorData.message || res.statusText}`, "error");
@@ -264,6 +329,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             showToast(`네트워크 오류 또는 처리 중 문제 발생: ${err.message}`, "error");
             saveCustomBtn.disabled = false;
             saveCustomBtn.innerHTML = '<i class="fas fa-save"></i> 변경사항 저장';
+            cancelEditBtn.disabled = false;
         }
     }
 
@@ -272,16 +338,26 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
 
         const clickRatio = (e.clientX - highlightBarContainer.getBoundingClientRect().left) / highlightBarContainer.offsetWidth;
         const clickTime = clickRatio * originalDuration;
+        const newSegmentDuration = 5; // 기본 5초
         const newSegment = {
-            start_time: Math.max(0, clickTime - 2.5),
-            end_time: Math.min(originalDuration, clickTime + 2.5),
-            score: 0.5
+            start_time: Math.max(0, clickTime - newSegmentDuration / 2),
+            end_time: Math.min(originalDuration, clickTime + newSegmentDuration / 2),
+            score: 0.5 // 기본 점수 또는 서버에서 계산
         };
 
+        // 생성된 구간이 너무 짧거나, 시작시간 > 종료시간인 경우 조정
         if (newSegment.end_time - newSegment.start_time < 0.5) {
-            showToast("너무 짧은 구간은 추가할 수 없습니다.", "warning");
+            if (clickTime < originalDuration / 2) { // 영상 앞부분 클릭
+                newSegment.end_time = Math.min(originalDuration, newSegment.start_time + 0.5);
+            } else { // 영상 뒷부분 클릭
+                newSegment.start_time = Math.max(0, newSegment.end_time - 0.5);
+            }
+        }
+        if (newSegment.end_time - newSegment.start_time < 0.5) { // 그래도 짧으면 추가 안함
+            showToast("구간을 추가하기에 가장자리가 너무 가깝습니다.", "warning");
             return;
         }
+
 
         highlightSegments.push(newSegment);
         highlightSegments.sort((a, b) => a.start_time - b.start_time);
@@ -322,36 +398,49 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             if (tooltip) tooltip.textContent = `${formatTime(newStart)} ~ ${formatTime(newStart + segmentDuration)}`;
         }
 
-        function onMouseUp() {
+        function onMouseUp(e) {
             if (!isDragging) return;
             isDragging = false;
-            seg.start_time = parseFloat(ghost.style.left) / 100 * originalDuration;
-            seg.end_time = seg.start_time + segmentDuration;
+
+            const finalGhostLeftPercentage = parseFloat(ghost.style.left);
+            if (!isNaN(finalGhostLeftPercentage)) {
+                seg.start_time = (finalGhostLeftPercentage / 100) * originalDuration;
+                seg.end_time = seg.start_time + segmentDuration;
+            }
+
             ghost.remove();
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
+
             highlightSegments.sort((a, b) => a.start_time - b.start_time);
             showHighlightBar();
         }
     }
 
-    customizeBtn.addEventListener("click", toggleEditMode);
+    customizeBtn.addEventListener("click", enterEditMode);
+    cancelEditBtn.addEventListener("click", cancelEditing);
     saveCustomBtn.addEventListener("click", saveChanges);
+
+    setButtonVisibility(false); // 초기 버튼 상태 설정
 
     return {
         loadHighlightData,
         showHighlightBar,
         destroy() {
-            customizeBtn.removeEventListener("click", toggleEditMode);
+            customizeBtn.removeEventListener("click", enterEditMode);
             saveCustomBtn.removeEventListener("click", saveChanges);
-            customizeBtn.remove();
-            saveCustomBtn.remove();
+            cancelEditBtn.removeEventListener("click", cancelEditing);
+
+            if (customizeBtn && customizeBtn.parentElement) customizeBtn.remove();
+            if (saveCustomBtn && saveCustomBtn.parentElement) saveCustomBtn.remove();
+            if (cancelEditBtn && cancelEditBtn.parentElement) cancelEditBtn.remove();
+
             highlightBarContainer.innerHTML = "";
             highlightSegments = [];
             originalDuration = 0;
             isEditMode = false;
             backupSegments = null;
-            resultCard.classList.remove('editing-mode');
+            if (resultCard) resultCard.classList.remove('editing-mode');
             highlightBarContainer.style.cursor = "default";
             console.log("Highlight Editor가 제거되었습니다.");
         }

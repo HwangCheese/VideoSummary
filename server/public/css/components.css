@@ -96,20 +96,20 @@ button:not(:disabled):hover .btn-shine {
     background: var(--gradient);
 }
 
-.secondary-btn {
+.accent-btn {
     background-color: var(--light-gray);
     color: var(--dark-color);
 }
 
-.secondary-btn:hover {
+.accent-btn:hover {
     background-color: #dce2e6;
 }
 
-.accent-btn {
+.secondary-btn {
     background: var(--gradient-accent);
 }
 
-.accent-btn:hover {
+.secondary-btn:hover {
     background: linear-gradient(135deg, var(--accent-dark), #9c1485);
 }
 

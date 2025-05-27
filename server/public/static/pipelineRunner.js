@@ -310,10 +310,10 @@ async function loadAndDisplayShortformTranscriptInternal(baseFilenameForTranscri
 
 export function resetSummaryMetrics(excludeScore = false) {
   if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
-  if (compressionRateValueEl) compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">압축</span>';
+  if (compressionRateValueEl) compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">요약</span>';
   if (keyScenesCountValueEl) keyScenesCountValueEl.innerHTML = 'N/A <span class="metric-unit">추출됨</span>';
   if (viewingTimeValueEl) viewingTimeValueEl.innerHTML = `<span class="time-original">N/A</span> → <span class="time-summary">N/A</span>`;
-  if (summaryMethodValueEl) summaryMethodValueEl.textContent = 'N/A';
+  if (summaryMethodValueEl) summaryMethodValueEl.innerHTML = 'N/A';
 }
 
 function updateSummaryMetricsFromServerData(data) {
@@ -322,48 +322,65 @@ function updateSummaryMetricsFromServerData(data) {
     return;
   }
 
-  let summaryHtmlContent = "맞춤형 요약"; // HTML 적용을 위한 변수, 기본값
+  let summaryHtmlContent = "맞춤형 요약"; // 기본값
 
   const sliderElement = document.getElementById('importanceSlider');
   if (sliderElement) {
-    const sliderVal = parseFloat(sliderElement.value);
+    const sliderVal = parseFloat(sliderElement.value); // 0 (하이라이트) ~ 1 (스토리)
     if (!isNaN(sliderVal)) {
-      const highlightPercentage = Math.round((1 - sliderVal) * 100);
-      const storyPercentage = Math.round(sliderVal * 100);
+      const highlightRatioForText = Math.round((1 - sliderVal) * 100);
+      const storyRatioForText = Math.round(sliderVal * 100);
 
-      const highlightText = `하이라이트 ${highlightPercentage}%`;
-      const storyText = `스토리 ${storyPercentage}%`;
+      // 콘솔 로그는 유지하여 값 확인
+      console.log("Slider Value:", sliderVal);
+      console.log("Highlight Ratio:", highlightRatioForText, "Display:", `하이라이트 ${highlightRatioForText}%`);
+      console.log("Story Ratio:", storyRatioForText, "Display:", `스토리 ${storyRatioForText}%`);
 
-      const highlightedStyle = "color: red; font-size: 1.1em; font-weight: bold;";
-      const normalStyle = "";
+      const highlightTextDisplay = `하이라이트 ${highlightRatioForText}%`;
+      const storyTextDisplay = `스토리 ${storyRatioForText}%`;
+      const primaryStyle = "color: var(--accent-color); font-weight: bold;";
+      const secondaryStyle = "color: var(--dark-color); font-weight: normal;";
 
       if (sliderVal === 0) {
-        summaryHtmlContent = `<span style="${highlightedStyle}">하이라이트 중심 (100%)</span>`;
+        summaryHtmlContent = `<span style="${primaryStyle}">하이라이트 100%</span>`;
       } else if (sliderVal === 1) {
-        summaryHtmlContent = `<span style="${highlightedStyle}">스토리 중심 (100%)</span>`;
+        summaryHtmlContent = `<span style="${primaryStyle}">스토리 100%</span>`;
       } else {
-        if (highlightPercentage > storyPercentage) {
-          summaryHtmlContent = `<span style="${highlightedStyle}">${highlightText}</span><br><span style="${normalStyle}">${storyText}</span>`;
-        } else if (storyPercentage > highlightPercentage) {
-          summaryHtmlContent = `<span style="${highlightedStyle}">${storyText}</span><br><span style="${normalStyle}">${highlightText}</span>`;
+        if (highlightRatioForText >= storyRatioForText) {
+          summaryHtmlContent = `<span style="${primaryStyle}">${highlightTextDisplay}</span><br><span style="${secondaryStyle}">${storyTextDisplay}</span>`;
         } else {
-          summaryHtmlContent = `<span style="${highlightedStyle}">${highlightText}</span><br><span style="${highlightedStyle}">${storyText}</span>`
+          summaryHtmlContent = `<span style="${primaryStyle}">${storyTextDisplay}</span><br><span style="${secondaryStyle}">${highlightTextDisplay}</span>`;
         }
       }
     }
+  } else {
+    // 슬라이더가 없는 경우 (예: 이전 요약 불러오기 등) data.summary_type_text를 사용하거나 기본값 유지
+    if (data && data.summary_type_text) {
+      summaryHtmlContent = data.summary_type_text; // 서버 제공 텍스트 사용
+    } else {
+      summaryHtmlContent = "요약 방식 정보 없음"; // 또는 다른 적절한 기본값
+    }
   }
 
+  // --- 다른 메트릭 업데이트 ---
   if (summaryScoreValueEl) {
     summaryScoreValueEl.textContent = data.summary_score !== undefined ? parseFloat(data.summary_score).toFixed(1) : 'N/A';
   }
+
   if (compressionRateValueEl) {
-    compressionRateValueEl.innerHTML = data.compression_ratio !== undefined ? `${parseFloat(data.compression_ratio).toFixed(1)}% <span class="metric-unit">압축</span>` : 'N/A <span class="metric-unit">압축</span>';
+    if (data.summarization_ratio_percentage !== undefined) {
+      compressionRateValueEl.innerHTML = `${parseFloat(data.summarization_ratio_percentage).toFixed(1)}% <span class="metric-unit">요약</span>`;
+    } else if (data.summary_duration !== undefined && data.full_duration !== undefined && data.full_duration > 0) {
+      const ratio = (data.summary_duration / data.full_duration) * 100;
+      compressionRateValueEl.innerHTML = `${parseFloat(ratio).toFixed(1)}% <span class="metric-unit">요약</span>`;
+    } else {
+      compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">요약</span>';
+    }
   }
 
   if (keyScenesCountValueEl) {
     const selectedCount = data.selected_segment_count;
     const totalCount = data.total_scene_count;
-
     if (selectedCount !== undefined && totalCount !== undefined && totalCount > 0) {
       keyScenesCountValueEl.innerHTML =
         `${totalCount}개 중 <strong class="highlight-value">${selectedCount}개</strong> <span class="metric-unit">추출</span>`;
@@ -380,18 +397,14 @@ function updateSummaryMetricsFromServerData(data) {
     const summaryTimeFormatted = data.summary_duration !== undefined ? formatTime(data.summary_duration) : 'N/A';
     viewingTimeValueEl.innerHTML = `<span class="time-original">${originalTimeFormatted}</span> → <span class="time-summary">${summaryTimeFormatted}</span>`;
   }
-
   if (summaryMethodValueEl) {
-    // 서버에서 summary_type_text가 오면 그것을 우선 사용
-    // 그렇지 않으면 슬라이더 값에 따라 생성된 HTML을 사용
-    if (data.summary_type_text) {
-      summaryMethodValueEl.textContent = data.summary_type_text;
-    } else {
-      // summaryHtmlContent를 innerHTML로 설정하여 스타일과 줄바꿈(<br>) 적용
-      summaryMethodValueEl.innerHTML = summaryHtmlContent;
-    }
+    summaryMethodValueEl.innerHTML = summaryHtmlContent;
+    console.log("Applied HTML to summaryMethodValueEl:", summaryHtmlContent);
+  } else {
+    console.warn("summaryMethodValueEl is not found in the DOM.");
   }
 }
+
 
 function easeOutQuart(x) { return 1 - Math.pow(1 - x, 4); }
 
