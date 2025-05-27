@@ -82,6 +82,23 @@ export function formatTime(seconds) {
     .padStart(2, "0")}`;
 }
 
+export function formatTimeHMS(seconds) {
+  // 0이나 유효하지 않은 값 처리
+  if (!seconds || seconds <= 0 || isNaN(seconds)) {
+    return "00분 00초";
+  }
+
+  const hours = Math.floor(seconds / 3600);
+  const min = Math.floor((seconds % 3600) / 60);
+  const sec = Math.floor(seconds % 60);
+
+  if (hours > 0) {
+    return `${hours.toString().padStart(2, "0")}시간${min.toString().padStart(2, "0")}분${sec.toString().padStart(2, "0")}초`;
+  } else {
+    return `${min.toString().padStart(2, "0")}분 ${sec.toString().padStart(2, "0")}초`;
+  }
+}
+
 export function formatFileSize(bytes) {
   const units = ["Bytes", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(1024));

@@ -27,12 +27,6 @@
           <span class="logo-sub">HwangCheeze</span>
         </a>
       </div>
-      <div class="user-actions">
-        <i class="fas fa-user-circle user-icon"></i>
-        <span class="user-greeting">안녕하세요, 황치즈님.</span>
-        <a href="#" class="logout-button">로그아웃</a>
-      </div>
-    </div>
   </header>
 
   <div id="existingSummariesCard" class="existing-summaries-sidebar">
@@ -57,18 +51,16 @@
 
   <div class="scroll-container">
     <!-- 헤더 및 업로드 섹션 -->
-    <section id="upload-section" class="scroll-section upload-section">
+    <section id="upload-section" class="scroll-section upload-section"
+      style="padding-top: calc(var(--header-height) + 0rem);">
       <div id="uploadCard" class="card animate__animated animate__fadeIn">
-        <div class="card-header">
-          <h2><i class="fas fa-upload"></i> 영상 업로드</h2>
-        </div>
         <div class="card-body">
           <div id="dropZone">
             <div class="upload-icon-container">
               <i class="fas fa-cloud-upload-alt"></i>
             </div>
-            <p>.mp4 파일을 이곳에 드래그하세요</p>
-            <span class="small">또는 클릭하여 파일 선택</span>
+            <p>요약할 영상을 이곳에 드래그하세요</p>
+            <span class="small">또는 클릭하여 영상 선택</span>
             <div class="upload-decorations">
               <span class="decoration d1"></span>
               <span class="decoration d2"></span>
@@ -104,7 +96,7 @@
             </div>
             <div class="summary-controls-group" style="margin-top: 1.5rem;">
               <div class="summary-options">
-                <h3><i class="fas fa-sliders-h"></i> 요약 방식 선택</h3>
+                <h5><i class="fas fa-sliders-h"></i> 요약 방식 선택</h5>
                 <div class="weight-slider-container">
                   <div class="slider-labels">
                     <span class="label-left"> <b> 하이라이트 중심 </b> </span>
@@ -122,9 +114,17 @@
                 </div>
               </div>
               <div class="summary-duration" style="margin-top: 1rem;">
-                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 길이</label>
+                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 비율 (1~80%)</label>
                 <div class="duration-input-group">
-                  <input type="number" id="durationPercentageInput" min="1" max="100">
+                  <div class="spinner-buttons">
+                    <button type="button" class="spinner-btn up" id="increaseBtn">
+                      <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button type="button" class="spinner-btn down" id="decreaseBtn">
+                      <i class="fas fa-chevron-down"></i>
+                    </button>
+                  </div>
+                  <input type="number" id="durationPercentageInput" min="1" max="80" value="20">
                   <span class="unit">%</span>
                   <i class="fas fa-arrow-right duration-arrow"></i>
                   <input type="text" id="calculatedDurationOutput" placeholder="00:00" readonly>
@@ -219,7 +219,12 @@
               </div>
             </div>
             <div class="video-box shortform-video-box">
-              <h3> 요약 영상</h3>
+              <div class="video-title-header">
+                <h3> 요약 영상</h3>
+                <span id="quickDownloadBtn" class="quick-download-icon" title="요약 영상 다운로드">
+                  <i class="fas fa-download"></i>
+                </span>
+              </div>
               <video id="finalVideo" controls></video>
               <div class="transcript-header">
                 <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
