@@ -19,6 +19,50 @@ let fileBitrateDisplayEl = null;
 let removeFileBtnEl = null;
 let startBtnEl = null;
 let fileActionsContainerEl = null; // 파일 정보 및 옵션을 포함하는 컨테이너
+let increaseBtnEl = null;
+let decreaseBtnEl = null;
+
+// 시작 버튼 활성화 상태를 확인하는 함수
+function updateStartButtonState() {
+  if (!startBtnEl || !uploadedFileName) {
+    if (startBtnEl) startBtnEl.disabled = true;
+    return;
+  }
+
+  // 요약 퍼센트 값 검증
+  const isValidPercentage = validateDurationPercentage();
+  startBtnEl.disabled = !isValidPercentage;
+}
+
+// 요약 퍼센트 값이 유효한지 검증하는 함수
+function validateDurationPercentage() {
+  if (!durationPercentageInputEl) return false;
+
+  const percentage = parseFloat(durationPercentageInputEl.value);
+  return !isNaN(percentage) && percentage >= 1 && percentage <= 80;
+}
+
+// 스피너 버튼 상태 업데이트 함수
+function updateSpinnerButtonStates() {
+  if (!increaseBtnEl || !decreaseBtnEl || !durationPercentageInputEl) return;
+
+  const value = parseInt(durationPercentageInputEl.value) || 0;
+  decreaseBtnEl.disabled = value <= 1;
+  increaseBtnEl.disabled = value >= 80;
+}
+
+// 퍼센트 값 변경 함수
+function changePercentageValue(delta) {
+  if (!durationPercentageInputEl) return;
+
+  const currentValue = parseInt(durationPercentageInputEl.value) || 20;
+  const newValue = Math.max(1, Math.min(80, currentValue + delta));
+  durationPercentageInputEl.value = newValue;
+
+  // input 이벤트 트리거 (기존 로직 실행)
+  durationPercentageInputEl.dispatchEvent(new Event('input', { bubbles: true }));
+  updateSpinnerButtonStates();
+}
 
 export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
   uploadedFileName = newFileName;
@@ -60,7 +104,7 @@ export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
     }
 
     // UI 상태 변경
-    if (startBtnEl) startBtnEl.disabled = false;
+    updateStartButtonState(); // 파일 업로드 시 시작 버튼 상태 업데이트
     if (removeFileBtnEl) removeFileBtnEl.style.display = 'flex';
     if (dropZoneEl) { // 파일 선택 시 드롭존 숨김
       dropZoneEl.style.opacity = "0";
@@ -113,7 +157,7 @@ function calculateAndUpdateDuration() {
     return;
   }
   const percentage = parseFloat(durationPercentageInputEl.value);
-  if (isNaN(percentage) || percentage < 1 || percentage > 100) {
+  if (isNaN(percentage) || percentage < 1 || percentage > 80) {
     calculatedDurationOutputEl.value = "00분 00초";
     return;
   }
@@ -135,6 +179,8 @@ export function initUploadHandler() {
   fileActionsContainerEl = document.getElementById("fileActionsContainer");
   durationPercentageInputEl = document.getElementById("durationPercentageInput");
   calculatedDurationOutputEl = document.getElementById("calculatedDurationOutput");
+  increaseBtnEl = document.getElementById("increaseBtn");
+  decreaseBtnEl = document.getElementById("decreaseBtn");
 
   // --- 초기 UI 상태 설정 ---
   // dropZoneEl은 처음에 보이도록 하고, fileActionsContainerEl도 처음부터 보이도록 설정
@@ -150,8 +196,35 @@ export function initUploadHandler() {
   setUploadedFileName(null); // 초기 UI는 파일 없는 상태로 설정
 
   if (durationPercentageInputEl) {
-    durationPercentageInputEl.addEventListener('input', calculateAndUpdateDuration);
+    durationPercentageInputEl.addEventListener('input', () => {
+      calculateAndUpdateDuration();
+      updateStartButtonState(); // 퍼센트 값 변경 시 시작 버튼 상태 업데이트
+      updateSpinnerButtonStates(); // 스피너 버튼 상태 업데이트
+    });
+
+    // 키보드 단축키 지원
+    durationPercentageInputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        changePercentageValue(1);
+      } else if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        changePercentageValue(-1);
+      }
+    });
   }
+
+  // 스피너 버튼 이벤트 리스너
+  if (increaseBtnEl) {
+    increaseBtnEl.addEventListener('click', () => changePercentageValue(1));
+  }
+
+  if (decreaseBtnEl) {
+    decreaseBtnEl.addEventListener('click', () => changePercentageValue(-1));
+  }
+
+  // 초기 스피너 버튼 상태 설정
+  updateSpinnerButtonStates();
 
   if (dropZoneEl) {
     ["dragenter", "dragover"].forEach((eventName) =>
@@ -218,7 +291,6 @@ export function initUploadHandler() {
 
       if (res.ok && data.filename) {
         setUploadedFileName(data.filename, file.size / (1024 * 1024), data.videoInfo);
-        if (startBtnEl) startBtnEl.disabled = false;
       } else {
         showToast(`업로드 또는 파일 정보 분석 실패: ${data.message || '알 수 없는 오류'}`, "error");
         setUploadedFileName(null); // 실패 시 UI 초기화 (드롭존 다시 보이도록)

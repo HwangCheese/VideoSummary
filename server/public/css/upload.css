@@ -388,6 +388,51 @@
     box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
 }
 
+.spinner-btn {
+    background: #f8f9fa;
+    border: none;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.spinner-btn:hover {
+    background: #e9ecef;
+    color: #374151;
+}
+
+.spinner-btn:active {
+    background: #dee2e6;
+    transform: scale(0.95);
+}
+
+.spinner-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8f9fa;
+}
+
+.spinner-btn.up {
+    border-top-right-radius: 6px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.spinner-btn.down {
+    border-bottom-right-radius: 6px;
+}
+
+.spinner-buttons {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
 /* --- 시작 버튼 --- */
 #startBtn {
     margin-top: 0.8rem; /* 기존 1rem에서 줄임 */
