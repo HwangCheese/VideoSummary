@@ -35,6 +35,9 @@ const keyScenesCountValueEl = document.getElementById("keyScenesCountValue");
 const viewingTimeValueEl = document.getElementById("viewingTimeValue");
 const summaryMethodValueEl = document.getElementById("summaryMethodValue");
 
+let viewResultsBtn = null;
+const progressActionsContainer = document.getElementById("progressActions");
+
 // --- Timer Logic ---
 let elapsedInterval = null;
 let startTime = null;
@@ -99,16 +102,27 @@ function updateProgressUI(state) {
   else if (msg.includes("AI 분석") || msg.includes("PGL-SUM") || msg.includes("중요도") || msg.includes("경계 보정")) updateProgressStep(5);
   else if (msg.includes("영상 생성") || msg.includes("요약 영상") || msg.includes("편집")) updateProgressStep(6);
 
-  if (state.done && sseSource) {
-    sseSource.close();
-    sseSource = null;
+  if (state.done) {
+    if (sseSource) {
+      sseSource.close();
+      sseSource = null;
+    }
     stopElapsedTime();
+    if (statusDiv) statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> 100% - 요약 완료!`;
+
     if (state.reportData) {
       updateSummaryMetricsFromServerData(state.reportData);
-      const currentFile = currentUploadedFileNameFromHandler;
-      if (currentFile && state.reportData.summary_score === undefined) {
-        const cleanFileNameForScore = currentFile.replace(/\.mp4$/i, "");
-      }
+    }
+
+    if (viewResultsBtn) {
+      viewResultsBtn.style.display = "inline-block";
+    } else {
+      console.warn("viewResultsBtn이 아직 초기화되지 않았습니다. 다음 UI 업데이트를 기다립니다.");
+    }
+
+  } else {
+    if (viewResultsBtn && viewResultsBtn.style.display !== 'none') {
+      viewResultsBtn.style.display = 'none';
     }
   }
 }
@@ -614,6 +628,25 @@ export function initPipelineRunner() {
     console.warn("Importance slider element not found in initPipelineRunner.");
   }
 
+  if (progressActionsContainer) { // HTML에 <div id="progressActions"></div>가 있는지 확인
+    // 기존 버튼이 있다면 제거 (새 영상 만들고 다시 요약할 때 중복 방지)
+    const existingBtn = document.getElementById('viewResultsBtn');
+    if (existingBtn) {
+      existingBtn.remove();
+    }
+
+    viewResultsBtn = document.createElement("button"); // 버튼 요소 생성
+    viewResultsBtn.id = "viewResultsBtn"; // 버튼에 ID 할당 (CSS에서 사용 가능)
+    viewResultsBtn.innerHTML = '<i class="fas fa-poll"></i> 결과 보기'; // 버튼 텍스트 및 아이콘
+    viewResultsBtn.style.display = "none"; // 처음에는 숨겨둠
+    viewResultsBtn.addEventListener("click", () => { // 버튼 클릭 시 실행될 함수
+      scrollToSectionExternally(2, true); // 결과 섹션(인덱스 2)으로 스크롤
+      viewResultsBtn.style.display = "none"; // 클릭 후 버튼 다시 숨김
+    });
+    progressActionsContainer.appendChild(viewResultsBtn);
+  } else {
+    console.warn("progressActionsContainer 요소를 찾을 수 없습니다.");
+  }
 
   if (startBtn) {
     startBtn.addEventListener("click", async () => {
@@ -622,6 +655,9 @@ export function initPipelineRunner() {
         return;
       }
       startBtn.disabled = true;
+      if (viewResultsBtn) {
+        viewResultsBtn.style.display = "none";
+      }
       startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
       if (highlightEditor) {
         highlightEditor.destroy();
@@ -704,7 +740,7 @@ export function initPipelineRunner() {
               const resultSectionIndex = allSectionsArray.indexOf(resultSection);
 
               if (resultSectionIndex !== -1) {
-                scrollToSectionExternally(2, true);
+                //scrollToSectionExternally(2, true);
               } else {
                 console.warn("Result section not found for auto-scroll in pipelineRunner.");
               }
@@ -777,31 +813,7 @@ export function initPipelineRunner() {
   const newBtn = document.getElementById("newBtn");
   if (newBtn) {
     newBtn.addEventListener("click", () => {
-      if (resultCard) resultCard.style.display = "none";
-      if (progressCard) progressCard.style.display = "none";
-      if (progressBarInner) progressBarInner.style.width = "0%";
-      if (statusDiv) statusDiv.textContent = "";
-      if (elapsedTimeDisplay) elapsedTimeDisplay.textContent = "00:00";
-      stopElapsedTime();
-      resetProgressSteps();
-      if (highlightEditor) {
-        highlightEditor.destroy();
-        highlightEditor = null;
-      }
-      resetSummaryMetrics();
-      resetUploadFormUI();
-      if (sseSource) {
-        sseSource.close();
-        sseSource = null;
-      }
-      if (startBtn) {
-        startBtn.disabled = true;
-        startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 시작';
-      }
-      if (originalVideo) { originalVideo.src = ""; originalVideo.load(); }
-      if (finalVideo) { finalVideo.src = ""; finalVideo.load(); }
-      if (importanceOverlay) importanceOverlay.src = "";
-      document.getElementById("upload-section")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      window.location.reload(true);
     });
   }
 
