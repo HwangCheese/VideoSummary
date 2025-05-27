@@ -116,6 +116,8 @@
               <div class="summary-duration" style="margin-top: 1rem;">
                 <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 비율 (1~80%)</label>
                 <div class="duration-input-group">
+                  <input type="number" id="durationPercentageInput" min="1" max="80" value="20">
+                  <span class="unit">%</span>
                   <div class="spinner-buttons">
                     <button type="button" class="spinner-btn up" id="increaseBtn">
                       <i class="fas fa-chevron-up"></i>
@@ -124,8 +126,6 @@
                       <i class="fas fa-chevron-down"></i>
                     </button>
                   </div>
-                  <input type="number" id="durationPercentageInput" min="1" max="80" value="20">
-                  <span class="unit">%</span>
                   <i class="fas fa-arrow-right duration-arrow"></i>
                   <input type="text" id="calculatedDurationOutput" placeholder="00:00" readonly>
                   <span class="unit"></span>
