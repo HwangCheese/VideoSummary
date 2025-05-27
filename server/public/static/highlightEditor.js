@@ -15,7 +15,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     // "직접 편집" 버튼 생성
     const customizeBtn = document.createElement("button");
     customizeBtn.id = "customizeBtn";
-    customizeBtn.className = "secondary-btn default-action";
+    customizeBtn.className = "accent-btn default-action";
     customizeBtn.innerHTML = '<i class="fas fa-edit"></i> 직접 편집';
 
     // "변경사항 저장" 버튼 생성
