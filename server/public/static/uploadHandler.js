@@ -1,5 +1,5 @@
 // public/static/uploadHandler.js
-import { showToast, formatFileSize, formatTime } from "./uiUtils.js";
+import { showToast, formatFileSize, formatTime, formatTimeHMS } from "./uiUtils.js";
 import { scrollToSectionExternally } from "./scrollHandler.js";
 
 export let uploadedFileName = "";
@@ -44,7 +44,7 @@ export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
       fileSizeDisplayEl.textContent = fileSizeMB !== undefined ? `${fileSizeMB.toFixed(2)} MB` : "N/A";
     }
     if (fileDurationDisplayEl) {
-      fileDurationDisplayEl.textContent = videoInfo && videoInfo.duration ? formatTime(videoInfo.duration) : "N/A";
+      fileDurationDisplayEl.textContent = videoInfo && videoInfo.duration ? formatTimeHMS(videoInfo.duration) : "N/A";
       originalVideoDurationSeconds = (videoInfo && videoInfo.duration && !isNaN(parseFloat(videoInfo.duration))) ? parseFloat(videoInfo.duration) : 0;
       calculateAndUpdateDuration();
     }
@@ -99,7 +99,7 @@ export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
     const importanceSliderEl = document.getElementById('importanceSlider');
     if (importanceSliderEl) importanceSliderEl.value = "0.5";
     if (durationPercentageInputEl) durationPercentageInputEl.value = "20";
-    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00";
+    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00분 00초";
     originalVideoDurationSeconds = 0;
   }
 }
@@ -109,16 +109,16 @@ function calculateAndUpdateDuration() {
     return;
   }
   if (originalVideoDurationSeconds <= 0) {
-    calculatedDurationOutputEl.value = "00:00";
+    calculatedDurationOutputEl.value = "00분 00초";
     return;
   }
   const percentage = parseFloat(durationPercentageInputEl.value);
   if (isNaN(percentage) || percentage < 1 || percentage > 100) {
-    calculatedDurationOutputEl.value = "00:00";
+    calculatedDurationOutputEl.value = "00분 00초";
     return;
   }
   const calculatedSeconds = (originalVideoDurationSeconds * percentage) / 100;
-  calculatedDurationOutputEl.value = formatTime(calculatedSeconds);
+  calculatedDurationOutputEl.value = formatTimeHMS(calculatedSeconds);
 }
 
 export function initUploadHandler() {
