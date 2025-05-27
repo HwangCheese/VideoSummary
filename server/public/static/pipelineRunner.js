@@ -813,6 +813,7 @@ export function initPipelineRunner() {
   const newBtn = document.getElementById("newBtn");
   if (newBtn) {
     newBtn.addEventListener("click", () => {
+      scrollToSectionExternally(0, false);
       window.location.reload(true);
     });
   }

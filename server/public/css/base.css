@@ -51,5 +51,4 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   position: relative;
-  padding-top: var(--header-height);
 }
