@@ -7,6 +7,7 @@ let originalVideoDurationSeconds = 0;
 let durationPercentageInputEl = null;
 let calculatedDurationOutputEl = null;
 
+// DOM 요소 변수 선언
 let dropZoneEl = null;
 let fileInputEl = null;
 let fileNameDisplayEl = null;
@@ -17,109 +18,107 @@ let fileResolutionDisplayEl = null;
 let fileBitrateDisplayEl = null;
 let removeFileBtnEl = null;
 let startBtnEl = null;
-let statusDivEl = null;
-let progressBarInnerEl = null;
-let importanceSliderEl = null;
-let durationInputEl = null;
-let fileActionsContainerEl = null;
-let existingSummariesContainerEl = null;
+let fileActionsContainerEl = null; // 파일 정보 및 옵션을 포함하는 컨테이너
 
 export function setUploadedFileName(newFileName, fileSizeMB, videoInfo = null) {
   uploadedFileName = newFileName;
 
-  if (!dropZoneEl) dropZoneEl = document.getElementById("dropZone");
+  // DOM 요소 가져오기 (init에서 이미 할당되었지만, 안전하게 다시 확인)
   if (!fileNameDisplayEl) fileNameDisplayEl = document.getElementById("fileName");
   if (!fileSizeDisplayEl) fileSizeDisplayEl = document.getElementById("fileSize");
   if (!fileDurationDisplayEl) fileDurationDisplayEl = document.getElementById("fileDuration");
   if (!fileTypeDisplayEl) fileTypeDisplayEl = document.getElementById("fileType");
   if (!fileResolutionDisplayEl) fileResolutionDisplayEl = document.getElementById("fileResolution");
   if (!fileBitrateDisplayEl) fileBitrateDisplayEl = document.getElementById("fileBitrate");
-  if (!fileActionsContainerEl) fileActionsContainerEl = document.getElementById("fileActionsContainer");
   if (!startBtnEl) startBtnEl = document.getElementById("startBtn");
-  if (!importanceSliderEl) importanceSliderEl = document.getElementById('importanceSlider');
-  if (!durationInputEl) durationInputEl = document.getElementById('durationInput');
   if (!fileInputEl) fileInputEl = document.getElementById("fileInput");
-  if (!existingSummariesContainerEl) existingSummariesContainerEl = document.querySelector(".existing-summaries-container");
+  if (!removeFileBtnEl) removeFileBtnEl = document.getElementById("removeFileBtn");
+  if (!dropZoneEl) dropZoneEl = document.getElementById("dropZone"); // 드롭존 참조 추가
+  if (!fileActionsContainerEl) fileActionsContainerEl = document.getElementById("fileActionsContainer");
+
 
   if (newFileName) {
+    // 파일 정보 업데이트
     if (fileNameDisplayEl) fileNameDisplayEl.textContent = newFileName;
     if (fileSizeDisplayEl) {
-      if (fileSizeMB !== undefined) {
-        fileSizeDisplayEl.textContent = `${fileSizeMB.toFixed(2)} MB`;
-      } else {
-        fileSizeDisplayEl.textContent = "";
-      }
+      fileSizeDisplayEl.textContent = fileSizeMB !== undefined ? `${fileSizeMB.toFixed(2)} MB` : "N/A";
     }
-    scrollToSectionExternally(0, false);
-
     if (fileDurationDisplayEl) {
       fileDurationDisplayEl.textContent = videoInfo && videoInfo.duration ? formatTime(videoInfo.duration) : "N/A";
+      originalVideoDurationSeconds = (videoInfo && videoInfo.duration && !isNaN(parseFloat(videoInfo.duration))) ? parseFloat(videoInfo.duration) : 0;
+      calculateAndUpdateDuration();
     }
     if (fileTypeDisplayEl) {
-      fileTypeDisplayEl.textContent = videoInfo && videoInfo.codec_name ? videoInfo.codec_name.split('/')[0].trim() : "N/A";
+      const serverCodec = videoInfo && (videoInfo.video_codec || videoInfo.codec_name);
+      fileTypeDisplayEl.textContent = serverCodec ? serverCodec.split('/')[0].trim() : "N/A";
     }
     if (fileResolutionDisplayEl) {
       fileResolutionDisplayEl.textContent = videoInfo && videoInfo.width && videoInfo.height ? `${videoInfo.width}x${videoInfo.height}` : "N/A";
     }
     if (fileBitrateDisplayEl) {
-      fileBitrateDisplayEl.textContent = videoInfo && videoInfo.bit_rate ? `${(videoInfo.bit_rate / 1000000).toFixed(2)} Mbps` : "N/A";
+      fileBitrateDisplayEl.textContent = videoInfo && videoInfo.bit_rate && !isNaN(parseInt(videoInfo.bit_rate)) ? `${(parseInt(videoInfo.bit_rate) / 1000000).toFixed(2)} Mbps` : "N/A";
     }
 
-    if (dropZoneEl) {
+    // UI 상태 변경
+    if (startBtnEl) startBtnEl.disabled = false;
+    if (removeFileBtnEl) removeFileBtnEl.style.display = 'flex';
+    if (dropZoneEl) { // 파일 선택 시 드롭존 숨김
       dropZoneEl.style.opacity = "0";
       setTimeout(() => {
-        if (dropZoneEl.style.opacity === "0") {
+        if (dropZoneEl.style.opacity === "0") { // 애니메이션 중 상태 변경 방지
           dropZoneEl.style.display = "none";
         }
-      }, 300);
+      }, 300); // CSS transition 시간과 일치 또는 약간 길게
     }
-    if (fileActionsContainerEl) {
+    if (fileActionsContainerEl) { // 파일 정보 컨테이너는 항상 보이도록 유지 (이미 init에서 설정)
       fileActionsContainerEl.style.display = "block";
-      void fileActionsContainerEl.offsetWidth;
-      fileActionsContainerEl.classList.add("visible");
+      fileActionsContainerEl.classList.add("visible"); // 애니메이션 클래스
     }
-    if (existingSummariesContainerEl) {
-      existingSummariesContainerEl.style.opacity = "0";
-      setTimeout(() => {
-        if (existingSummariesContainerEl.style.opacity === "0") {
-          existingSummariesContainerEl.style.display = "none";
-        }
-      }, 300);
-    }
-    if (startBtnEl) startBtnEl.disabled = false;
 
-  } else {
-    if (fileNameDisplayEl) fileNameDisplayEl.textContent = "";
-    if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = "";
-    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "";
-    if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = "";
-    if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "";
-    if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "";
+  } else { // 파일이 없는 초기 상태 또는 파일 제거 시
+    // 파일 정보 초기화
+    if (fileNameDisplayEl) fileNameDisplayEl.textContent = "선택된 파일 없음";
+    if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = "N/A";
+    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "N/A";
+    if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = "N/A";
+    if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "N/A";
+    if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "N/A";
 
-    if (dropZoneEl) {
-      dropZoneEl.style.display = "flex";
-      void dropZoneEl.offsetWidth;
-      dropZoneEl.style.opacity = "1";
-    }
-    if (fileActionsContainerEl) {
-      fileActionsContainerEl.classList.remove("visible");
-      setTimeout(() => {
-        if (!fileActionsContainerEl.classList.contains("visible")) {
-          fileActionsContainerEl.style.display = "none";
-        }
-      }, 300);
-    }
-    if (existingSummariesContainerEl) {
-      existingSummariesContainerEl.style.display = "block";
-      void existingSummariesContainerEl.offsetWidth;
-      existingSummariesContainerEl.style.opacity = "1";
-    }
+    // UI 상태 변경
     if (fileInputEl) fileInputEl.value = "";
     if (startBtnEl) startBtnEl.disabled = true;
+    if (removeFileBtnEl) removeFileBtnEl.style.display = 'none';
+    if (dropZoneEl) { // 파일 제거 시 드롭존 다시 보이기
+      dropZoneEl.style.display = "flex"; // 또는 원래 display 속성
+      void dropZoneEl.offsetWidth; // 리플로우 강제
+      dropZoneEl.style.opacity = "1";
+    }
+    // fileActionsContainerEl은 계속 보이도록 유지 (내용만 초기화됨)
+
+    // 옵션 초기화
+    const importanceSliderEl = document.getElementById('importanceSlider');
     if (importanceSliderEl) importanceSliderEl.value = "0.5";
-    if (durationInputEl) durationInputEl.value = "";
-    scrollToSectionExternally(0, false);
+    if (durationPercentageInputEl) durationPercentageInputEl.value = "20";
+    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00";
+    originalVideoDurationSeconds = 0;
   }
+}
+
+function calculateAndUpdateDuration() {
+  if (!durationPercentageInputEl || !calculatedDurationOutputEl) {
+    return;
+  }
+  if (originalVideoDurationSeconds <= 0) {
+    calculatedDurationOutputEl.value = "00:00";
+    return;
+  }
+  const percentage = parseFloat(durationPercentageInputEl.value);
+  if (isNaN(percentage) || percentage < 1 || percentage > 100) {
+    calculatedDurationOutputEl.value = "00:00";
+    return;
+  }
+  const calculatedSeconds = (originalVideoDurationSeconds * percentage) / 100;
+  calculatedDurationOutputEl.value = formatTime(calculatedSeconds);
 }
 
 export function initUploadHandler() {
@@ -133,33 +132,22 @@ export function initUploadHandler() {
   fileBitrateDisplayEl = document.getElementById("fileBitrate");
   removeFileBtnEl = document.getElementById("removeFileBtn");
   startBtnEl = document.getElementById("startBtn");
-  statusDivEl = document.getElementById("status");
-  progressBarInnerEl = document.getElementById("progressBarInner");
-  importanceSliderEl = document.getElementById('importanceSlider');
-  durationInputEl = document.getElementById('durationInput');
   fileActionsContainerEl = document.getElementById("fileActionsContainer");
-  existingSummariesContainerEl = document.querySelector(".existing-summaries-container");
   durationPercentageInputEl = document.getElementById("durationPercentageInput");
   calculatedDurationOutputEl = document.getElementById("calculatedDurationOutput");
 
-  if (fileActionsContainerEl) fileActionsContainerEl.style.display = "none";
-  if (existingSummariesContainerEl) existingSummariesContainerEl.style.display = "block";
-
-  function calculateAndUpdateDuration() {
-    if (!durationPercentageInputEl || !calculatedDurationOutputEl || originalVideoDurationSeconds <= 0) {
-      if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00";
-      return;
-    }
-
-    const percentage = parseFloat(durationPercentageInputEl.value);
-    if (isNaN(percentage) || percentage < 1 || percentage > 100) {
-      calculatedDurationOutputEl.value = "00:00";
-      return;
-    }
-
-    const calculatedSeconds = (originalVideoDurationSeconds * percentage) / 100;
-    calculatedDurationOutputEl.value = formatTime(calculatedSeconds);
+  // --- 초기 UI 상태 설정 ---
+  // dropZoneEl은 처음에 보이도록 하고, fileActionsContainerEl도 처음부터 보이도록 설정
+  if (dropZoneEl) {
+    dropZoneEl.style.display = "flex"; // 항상 보이도록 설정 (파일 없을 때)
+    dropZoneEl.style.opacity = "1";
   }
+  if (fileActionsContainerEl) {
+    fileActionsContainerEl.style.display = "block"; // 항상 보이도록 설정
+    fileActionsContainerEl.style.opacity = "1";
+    fileActionsContainerEl.classList.add("visible");
+  }
+  setUploadedFileName(null); // 초기 UI는 파일 없는 상태로 설정
 
   if (durationPercentageInputEl) {
     durationPercentageInputEl.addEventListener('input', calculateAndUpdateDuration);
@@ -197,46 +185,8 @@ export function initUploadHandler() {
     if (!file.type.startsWith("video/")) {
       showToast("비디오 파일만 업로드 가능합니다.", "warning");
       if (fileInputEl) fileInputEl.value = "";
-      setUploadedFileName(null);
       return;
     }
-
-    if (fileNameDisplayEl) fileNameDisplayEl.textContent = file.name;
-    if (fileSizeDisplayEl) fileSizeDisplayEl.textContent = formatFileSize(file.size);
-    if (durationPercentageInputEl) {
-      durationPercentageInputEl.value = "20"; // 기본값 20%
-    }
-    if (calculatedDurationOutputEl) calculatedDurationOutputEl.value = "00:00";
-
-    if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 분석중...";
-    originalVideoDurationSeconds = 0;
-
-    try {
-      const duration = await getVideoDuration(file);
-      originalVideoDurationSeconds = duration;
-      if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = formatTime(duration);
-      calculateAndUpdateDuration();
-    } catch (error) {
-      console.error("원본 영상 길이 가져오기 실패:", error);
-      if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "N/A";
-      calculateAndUpdateDuration();
-    }
-
-    if (dropZoneEl) {
-      dropZoneEl.style.opacity = "0";
-      setTimeout(() => { if (dropZoneEl.style.opacity === "0") dropZoneEl.style.display = "none"; }, 300);
-    }
-    if (fileActionsContainerEl) {
-      fileActionsContainerEl.style.display = "block";
-      void fileActionsContainerEl.offsetWidth;
-      fileActionsContainerEl.classList.add("visible");
-    }
-    if (existingSummariesContainerEl) {
-      existingSummariesContainerEl.style.opacity = "0";
-      setTimeout(() => { if (existingSummariesContainerEl.style.opacity === "0") existingSummariesContainerEl.style.display = "none"; }, 300);
-    }
-    uploadedFileName = file.name;
-    scrollToSectionExternally(0, false);
     uploadFileAndGetInfo(file);
   }
 
@@ -257,7 +207,6 @@ export function initUploadHandler() {
   }
 
   async function uploadFileAndGetInfo(file) {
-    if (statusDivEl) statusDivEl.textContent = "⏳ 업로드 중...";
     if (startBtnEl) startBtnEl.disabled = true;
 
     const formData = new FormData();
@@ -268,82 +217,22 @@ export function initUploadHandler() {
       const data = await res.json();
 
       if (res.ok && data.filename) {
-        uploadedFileName = data.filename;
-        if (fileNameDisplayEl) fileNameDisplayEl.textContent = uploadedFileName;
-        if (data.videoInfo && typeof data.videoInfo === 'object') {
-          if (fileDurationDisplayEl) {
-            fileDurationDisplayEl.textContent = data.videoInfo.duration && !isNaN(parseFloat(data.videoInfo.duration))
-              ? formatTime(parseFloat(data.videoInfo.duration))
-              : "N/A";
-          }
-          if (fileTypeDisplayEl) {
-            const serverCodec = data.videoInfo.video_codec || data.videoInfo.codec_name;
-            fileTypeDisplayEl.textContent = serverCodec ? serverCodec.split('/')[0].trim() : (file.type || 'N/A');
-          }
-          if (fileResolutionDisplayEl) {
-            fileResolutionDisplayEl.textContent = data.videoInfo.width && data.videoInfo.height
-              ? `${data.videoInfo.width}x${data.videoInfo.height}`
-              : "N/A";
-          }
-          if (fileBitrateDisplayEl) {
-            fileBitrateDisplayEl.textContent = data.videoInfo.bit_rate && !isNaN(parseInt(data.videoInfo.bit_rate))
-              ? `${(parseInt(data.videoInfo.bit_rate) / 1000000).toFixed(2)} Mbps`
-              : "N/A";
-          }
-        } else {
-          console.warn("서버에서 videoInfo를 받지 못했거나 유효하지 않습니다. 클라이언트에서 일부 정보만 다시 시도합니다.");
-          if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 계산 중...";
-          getVideoDuration(file)
-            .then(duration => {
-              if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = formatTime(duration);
-            })
-            .catch(() => {
-              if (fileDurationDisplayEl) fileDurationDisplayEl.textContent = "길이 N/A";
-            });
-          if (fileTypeDisplayEl) fileTypeDisplayEl.textContent = file.type || 'N/A'; // MIME 타입이라도 표시
-          if (fileResolutionDisplayEl) fileResolutionDisplayEl.textContent = "N/A";
-          if (fileBitrateDisplayEl) fileBitrateDisplayEl.textContent = "N/A";
-        }
-        if (statusDivEl) statusDivEl.textContent = `✅ 업로드 성공: ${uploadedFileName}`;
+        setUploadedFileName(data.filename, file.size / (1024 * 1024), data.videoInfo);
         if (startBtnEl) startBtnEl.disabled = false;
       } else {
-        if (statusDivEl) statusDivEl.textContent = `❌ 업로드 실패: ${data.message || '알 수 없는 오류'}`;
-        showToast(`업로드에 실패했습니다: ${data.message || '다시 시도해주세요.'}`, "error");
-        resetInternalUIOnFileActionFailure();
+        showToast(`업로드 또는 파일 정보 분석 실패: ${data.message || '알 수 없는 오류'}`, "error");
+        setUploadedFileName(null); // 실패 시 UI 초기화 (드롭존 다시 보이도록)
       }
     } catch (error) {
       console.error("Upload error or info request error:", error);
-      if (statusDivEl) statusDivEl.textContent = "❌ 업로드/정보 요청 중 오류 발생";
       showToast("업로드 또는 파일 정보 분석 중 오류가 발생했습니다.", "error");
-      resetInternalUIOnFileActionFailure();
+      setUploadedFileName(null); // 오류 시 UI 초기화 (드롭존 다시 보이도록)
     }
-  }
-
-  function resetInternalUIOnFileActionFailure() {
-    setUploadedFileName(null); // 모든 UI 초기화는 setUploadedFileName(null)에 위임
-    if (statusDivEl) statusDivEl.textContent = "";
-    if (progressBarInnerEl) progressBarInnerEl.style.width = "0%";
-    scrollToSectionExternally(0, false);
-  }
-
-  function resetUploadUIInternally() {
-    const oldInput = document.getElementById("fileInput");
-    if (oldInput && oldInput.parentNode) {
-      const newInput = oldInput.cloneNode(true);
-      oldInput.parentNode.replaceChild(newInput, oldInput);
-      fileInputEl = newInput;
-      newInput.addEventListener("change", () => {
-        if (newInput.files.length > 0) {
-          handleFile(newInput.files[0]);
-        }
-      });
-    } else if (fileInputEl) {
-      fileInputEl.value = "";
-    }
-    resetInternalUIOnFileActionFailure();
   }
 
   if (removeFileBtnEl) {
-    removeFileBtnEl.addEventListener("click", resetUploadUIInternally);
+    removeFileBtnEl.addEventListener("click", () => {
+      setUploadedFileName(null);
+    });
   }
 }

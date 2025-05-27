@@ -27,12 +27,6 @@
           <span class="logo-sub">HwangCheeze</span>
         </a>
       </div>
-      <div class="user-actions">
-        <i class="fas fa-user-circle user-icon"></i>
-        <span class="user-greeting">안녕하세요, 황치즈님.</span>
-        <a href="#" class="logout-button">로그아웃</a>
-      </div>
-    </div>
   </header>
 
   <div id="existingSummariesCard" class="existing-summaries-sidebar">
@@ -57,11 +51,9 @@
 
   <div class="scroll-container">
     <!-- 헤더 및 업로드 섹션 -->
-    <section id="upload-section" class="scroll-section upload-section">
+    <section id="upload-section" class="scroll-section upload-section"
+      style="padding-top: calc(var(--header-height) + 0rem);">
       <div id="uploadCard" class="card animate__animated animate__fadeIn">
-        <div class="card-header">
-          <h2><i class="fas fa-upload"></i> 영상 업로드</h2>
-        </div>
         <div class="card-body">
           <div id="dropZone">
             <div class="upload-icon-container">
@@ -104,7 +96,7 @@
             </div>
             <div class="summary-controls-group" style="margin-top: 1.5rem;">
               <div class="summary-options">
-                <h3><i class="fas fa-sliders-h"></i> 요약 방식 선택</h3>
+                <h5><i class="fas fa-sliders-h"></i> 요약 방식 선택</h5>
                 <div class="weight-slider-container">
                   <div class="slider-labels">
                     <span class="label-left"> <b> 하이라이트 중심 </b> </span>
@@ -122,7 +114,7 @@
                 </div>
               </div>
               <div class="summary-duration" style="margin-top: 1rem;">
-                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 길이</label>
+                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 비율</label>
                 <div class="duration-input-group">
                   <input type="number" id="durationPercentageInput" min="1" max="100">
                   <span class="unit">%</span>
