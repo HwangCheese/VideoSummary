@@ -55,7 +55,7 @@
 
         #particles-js {
             position: fixed;
-            top: 22%;
+            top: 18%;
             left: 25%;
             right: 10%;
             width: 70%;
@@ -96,10 +96,10 @@
         .menu-toggle {
             background: none;
             border: none;
-            font-size: 1.6rem;
+            font-size: 2.0rem;
             color: #333333;
             cursor: pointer;
-            margin-right: 15px;
+            margin-right: 10px;
             padding: 5px;
         }
 
@@ -116,29 +116,8 @@
             /* Aligns "Video" and "Summary" nicely */
         }
 
-        .logo-video {
-            font-size: 1.7rem;
-            /* Adjust as needed */
-            font-weight: bold;
-            color: #E91E63;
-            /* Pink color for "Video" */
-        }
-
-        .logo-summary {
-            font-size: 1.7rem;
-            /* Adjust as needed */
-            font-weight: bold;
-            color: #673AB7;
-            /* Purple color for "Summary" */
-        }
-
-        .logo-sub {
-            font-size: 0.65rem;
-            color: #757575;
-            /* Grey color for sub-text */
-            margin-top: -5px;
-            /* Adjust for tight vertical spacing */
-            line-height: 1;
+        .header-logo{
+            width:200px
         }
 
         .user-icon {
@@ -153,16 +132,18 @@
 
         /* Adjust Hero section if necessary, body padding-top should handle it */
         .hero {
-            position: relative;
+            position: relative; /* 중요: 내부 absolute 요소의 기준점 */
             z-index: 1;
             min-height: calc(100vh - var(--header-height));
-            /* Make hero fill remaining viewport height */
-            height: 100vh;
+            min-height: auto;
             display: flex;
             justify-content: flex-start;
             align-items: flex-start;
             text-align: left;
             padding: 20vh 10vw 0 15vw;
+            /* 기존 hero의 padding-bottom을 유지하되, features 섹션이 겹쳐서 표시될 공간을 확보해야 합니다. */
+            /* 만약 features 섹션이 hero의 padding-bottom 영역에 들어간다면 이 값을 충분히 확보해야 합니다. */
+            min-height: 800px; /* features 섹션이 들어갈 공간을 충분히 확보 */
         }
 
         .hero-content {
@@ -336,14 +317,34 @@
 
         /* Features */
         .features {
-            position: relative;
-            z-index: 1;
-            padding: 10px 20px;
-            max-width: 1000px;
-            margin: 0 auto 60px auto;
+            position: absolute; 
+            left: 50%; 
+            top: 25%;
+            transform: translateY(-50%); 
+            
+            opacity: 1; 
+            visibility: visible; 
+            transition: opacity 0.8s ease-in-out; 
+            
+            width: 100%;
+            max-width: 700px; 
+            margin: 0; 
+
             text-align: center;
             background: rgba(255, 255, 255, 0.226);
             border-radius: 12px;
+            padding: 10px 20px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
+        }
+
+        .features:not(.active) { 
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .features.active {
+            opacity: 1;
+            visibility: visible;
         }
 
         .card {
@@ -351,7 +352,6 @@
             border-radius: 12px;
             padding: 1.0rem;
             width: 100%;
-            max-width: 700px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
             transition: transform .3s;
             color: var(--text-light);
@@ -398,7 +398,7 @@
             margin-bottom: 1.5rem;
         }
 
-       
+
         footer {
             background-color: #1a1a2e;
             color: #fff;
@@ -483,9 +483,8 @@
                 </button>
                 <a href="index.html" class="logo-link">
                     <div class="logo-text-container">
-                        <span class="logo-video">Video</span><span class="logo-summary">Summary</span>
-                    </div>
-                    <span class="logo-sub">HwangCheeze</span>
+                        <img src="/images/logo.png" alt="logo img" class="header-logo" /> 
+                    </div> 
                 </a>
             </div>
         </div>
@@ -512,13 +511,35 @@
             </div>
         </div>
         <!-- Features -->
-        <section class="features" data-aos="fade-up" data-aos-duration="1000" id="features-section">
+        <section class="features" data-aos="fade-left" data-aos-duration="1000" id="features-section">
             <div class="card">
                 <img src="/images/feature1.png" alt="장면 전환 감지" />
-                <h3>장면 전환 감지</h3>
+                <h3>고품질 영상 요약</h3>
                 <p>
                     딥러닝 기반 모델을 활용하여<br />
-                    영상 속 장면 전환 포인트를 정확히 감지합니다.
+                    자연스러운 장면 전환과 음성 연결을 제공합니다.
+                </p>
+            </div>
+        </section>
+
+        <section class="features" data-aos="fade-left" data-aos-duration="1000">
+            <div class="card">
+                <img src="/images/feature2.png" alt="사용자 맞춤형 요약" />
+                <h3>사용자 맞춤형 요약</h3>
+                <p>
+                    원하는 요약 방식을 선택하여<br />
+                    맞춤형 요약 영상을 받아볼 수 있습니다.
+                </p>
+            </div>
+        </section>
+
+        <section class="features" data-aos="fade-left" data-aos-duration="1000">
+            <div class="card">
+                <img src="/images/feature3.png" alt="고품질 영상 요약" />
+                <h3>고품질 영상 요약</h3>
+                <p>
+                    딥러닝 기반 모델과 직접 개발한 알고리즘을 활용하여<br />
+                    높은 품질의 요약 영상을 제공합니다.
                 </p>
             </div>
         </section>
@@ -544,7 +565,7 @@
                         class="fab fa-twitter"></i></a>
             </div>
             <p class="copyright">
-                © 2025 AI Short-Form Maker. All rights reserved. | Team. HwangCheese
+                © 2025 AI VideoSummary. All rights reserved. | Team. HwangCheese
             </p>
         </div>
     </footer>
@@ -591,8 +612,50 @@
                 },
                 retina_detect: true
             });
+            // 기능 셔플링 로직
+            const featureSections = document.querySelectorAll('section.features'); // 모든 'features' 클래스를 가진 section 요소 선택
+            let currentFeatureIndex = 0;
+
+            featureSections.forEach(section => {
+                section.setAttribute('data-aos', 'fade-left');
+                section.setAttribute('data-aos-duration', '1000');
+                section.classList.remove('active'); // 모든 카드를 비활성 상태로 시작
+            });
+
+            function showNextFeature() {
+                // 현재 기능 숨기기 (active 클래스와 AOS 속성 제거)
+                const currentFeature = featureSections[currentFeatureIndex];
+                currentFeature.classList.remove('active');
+                currentFeature.removeAttribute('data-aos'); // AOS 속성 제거
+                currentFeature.removeAttribute('data-aos-duration'); // duration 속성도 제거
+
+                // 다음 기능으로 이동
+                currentFeatureIndex = (currentFeatureIndex + 1) % featureSections.length;
+
+                // 다음 기능 보여주기 (active 클래스와 AOS 속성 다시 추가)
+                const nextFeature = featureSections[currentFeatureIndex];
+                
+                // AOS 애니메이션을 다시 트리거하기 위해 잠시 대기
+                setTimeout(() => {
+                    nextFeature.setAttribute('data-aos', 'fade-left'); // AOS 속성 다시 추가
+                    nextFeature.setAttribute('data-aos-duration', '1000'); // duration 속성 다시 추가
+                    nextFeature.classList.add('active'); // active 클래스 추가 (opacity, visibility)
+                    AOS.refresh(); // AOS를 수동으로 새로고침하여 새로운 애니메이션을 감지하도록 함
+                }, 50); // 짧은 지연 (50ms)을 주어 브라우저가 DOM 변경을 인식하게 함
+            }
+
+            // 초기 로드 시 첫 번째 기능에 active 클래스 추가 (나머지는 CSS에 의해 숨겨짐)
+            if (featureSections.length > 0) {
+                // 첫 번째 카드를 직접 active로 설정하면, AOS가 이를 감지하고 애니메이션을 시작합니다.
+                featureSections[0].classList.add('active'); 
+                AOS.refresh(); // 첫 번째 카드에 대한 AOS 애니메이션을 확실히 트리거합니다.
+
+                // 첫 번째 기능이 나타난 후에 셔플 시작 (AOS 애니메이션 완료 시간 고려)
+                setTimeout(() => {
+                    setInterval(showNextFeature, 2500); // <-- setTimeout 지연 시간이 1000으로 변경
+                }, 1000); 
+            }
         });
     </script>
 </body>
-
 </html>
