@@ -116,8 +116,6 @@
               <div class="summary-duration" style="margin-top: 1rem;">
                 <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 비율 (1~80%)</label>
                 <div class="duration-input-group">
-                  <input type="number" id="durationPercentageInput" min="1" max="80" value="20">
-                  <span class="unit">%</span>
                   <div class="spinner-buttons">
                     <button type="button" class="spinner-btn up" id="increaseBtn">
                       <i class="fas fa-chevron-up"></i>
@@ -126,6 +124,8 @@
                       <i class="fas fa-chevron-down"></i>
                     </button>
                   </div>
+                  <input type="number" id="durationPercentageInput" min="1" max="80" value="20">
+                  <span class="unit">%</span>
                   <i class="fas fa-arrow-right duration-arrow"></i>
                   <input type="text" id="calculatedDurationOutput" placeholder="00:00" readonly>
                   <span class="unit"></span>
@@ -219,7 +219,12 @@
               </div>
             </div>
             <div class="video-box shortform-video-box">
-              <h3> 요약 영상</h3>
+              <div class="video-title-header">
+                <h3> 요약 영상</h3>
+                <span id="quickDownloadBtn" class="quick-download-icon" title="요약 영상 다운로드">
+                  <i class="fas fa-download"></i>
+                </span>
+              </div>
               <video id="finalVideo" controls></video>
               <div class="transcript-header">
                 <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>

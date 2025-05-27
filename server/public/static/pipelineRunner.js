@@ -619,7 +619,8 @@ export function initPipelineRunner() {
 
   const highlightRatioValueEl = document.getElementById('highlightRatioValue');
   const storyRatioValueEl = document.getElementById('storyRatioValue');
-  const importanceSlider = document.getElementById('importanceSlider'); // This is for importance_weight
+  const importanceSlider = document.getElementById('importanceSlider');
+  const quickDownloadBtn = document.getElementById("quickDownloadBtn");
 
   function updateSliderRatioDisplay() {
     if (!importanceSlider || !highlightRatioValueEl || !storyRatioValueEl) {
@@ -641,24 +642,55 @@ export function initPipelineRunner() {
     console.warn("Importance slider element not found in initPipelineRunner.");
   }
 
-  if (progressActionsContainer) { // HTML에 <div id="progressActions"></div>가 있는지 확인
-    // 기존 버튼이 있다면 제거 (새 영상 만들고 다시 요약할 때 중복 방지)
+  if (progressActionsContainer) {
     const existingBtn = document.getElementById('viewResultsBtn');
     if (existingBtn) {
       existingBtn.remove();
     }
 
-    viewResultsBtn = document.createElement("button"); // 버튼 요소 생성
-    viewResultsBtn.id = "viewResultsBtn"; // 버튼에 ID 할당 (CSS에서 사용 가능)
-    viewResultsBtn.innerHTML = '<i class="fas fa-poll"></i> 결과 보기'; // 버튼 텍스트 및 아이콘
-    viewResultsBtn.style.display = "none"; // 처음에는 숨겨둠
-    viewResultsBtn.addEventListener("click", () => { // 버튼 클릭 시 실행될 함수
+    viewResultsBtn = document.createElement("button");
+    viewResultsBtn.id = "viewResultsBtn";
+    viewResultsBtn.innerHTML = '<i class="fas fa-poll"></i> 결과 보기';
+    viewResultsBtn.style.display = "none";
+    viewResultsBtn.addEventListener("click", () => {
       scrollToSectionExternally(2, true); // 결과 섹션(인덱스 2)으로 스크롤
-      viewResultsBtn.style.display = "none"; // 클릭 후 버튼 다시 숨김
+      viewResultsBtn.style.display = "none";
     });
     progressActionsContainer.appendChild(viewResultsBtn);
   } else {
     console.warn("progressActionsContainer 요소를 찾을 수 없습니다.");
+  }
+
+  function triggerDownload() {
+    if (!finalVideo || !finalVideo.src || finalVideo.src.startsWith('blob:')) { // finalVideo.src가 유효한지 확인
+      showToast("다운로드할 요약 영상이 없습니다.", "warning");
+      return;
+    }
+    if (!currentUploadedFileNameFromHandler) {
+      showToast("원본 파일명이 없어 다운로드 파일명을 생성할 수 없습니다.", "warning");
+      return;
+    }
+
+    const link = document.createElement("a");
+    link.href = finalVideo.src;
+    const currentImportanceWeight = importanceSlider ? importanceSlider.value : "0.5";
+    const summaryPrefix = "summary";
+    const weightSuffix = `_w${parseFloat(currentImportanceWeight).toFixed(1).replace('.', '')}`;
+    link.download = `${summaryPrefix}${weightSuffix}_${currentUploadedFileNameFromHandler}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  if (downloadBtn) { // 기존 하단 다운로드 버튼
+    downloadBtn.onclick = triggerDownload;
+  }
+
+  if (quickDownloadBtn) { // "요약 영상" 제목 옆 새 다운로드 아이콘
+    quickDownloadBtn.addEventListener("click", (event) => {
+      event.stopPropagation(); // 이벤트 버블링 방지
+      triggerDownload();
+    });
   }
 
   if (startBtn) {

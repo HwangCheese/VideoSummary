@@ -84,6 +84,30 @@ server/public/css/result.css
     gap: 0.6rem;
 }
 
+.video-title-header {
+    display: flex;
+    align-items: center; /* 수직 중앙 정렬 */
+    margin-bottom: 0; /* 비디오와의 간격 */
+}
+
+.quick-download-icon {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+    position: relative;
+    transform: translateY(-7px);
+}
+
+.quick-download-icon:hover {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-dark);
+}
+
 /* --- 하이라이트 섹션 (원본 비디오 박스 내부) --- */
 .video-box .highlight-section {
     margin-top: 1.5rem;
