@@ -1,0 +1,655 @@
+/* server/public/css/result.css */
+
+#resultCard {
+    max-width: 1600px;
+    width: 95%; /* Good for general responsiveness */
+}
+
+.scroll-section.result-section {
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding-top: calc(var(--header-height) + 1rem); /* 상단 여백 */
+}
+
+.card {
+    background-color: #fff;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+
+.card-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--light-gray);
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    /* ... */
+}
+
+.card-body {
+    padding: 2rem; /* Will be adjusted for mobile */
+}
+
+.video-container-group {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 1rem; /* 조정: 2rem -> 1rem. 비디오 박스와 사이드바 간 상하 간격 줄임 */
+    margin-bottom: 2.5rem;
+    width: 100%;
+    box-sizing: border-box;
+    transition: gap 0.4s ease-out;
+}
+
+.video-box.original-video-box {
+    width: 40%;
+}
+
+.video-box.shortform-video-box {
+    width: 40%;
+}
+
+/* 요약 품질 사이드바 (두 번째 줄로 넘어와서 중앙 정렬) */
+.shortform-details-sidebar {
+    background-color: #ffffff;
+    padding: 20px 15px; /* 조정: 25px 20px -> 20px 15px */
+    border-radius: var(--border-radius-lg, 12px);
+    box-shadow: var(--shadow-md, 0 4px 12px rgba(0, 0, 0, 0.08));
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 조정: 20px -> 15px */
+    min-width: 280px;
+    max-width: 100%;
+    width: fit-content;
+    height: fit-content;
+    border: 1px solid var(--border-color, #e5e7eb);
+
+    flex: 0 0 100%;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative; /* 추가: 자식 요소의 absolute 포지셔닝 기준 */
+}
+
+.video-box video {
+    width: 100%;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-sm);
+    display: block;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+}
+
+.video-box h3 {
+    margin-bottom: 0.8rem;
+    font-size: 1rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.video-title-header h3 {
+    margin-bottom: 10px;
+}
+
+.video-title-header {
+    display: flex;
+    align-items: center; /* 수직 중앙 정렬 */
+    margin-bottom: 0; /* 비디오와의 간격 */
+    justify-content: space-between; /* Pushes download icon to the right */
+}
+
+
+.quick-download-icon {
+    font-size: 1rem;
+    color: var(--primary-color);
+    cursor: pointer;
+    border-radius: 50%;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+    position: relative;
+    /* transform: translateY(-7px); /* Adjusted for better alignment on mobile */
+    /* 필요 시 주석 해제 후 미세 조정:
+    transform: translateY(0); /* -1px, 0, 1px 등 테스트하여 가장 잘 맞는 값 사용 */
+}
+
+.quick-download-icon:hover {
+    background-color: rgba(var(--primary-rgb), 0.1);
+    color: var(--primary-dark);
+}
+
+.highlight-section {
+    display: none; /* Hidden by default, shown in editing mode */
+}
+
+#highlightBarContainer {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 25px; /* Will be adjusted for mobile */
+    background: rgba(224, 224, 224, 0.8);
+    border-radius: 8px; /* Consistent border-radius */
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 20;
+}
+
+.video-box > .highlight-legend {
+    margin-top: 7px; /* Will be adjusted for mobile */
+    display: flex;
+    justify-content: flex-start;
+    /* font-size: 0.4rem; */ /* Moved to .legend-item */
+    color: var(--gray-color);
+    position: relative;
+    z-index: 1;
+    gap: 0.5rem; /* 두 범례 항목 사이의 간격 줄임 */
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 10px; /* 조정: 15px -> 10px */
+    border-bottom: 1px solid var(--border-color, #e9ecef);
+}
+
+.sidebar-title-icon {
+    font-size: 1rem; /* Will be adjusted for mobile */
+    color: var(--primary-color, #6366f1);
+}
+
+.sidebar-title {
+    font-size: 1rem; /* Will be adjusted for mobile */
+    font-weight: 700;
+    color: var(--dark-color, #333);
+    margin: 0;
+}
+
+.score-display {
+    text-align: left;
+    margin-top: 35px;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+}
+
+.score-display .score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color, #6366f1);
+    line-height: 1;
+}
+
+.score-display .score-max {
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--gray-color, #777);
+    margin-left: 5px;
+}
+
+.score-description {
+    position: absolute;
+    top: 90px;
+    left: 110px;
+    width: calc(100% - 120px);
+
+    font-size: 0.6rem;
+    color: var(--text-muted, #6c757d);
+    line-height: 1.6;
+    text-align: left;
+    padding: 8px 10px;
+    margin-top: 0; /* absolute positioning 시 마진은 보통 필요 없음 */
+    background-color: var(--light-gray-color, #f9fafb);
+    border-radius: var(--border-radius, 6px);
+    z-index: 1; /* 다른 요소 위에 표시되도록 z-index 설정 */
+}
+
+.summary-metrics-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 40px; /* score-display와 score-description의 높이를 고려하여 조정 */
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.metric-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 12px; /* 조정: 12px 15px -> 10px 12px */
+    background-color: #fff;
+    border: 1px solid var(--border-color, #e9ecef);
+    border-radius: var(--border-radius-lg, 8px);
+    transition:
+        transform 0.2s ease-in-out,
+        box-shadow 0.2s ease-in-out,
+        border-color 0.2s ease-in-out;
+    flex-shrink: 0;
+}
+
+.metric-item:hover {
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-color, #6366f1);
+}
+
+.metric-icon-wrapper {
+    font-size: 1rem;
+    color: var(--accent-color, #ec4899);
+    background-color: rgba(236, 72, 153, 0.1);
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.metric-info {
+    display: flex;
+    flex-direction: row; /* 변경: column → row */
+    align-items: center; /* 수직 중앙 정렬 */
+    gap: 8px; /* 레이블과 값 사이 간격 */
+    flex-grow: 1;
+    min-width: 0;
+}
+
+.metric-label {
+    font-size: 0.6rem;
+    color: var(--gray-color, #777);
+    font-weight: 500;
+    text-transform: uppercase;
+    white-space: nowrap; /* 레이블이 줄바꿈되지 않도록 */
+    flex-shrink: 0; /* 레이블이 축소되지 않도록 */
+}
+
+.metric-info .metric-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark-color, #333);
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.metric-info .metric-value .metric-unit {
+    font-size: 0.7rem;
+    font-weight: 400;
+    color: var(--text-muted, #6c757d);
+    margin-left: 4px;
+}
+
+.metric-info .metric-value .time-original {
+    color: var(--text-muted, #6c757d);
+    font-weight: 400;
+    margin-right: 3px;
+}
+
+.metric-info .metric-value .time-summary {
+    color: var(--primary-color, #6366f1);
+    font-weight: 700;
+    margin-left: 3px;
+}
+
+.time-markers {
+    position: absolute;
+    width: 100%;
+    top: -20px; /* Will be adjusted for mobile */
+    left: 0;
+    z-index: 1;
+    height: auto;
+}
+
+.time-marker {
+    position: absolute;
+    font-size: 0.75rem; /* Will be adjusted for mobile */
+    color: var(--gray-color);
+    top: 0;
+    transform: translateX(-50%);
+}
+.time-marker:first-child {
+    transform: translateX(0);
+}
+.time-marker:last-child {
+    transform: translateX(-100%);
+}
+
+.highlight-legend {
+    display: flex;
+    gap: 0.5rem; /* Will be adjusted for mobile */
+    margin-top: 1rem; /* Will be adjusted for mobile */
+    justify-content: center;
+}
+
+.legend-item {
+    display: flex;
+    flex-direction: row; /* 변경: 색상 박스와 텍스트를 가로로 정렬 */
+    align-items: center; /* 세로 축 중앙 정렬 (색상 박스와 첫 줄 텍스트) */
+    font-size: 0.55rem; /* 텍스트 크기 유지 */
+    color: var(--gray-color);
+    text-align: left; /* 텍스트가 줄바꿈될 때 왼쪽 정렬 */
+    line-height: 1.2; /* 텍스트 줄 간격 조정 */
+    width: 70px; /* 텍스트가 줄바꿈되도록 너비 조정. 이 값은 미세 조정 필요. */
+    flex-shrink: 0; /* 부모 flex 컨테이너에서 이 아이템이 줄어들지 않도록 */
+}
+
+.legend-color {
+    width: 12px; /* Will be adjusted for mobile */
+    height: 12px; /* Will be adjusted for mobile */
+    border-radius: 3px;
+    flex-shrink: 0; /* 색상 박스가 줄어들지 않도록 */
+}
+
+.legend-color.original {
+    background-color: #e0e0e0;
+}
+.legend-color.highlight {
+    background-color: var(--accent-color);
+}
+
+.resize-handle {
+    position: absolute;
+    width: 10px;
+    height: 100%;
+    top: 0;
+    z-index: 5;
+    cursor: ew-resize;
+}
+.resize-handle.left {
+    left: -5px;
+}
+.resize-handle.right {
+    right: -5px;
+}
+
+.shortform-transcript-section {
+    display: none; /* Hidden by default */
+}
+
+.transcript-header {
+    display: none; /* Hidden by default */
+}
+
+.transcript-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.transcript-list li {
+    padding: 0.4rem 1rem; /* Will be adjusted for mobile */
+    background-color: #ffffff;
+    border-radius: calc(var(--border-radius) / 1.5);
+    border: 1px solid var(--light-gray, #e9ecef);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        transform 0.15s ease,
+        border-color 0.2s ease;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+}
+
+.transcript-list li:hover {
+    background-color: #f0f3ff;
+    border-color: var(--primary-light);
+    transform: translateY(-1px);
+}
+
+.transcript-list li.active-transcript {
+    background-color: var(--primary-light);
+    color: white;
+    border-color: var(--primary-color);
+    box-shadow: 0 2px 8px rgba(var(--primary-rgb, 67, 97, 238), 0.3);
+}
+.transcript-list li.active-transcript .transcript-time,
+.transcript-list li.active-transcript .transcript-text {
+    color: white;
+}
+
+.transcript-time {
+    font-size: 0.9rem; /* Will be adjusted for mobile */
+    font-weight: 600;
+    color: var(--primary-color);
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 100px; /* Will be adjusted for mobile */
+}
+
+.transcript-text {
+    font-size: 0.95rem; /* Will be adjusted for mobile */
+    color: var(--dark-color);
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+/* 편집 모드 스타일 */
+#resultCard.editing-mode .video-container-group {
+    gap: 0;
+    justify-content: center; /* 원본 영상이 가운데 오도록 */
+    flex-wrap: nowrap;
+}
+
+#resultCard.editing-mode .original-video-box {
+    flex: 0 1 auto;
+    max-width: 1200px;
+    width: 100%; /* 너비를 100%로 설정하여 중앙 정렬이 되도록 */
+    opacity: 1;
+    min-width: auto;
+    margin: 0 auto;
+}
+
+#resultCard.editing-mode .original-video-box video {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9; /* 명시적으로 16:9 비율을 강제 */
+    object-fit: contain;
+    display: block;
+    background-color: #000;
+}
+
+/* 편집 모드일 때 숏폼 영상 영역 축소 및 숨김 */
+#resultCard.editing-mode .shortform-video-box {
+    flex-basis: 0%; /* 너비를 0으로 축소 */
+    width: 0;
+    max-width: 0;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+    overflow: hidden;
+    display: none !important; /* 레이아웃 흐름에서 완전히 제거 */
+}
+
+/* 편집 모드일 때 요약 품질 사이드바 숨김 */
+#resultCard.editing-mode .shortform-details-sidebar {
+    flex-basis: 0%; /* 너비를 0으로 축소 */
+    width: 0;
+    max-width: 0;
+    min-width: 0;
+    opacity: 0;
+    pointer-events: none;
+    padding: 0;
+    margin: 0;
+    border: none;
+    overflow: hidden;
+    display: none !important; /* 레이아웃 흐름에서 완전히 제거 */
+}
+
+/* 편집모드 진입하면 기본 버튼 사라짐 */
+#resultCard.editing-mode .default-action {
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+    visibility: hidden;
+    display: none !important;
+}
+
+#resultCard.editing-mode .button-group {
+    display: flex;
+    flex-direction: row; /* Default for desktop editing mode */
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+#resultCard.editing-mode .button-group button {
+    flex-grow: 0;
+    flex-shrink: 0;
+    flex-basis: auto;
+    min-width: 350px; /* Will be unset for mobile editing mode */
+    justify-content: center;
+    align-items: center;
+    width: auto;
+}
+
+/* 편집모드일 때 저장 버튼 자연스럽게 등장 */
+#resultCard.editing-mode #saveCustomBtn {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    visibility: visible;
+}
+
+#resultCard.editing-mode .highlight-section {
+    display: block; /* Ensure it's visible in editing mode */
+    width: 100%;
+    max-width: none;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+#resultCard.editing-mode #highlightBarContainer {
+    width: 100%;
+}
+
+#resultCard.editing-mode .highlight-thumbnails {
+    display: none !important; /* Keep this hidden in editing mode if desired */
+}
+
+.video-wrapper {
+    position: relative;
+    display: inline-block;
+    overflow: visible;
+    width: 100%;
+}
+
+/* .video-wrapper video { 이 규칙은 .video-box video로 통합되었음 } */
+
+.video-wrapper img.frame-graph-overlay {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+.frame-graph-overlay {
+    position: absolute;
+    width: 100%;
+    height: auto;
+    display: block;
+    bottom: 25px; /* Adjusted to match highlight bar */
+    left: 0%;
+    width: 100%;
+    height: 25px; /* Will be adjusted for mobile */
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 11;
+}
+
+.highlight-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 25px; /* Will be adjusted for mobile */
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 8px; /* Consistent border-radius */
+    overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    z-index: 1000;
+}
+#highlightBarContainer.highlight-overlay {
+    height: 20px; /* Consistent with general highlight bar */
+    bottom: 1px;
+    background: transparent;
+    border-radius: 8px; /* Corrected value */
+}
+
+.video-wrapper:hover .frame-graph-overlay,
+.video-wrapper:hover #highlightBarContainer {
+    opacity: 1;
+}
+
+.highlight-thumbnails {
+    margin-top: 1.5rem; /* Will be adjusted for mobile */
+}
+
+.highlight-thumbnails h3 {
+    font-size: 0.7rem; /* Will be adjusted for mobile */
+    margin-bottom: 1rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.thumbnail-slider {
+    display: flex;
+    gap: 1rem; /* Will be adjusted for mobile */
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+}
+
+.thumbnail-slider::-webkit-scrollbar {
+    height: 6px;
+}
+.thumbnail-slider::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 10px;
+}
+
+.thumbnail {
+    flex: 0 0 auto;
+    width: 160px; /* Will be adjusted for mobile */
+    cursor: pointer;
+    text-align: center;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    background-color: #fff;
+    transition: transform 0.3s ease;
+}
+.thumbnail:hover {
+    transform: translateY(-4px);
+}
+
+.thumbnail img {
+    width: 100%;
+    display: block;
+}
+
+.thumbnail .thumb-time {
+    font-size: 0.85rem; /* Will be adjusted for mobile */
+    color: #555;
+    margin-top: 4px;
+    font-weight: 500;
+    text-align: center;
+}

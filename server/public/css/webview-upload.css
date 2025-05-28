@@ -17,25 +17,48 @@
     --black-color: #000000;
     --border-radius: 8px;
     --border-color: #e9ecef;
-    --font-family-base: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    --font-family-base: "Pretendard", -apple-system, BlinkMacMacFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
         sans-serif;
     --box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
     --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
     --transition-base: all 0.3s ease-in-out;
     --primary-rgb: 67, 97, 238;
+    /* 예시: --header-height: 60px; (만약 정의되어 있지 않다면 style.css 등 상위 파일에 정의 필요) */
+}
+
+/* --- upload-section을 화면 중앙에 배치 --- */
+.upload-section {
+    padding-top: calc(var(--header-height, 0px) + 0rem);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - var(--header-height, 0px));
+    width: 100%;
+    box-sizing: border-box;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* #uploadCard의 너비 제한 및 여백 조정 */
+#uploadCard {
+    max-width: 420px; /* 모바일에서 너무 커지지 않도록 */
+    width: 90%; /* 화면 너비에 따라 유동적으로 조절 */
+    margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 /* --- 드롭존 --- */
 #dropZone {
     width: 100%;
-    min-height: 120px; /* 180px → 120px로 축소 */
+    min-height: 80px; /* 120px → 80px로 축소 */
     border: 3px dashed var(--medium-gray);
     border-radius: var(--border-radius);
-    /* display: flex; */ /* JS에서 제어하므로 주석 처리 또는 제거 가능 */
+    display: flex; /* JS에서 제어 가능하지만, 기본적으로 flex를 유지하는 것이 좋음 */
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    gap: 0.4rem; /* 0.6rem → 0.4rem로 축소 */
+    gap: 0.3rem; /* 0.4rem → 0.3rem로 축소 */
     cursor: pointer;
     transition:
         opacity 0.3s ease-out,
@@ -46,8 +69,8 @@
     position: relative;
     overflow: hidden;
     background-color: rgba(255, 255, 255, 0.6);
-    padding: 0.8rem; /* 1.2rem → 0.8rem로 축소 */
-    margin-bottom: 0.6rem; /* 1rem → 0.6rem로 축소 */
+    padding: 0.5rem; /* 0.8rem → 0.5rem로 축소 */
+    margin-bottom: 0.4rem; /* 0.6rem → 0.4rem로 축소 */
 }
 #dropZone.hover {
     background-color: rgba(var(--primary-rgb), 0.05);
@@ -57,15 +80,15 @@
 
 /* 드롭존 내부 초기 안내 요소들 */
 .upload-icon-container {
-    width: 40px; /* 50px → 40px로 축소 */
-    height: 40px; /* 50px → 40px로 축소 */
+    width: 32px; /* 40px → 32px로 축소 */
+    height: 32px; /* 40px → 32px로 축소 */
     border-radius: 50%;
     background: #e9ecef;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: var(--transition-base);
-    margin-bottom: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+    margin-bottom: 0.1rem; /* 0.2rem → 0.1rem로 축소 */
 }
 #dropZone.hover .upload-icon-container {
     background-color: var(--primary-light);
@@ -112,29 +135,29 @@
     transform: scale(1);
 }
 .decoration.d1 {
-    width: 25px; /* 35px → 25px로 축소 */
-    height: 25px;
+    width: 18px; /* 25px → 18px로 축소 */
+    height: 18px;
     top: 10%;
     left: 10%;
     transition-delay: 0.1s;
 }
 .decoration.d2 {
-    width: 35px; /* 50px → 35px로 축소 */
-    height: 35px;
+    width: 25px; /* 35px → 25px로 축소 */
+    height: 25px;
     top: 60%;
     left: 15%;
     transition-delay: 0.2s;
 }
 .decoration.d3 {
-    width: 30px; /* 40px → 30px로 축소 */
-    height: 30px;
+    width: 22px; /* 30px → 22px로 축소 */
+    height: 22px;
     top: 30%;
     right: 15%;
     transition-delay: 0.3s;
 }
 .decoration.d4 {
-    width: 20px; /* 25px → 20px로 축소 */
-    height: 20px;
+    width: 15px; /* 20px → 15px로 축소 */
+    height: 15px;
     bottom: 15%;
     right: 10%;
     transition-delay: 0.4s;
@@ -146,6 +169,7 @@
     width: 100%;
     /* opacity: 0; */ /* JS에서 초기 opacity:1로 설정하므로 제거 또는 주석 */
     /* transition: opacity 0.3s ease-in-out 0.1s; */ /* JS에서 클래스로 제어 가능 */
+    margin-top: 0; /* 이전에 추가했던 인라인 스타일 제거 */
 }
 /* #fileActionsContainer.visible {
     opacity: 1;
@@ -153,16 +177,16 @@
 
 /* #uploadInfo: 파일 정보 전체를 감싸는 div */
 #uploadInfo {
-    margin-bottom: 0.6rem; /* 1rem → 0.6rem로 축소 */
+    margin-bottom: 0.4rem; /* 0.6rem → 0.4rem로 축소 */
 }
 
 /* .file-info: 아이콘, 상세정보, 제거버튼을 포함하는 한 줄 */
 .file-info {
     display: flex;
     align-items: center;
-    gap: 0.6rem; /* 0.8rem → 0.6rem로 축소 */
+    gap: 0.5rem; /* 0.6rem → 0.5rem로 축소 */
     background-color: var(--light-gray);
-    padding: 0.8rem 1rem; /* 1.2rem 1.5rem → 0.8rem 1rem로 축소 */
+    padding: 0.6rem 0.8rem; /* 0.8rem 1rem → 0.6rem 0.8rem로 축소 */
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
 }
@@ -171,8 +195,8 @@
 }
 
 .file-icon {
-    width: 30px; /* 36px → 30px로 축소 */
-    height: 30px; /* 36px → 30px로 축소 */
+    width: 24px; /* 30px → 24px로 축소 */
+    height: 24px; /* 30px → 24px로 축소 */
     border-radius: 6px;
     background: var(--primary-color);
     display: flex;
@@ -199,7 +223,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     font-size: 0.75rem; /* 폰트 크기 유지 */
-    margin-bottom: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+    margin-bottom: 0.15rem; /* 0.2rem → 0.15rem로 축소 */
     line-height: 1.3; /* 라인 높이 유지 */
 }
 
@@ -207,7 +231,7 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 0.2rem 0.4rem; /* 0.3rem 0.6rem → 0.2rem 0.4rem로 축소 */
+    gap: 0.15rem 0.3rem; /* 0.2rem 0.4rem → 0.15rem 0.3rem로 축소 */
     font-size: 0.6rem; /* 폰트 크기 유지 */
     color: var(--gray-color);
     line-height: 1.2; /* 라인 높이 유지 */
@@ -228,8 +252,8 @@
 .icon-btn {
     background: none;
     border: none;
-    width: 24px; /* 28px → 24px로 축소 */
-    height: 24px; /* 28px → 24px로 축소 */
+    width: 20px; /* 24px → 20px로 축소 */
+    height: 20px; /* 24px → 20px로 축소 */
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -249,23 +273,23 @@
 
 /* --- 요약 옵션 (성향 선택, 길이 설정) --- */
 .summary-controls-group {
-    margin-top: 0.6rem; /* 1rem → 0.6rem로 축소 */
+    margin-top: 0.4rem; /* 0.6rem → 0.4rem로 축소 */
 }
 .summary-options {
     background-color: var(--light-gray);
-    padding: 0.3rem 0.8rem; /* 0.4rem 1.2rem → 0.3rem 0.8rem로 축소 */
+    padding: 0.25rem 0.6rem; /* 0.3rem 0.8rem → 0.25rem 0.6rem로 축소 */
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
-    margin-bottom: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+    margin-bottom: 0.15rem; /* 0.2rem → 0.15rem로 축소 */
 }
 
 /* "원하는 요약 영상 비율" 섹션 컨테이너 */
 .summary-duration {
     background-color: var(--light-gray);
-    padding: 0.4rem 0.8rem; /* 0.6rem 1.2rem → 0.4rem 0.8rem로 축소 */
+    padding: 0.3rem 0.6rem;
     border-radius: var(--border-radius);
     border: 1px solid var(--border-color);
-    margin-top: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+    margin-top: 0.15rem;
 }
 
 .summary-options h5,
@@ -340,24 +364,24 @@
     justify-content: center;
     gap: 0;
     background-color: var(--white-color);
-    padding: 0.3rem 0.6rem; /* 0.4rem 0.8rem → 0.3rem 0.6rem로 축소 */
+    padding: 0.25rem 0.5rem; /* 0.3rem 0.6rem → 0.25rem 0.5rem로 축소 */
     border-radius: var(--border-radius);
     border: 1px solid var(--medium-gray);
-    margin-top: 0.3rem; /* 0.4rem → 0.3rem로 축소 */
+    margin-top: 0.25rem; /* 0.3rem → 0.25rem로 축소 */
     box-shadow: var(--box-shadow-sm);
 }
 .duration-input-group input[type="number"],
 .duration-input-group input[type="text"]#calculatedDurationOutput {
     border: none;
     outline: none;
-    padding: 0.15rem 0.1rem; /* 0.2rem 0.1rem → 0.15rem 0.1rem로 축소 */
+    padding: 0.1rem 0.05rem; /* 0.15rem 0.1rem → 0.1rem 0.05rem로 축소 */
     font-size: 0.75rem; /* 폰트 크기 유지 */
     text-align: center;
     background-color: transparent;
     box-shadow: none;
 }
 .duration-input-group input[type="number"]#durationPercentageInput {
-    width: 55px; /* 65px → 55px로 축소 */
+    width: 50px; /* 55px → 50px로 축소 */
     font-weight: 700;
     color: var(--primary-color);
     -moz-appearance: textfield;
@@ -368,7 +392,7 @@
     margin: 0;
 }
 .duration-input-group input[type="text"]#calculatedDurationOutput {
-    width: 70px; /* 80px → 70px로 축소 */
+    width: 65px; /* 70px → 65px로 축소 */
     color: var(--dark-color);
     font-weight: 600;
     cursor: default;
@@ -381,7 +405,7 @@
 .duration-input-group .duration-arrow {
     color: var(--primary-color);
     font-size: 0.95rem; /* 폰트 크기 유지 */
-    margin: 0 0.3rem; /* 0 0.4rem → 0 0.3rem로 축소 */
+    margin: 0 0.25rem; /* 0 0.3rem → 0 0.25rem로 축소 */
 }
 .duration-input-group:focus-within {
     border-color: var(--primary-color);
@@ -391,15 +415,16 @@
 .spinner-btn {
     background: #f8f9fa;
     border: none;
-    width: 16px;
-    height: 16px;
+    width: 10px;
+    height: 10px; 
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     color: #6b7280;
     transition: all 0.2s ease;
-    font-size: 12px;
+    font-size: 8px; 
+    display: none; /* 이 버튼들은 JS로 제어되거나, CSS에서 필요시 display:flex로 변경하여 사용 */
 }
 
 .spinner-btn:hover {
@@ -419,23 +444,24 @@
 }
 
 .spinner-btn.up {
-    border-top-right-radius: 6px;
+    border-top-right-radius: 4px;
     border-bottom: 1px solid #e1e5e9;
 }
 
 .spinner-btn.down {
-    border-bottom-right-radius: 6px;
+    border-bottom-right-radius: 4px;
 }
 
 .spinner-buttons {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 30px;
 }
 
 /* --- 시작 버튼 --- */
 #startBtn {
-    margin-top: 0.6rem; /* 0.8rem → 0.6rem로 축소 */
+    height:20px; /* 기존 HTML의 height: 20px;와 일치 */
+    margin-top: 0.4rem; /* 0.6rem → 0.4rem로 축소 */
     width: 100%;
 }
 
@@ -453,7 +479,7 @@
 
 /* --- 기존 요약 보기 관련 --- */
 .existing-summaries-container {
-    margin-top: 0.8rem; /* 1.2rem → 0.8rem로 축소 */
+    margin-top: 0.6rem; /* 0.8rem → 0.6rem로 축소 */
     text-align: center;
     transition:
         opacity 0.3s ease-out,
@@ -462,7 +488,7 @@
 
 #existingSummariesCard {
     text-align: left;
-    margin-top: 0.8rem; /* 1.2rem → 0.8rem로 축소 */
+    margin-top: 0.6rem; /* 0.8rem → 0.6rem로 축소 */
 }
 #existingSummariesCard .card-header {
     display: flex;
@@ -480,8 +506,8 @@
 .existing-summaries-list {
     list-style: none;
     padding: 0;
-    margin-top: 6px; /* 8px → 6px로 축소 */
-    max-height: 250px; /* 320px → 250px로 축소 */
+    margin-top: 4px; /* 6px → 4px로 축소 */
+    max-height: 180px; /* 250px → 180px로 축소 */
     overflow-y: auto;
     border: 1px solid var(--border-color);
     border-radius: var(--border-radius);
@@ -489,7 +515,7 @@
 .existing-summaries-list li {
     display: flex;
     align-items: center;
-    padding: 8px 10px; /* 10px 12px → 8px 10px로 축소 */
+    padding: 6px 8px; /* 8px 10px → 6px 8px로 축소 */
     border-bottom: 1px solid #f1f3f5;
     cursor: pointer;
     transition: background-color 0.2s ease-in-out;
@@ -503,8 +529,8 @@
 .existing-summaries-list li i.fa-film {
     font-size: 1.1rem; /* 폰트 크기 유지 */
     color: var(--primary-color);
-    margin-right: 8px; /* 10px → 8px로 축소 */
-    min-width: 16px; /* 18px → 16px로 축소 */
+    margin-right: 6px; /* 8px → 6px로 축소 */
+    min-width: 14px; /* 16px → 14px로 축소 */
     text-align: center;
 }
 .existing-summaries-list li span {
@@ -516,11 +542,11 @@
     text-overflow: ellipsis;
 }
 #loadingExistingSummaries {
-    padding: 12px; /* 16px → 12px로 축소 */
+    padding: 10px; /* 12px → 10px로 축소 */
     color: var(--gray-color);
 }
 #loadingExistingSummaries i {
-    margin-right: 5px; /* 6px → 5px로 축소 */
+    margin-right: 4px; /* 5px → 4px로 축소 */
 }
 .animate__fadeInUpSm {
     animation-name: fadeInUpSm;

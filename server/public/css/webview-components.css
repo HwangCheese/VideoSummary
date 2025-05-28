@@ -211,7 +211,6 @@ button:not(:disabled):hover .btn-shine {
     flex-direction: column;
     gap: 0.8rem;
     background-color: white;
-    padding: 1.2rem;
     border-radius: var(--border-radius);
     border: 1px solid #eaecf3;
 }

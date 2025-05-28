@@ -1,3 +1,22 @@
+#progress-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 수직 중앙 정렬 */
+    align-items: center;   /* 수평 중앙 정렬 */
+    min-height: calc(100vh - var(--header-height, 0px)); /* 헤더를 제외한 높이에서 중앙 정렬 */
+    width: 100%;
+    box-sizing: border-box;
+    padding: 1rem; /* 내부 콘텐츠가 가장자리에 너무 붙지 않도록 패딩 추가 */
+    overflow-y: auto; /* 내용이 많아질 경우 스크롤 가능하게 함 */
+    -webkit-overflow-scrolling: touch;
+}
+
+#progress-section > *:not(.card) { 
+    max-width: 420px; 
+    width: 100%;
+    box-sizing: border-box;
+}
+
 .status-message {
     font-weight: 400;
     margin-bottom: 1.5rem;
