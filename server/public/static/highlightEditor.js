@@ -90,7 +90,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             backupSegments = null;
         }
         commonExitEditModeActions();
-        showToast("편집이 취소되었습니다.", "info");
     }
 
     function exitEditModeAfterSave() {
@@ -194,7 +193,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                     if (confirm(`이 구간(${formatTime(seg.start_time)} ~ ${formatTime(seg.end_time)})을 삭제하시겠습니까?`)) {
                         highlightSegments.splice(index, 1);
                         showHighlightBar();
-                        showToast("구간이 삭제되었습니다.", "info");
                     }
                 });
 
@@ -337,7 +335,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             cancelEditBtn.disabled = false;
 
             if (res.ok) {
-                showToast("숏폼 변경사항이 저장되었습니다!", "success");
                 const data = await res.json();
                 if (finalVideo && data.video_path) {
                     finalVideo.src = data.video_path;
@@ -401,7 +398,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         highlightSegments.push(newSegment);
         highlightSegments.sort((a, b) => a.start_time - b.start_time);
         showHighlightBar();
-        showToast("새 구간 추가됨. 위치나 길이를 조절하세요.", "info");
     });
 
     function setupDragAndDrop(block, segRef, segmentIndex) {
