@@ -92,7 +92,7 @@ server/public/css/result.css
 
 .quick-download-icon {
     font-size: 1.1rem;
-    color: var(--primary-color);
+    color: #c41e6b;
     cursor: pointer;
     padding: 5px;
     border-radius: 50%;
@@ -101,11 +101,6 @@ server/public/css/result.css
         color 0.2s ease;
     position: relative;
     transform: translateY(-7px);
-}
-
-.quick-download-icon:hover {
-    background-color: rgba(var(--primary-rgb), 0.1);
-    color: var(--primary-dark);
 }
 
 /* --- 하이라이트 섹션 (원본 비디오 박스 내부) --- */
@@ -326,6 +321,7 @@ server/public/css/result.css
     gap: 0.4rem;
     font-size: 0.85rem;
     color: var(--gray-color);
+    transform: translateY(8px);
 }
 
 .legend-color {
