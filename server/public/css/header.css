@@ -58,6 +58,9 @@ server/public/css/header.css
     align-items: baseline;
 }
 
+.header-logo {
+    width: 200px;
+}
 .logo-video {
     font-size: 1.7rem;
     font-weight: bold;
