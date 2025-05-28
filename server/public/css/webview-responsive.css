@@ -1,0 +1,67 @@
+/*
+server/public/css/responsive.css
+반응형 미디어 쿼리
+*/
+
+/* 업로드 섹션을 화면 위쪽에 붙이기 */
+.upload-section.scroll-section {
+    justify-content: flex-start; /* 중앙 -> 상단 정렬 */
+    padding-top: 4vh; /* 약간 띄워줌 */
+}
+
+header {
+    margin-bottom: 0.6rem;
+}
+
+.container {
+    padding: 1rem;
+}
+
+h1 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 0.6rem;
+    margin-bottom: 1rem;
+}
+
+/* 카드 간격 축소 */
+.card-body {
+    padding: 1.2rem;
+}
+
+.card-header {
+    padding: 0.9rem 1.2rem;
+}
+
+.card-header h2 {
+    font-size: 1.1rem;
+}
+
+#dropZone {
+    min-height: 140px;
+    padding: 1.2rem;
+}
+
+#dropZone.uploaded {
+    height: 80px;
+    min-height: 0;
+}
+
+.button-group {
+    flex-direction: column;
+    gap: 0.8rem; /* 버튼 간 간격 추가 */
+}
+.option-buttons {
+    gap: 0.6rem;
+}
+
+/* .summary-option-btn {
+    font-size: 0.85rem;
+}
+
+.summary-duration input {
+    font-size: 0.85rem;
+} */

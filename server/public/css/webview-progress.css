@@ -1,0 +1,159 @@
+.status-message {
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+#status {
+    font-size: 0.8rem;
+}
+
+.status-message i {
+    color: var(--primary-color);
+}
+
+#progressBarContainer {
+    width: 100%;
+    height: 14px;
+    background: var(--light-gray);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#progressBarInner {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(-45deg, var(--primary-color), var(--accent-color), var(--primary-color));
+    background-size: 200% 200%;
+    border-radius: 20px;
+    transition: width 0.5s ease;
+    animation: gradientMove 3s ease infinite;
+}
+
+@keyframes gradientMove {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+#progressSteps {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    position: relative;
+}
+
+#progressSteps::before {
+    content: "";
+    position: absolute;
+    top: 20px;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background-color: var(--light-gray);
+    z-index: 0;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 33.33%;
+    position: relative;
+    color: var(--gray-color);
+    z-index: 1;
+}
+
+.step-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--light-gray);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0.8rem;
+    transition: var(--transition);
+    position: relative;
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+}
+
+.step i {
+    font-size: 0.8rem;
+    color: var(--gray-color);
+    transition: var(--transition);
+}
+
+.step span {
+    font-size: 0.6rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.step.active .step-icon {
+    background: var(--gradient);
+    transform: scale(1.1);
+}
+
+.step.active i {
+    color: white;
+}
+
+.step.active span {
+    color: var(--primary-color);
+    font-weight: 600;
+}
+
+.step.completed .step-icon {
+    background-color: var(--success-color);
+}
+
+.step.completed i {
+    color: white;
+}
+
+#elapsedTimeContainer {
+    margin-top: 10px;
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-in;
+}
+
+#elapsedTimeContainer i {
+    color: #333;
+}
+
+#viewResultsBtn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    width: 200px;
+    color: #fff;
+    background-color: var(--primary-color);
+    border: none;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: none;
+}
+
+#viewResultsBtn i {
+    margin-right: 0.5rem;
+}

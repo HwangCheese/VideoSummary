@@ -1,0 +1,430 @@
+/* 
+server/public/css/components.css 
+각종 버튼, 컴포넌트 css
+*/
+
+button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 1.8rem;
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    justify-content: center;
+    transition: var(--transition);
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    letter-spacing: 0.5px;
+}
+
+button:disabled {
+    background-color: var(--light-gray);
+    color: var(--gray-color);
+    cursor: not-allowed;
+}
+
+button:not(:disabled):hover {
+    transform: translateY(-2px);
+}
+
+/* 버튼 Shine 효과 */
+.btn-shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg);
+    transition: all 0.75s ease;
+}
+
+button:not(:disabled):hover .btn-shine {
+    left: 100%;
+}
+
+/* 버튼 그룹 */
+.button-group {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* 기본 버튼 (새 영상, 공유, 다운로드) - 기본 보이게 */
+.default-action {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+    visibility: visible;
+}
+
+/* 편집 버튼 (customizeBtn) 항상 보임 */
+#customizeBtn {
+    opacity: 1;
+    transform: translateY(0);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+}
+
+/* 저장 버튼 (saveCustomBtn) 기본 숨김 */
+#saveCustomBtn {
+    opacity: 0;
+    transform: translateY(10px);
+    transition:
+        opacity 0.4s ease,
+        transform 0.4s ease;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* 버튼 타입별 스타일 */
+.primary-btn {
+    background: var(--gradient);
+}
+
+.accent-btn {
+    background-color: var(--light-gray);
+    color: var(--dark-color);
+}
+
+.accent-btn:hover {
+    background-color: #dce2e6;
+}
+
+.secondary-btn {
+    background: var(--gradient-accent);
+}
+
+.secondary-btn:hover {
+    background: linear-gradient(135deg, var(--accent-dark), #9c1485);
+}
+
+.summary-options {
+    background-color: #f8f9fc;
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    border: 1px solid #eaecf3;
+}
+
+.summary-options h3 {
+    margin-top: 0;
+    margin-bottom: 1.2rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* 라디오 버튼 그룹 스타일링 */
+.option-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 실제 라디오 버튼 숨기기 */
+.summary-type-radio {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* 라디오 버튼 라벨 스타일링 */
+.summary-type-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.2rem;
+    background-color: white;
+    border: 2px solid #e1e5ee;
+    border-radius: var(--border-radius);
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--gray-color);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    flex: 1;
+    justify-content: center;
+    min-width: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 라디오 버튼 호버 효과 */
+.summary-type-label:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(67, 97, 238, 0.15);
+}
+
+/* 선택된 라디오 버튼 스타일 */
+.summary-type-radio:checked + .summary-type-label {
+    background: linear-gradient(135deg, rgba(67, 97, 238, 0.05), rgba(67, 97, 238, 0.1));
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 4px 12px rgba(67, 97, 238, 0.15);
+}
+
+/* 선택된 라디오 버튼에 체크마크 아이콘 추가 */
+.summary-type-radio:checked + .summary-type-label::after {
+    content: "✓";
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* 요약 영상 길이 입력 필드 스타일 개선 */
+.summary-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    background-color: white;
+    padding: 1.2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid #eaecf3;
+}
+
+.summary-duration label {
+    font-size: 0.7rem;
+    color: var(--dark-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 500;
+}
+
+.summary-duration input {
+    padding: 0.9rem;
+    border-radius: var(--border-radius);
+    border: 2px solid #e1e5ee;
+    font-size: 0.7rem;
+    transition: var(--transition);
+    background-color: #f8f9fc;
+}
+
+.summary-duration input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.15);
+    background-color: white;
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+    .option-group {
+        flex-direction: column;
+    }
+
+    .summary-type-label {
+        width: 100%;
+        justify-content: flex-start;
+    }
+}
+
+.summary-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-duration label {
+    font-size: 0.7rem;
+    color: var(--gray-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-duration input {
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--light-gray);
+    font-size: 0.7rem;
+    transition: var(--transition);
+}
+
+.summary-duration input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(var(--primary-rgb, 67, 97, 238), 0.2); /* 주 색상 기반 포커스 링 */
+}
+
+/* 영상 요약 길이 입력 */
+.summary-duration {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.summary-duration label {
+    font-size: 0.7rem;
+    color: var(--gray-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.summary-duration input {
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--light-gray);
+    font-size: 0.7rem;
+    transition: var(--transition);
+}
+
+.summary-duration input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+}
+
+.summary-options {
+    background-color: #f8f9ff;
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.summary-options h3 {
+    color: #333;
+    font-size: 12px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+}
+
+.summary-options h3 i {
+    color: #4169e1;
+    margin-right: 8px;
+    font-size: 10px;
+}
+
+.weight-slider-container {
+    padding: 10px 0;
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+}
+
+.label-left,
+.label-right {
+    font-size: 11px;
+    font-weight: 500;
+    color: #555;
+}
+
+.label-left {
+    color: #3b5de7;
+}
+
+.label-right {
+    color: #ff6b6b;
+}
+
+.slider-wrapper {
+    position: relative;
+    height: 50px;
+    display: flex;
+    align-items: center;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    background: transparent;
+    outline: none;
+    z-index: 5;
+}
+
+.slider-progress {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 8px;
+    width: 100%;
+    background: linear-gradient(to right, #3b5de7, #ff6b6b);
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #4169e1;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #4169e1;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+    transition: all 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover,
+input[type="range"]::-webkit-slider-thumb:active {
+    transform: scale(1.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+input[type="range"]::-moz-range-thumb:hover,
+input[type="range"]::-moz-range-thumb:active {
+    transform: scale(1.15);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+@media (max-width: 480px) {
+    .summary-options {
+        padding: 20px;
+    }
+}

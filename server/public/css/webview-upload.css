@@ -1,0 +1,554 @@
+/* server/public/css/upload.css (또는 style.css에 통합될 내용) */
+
+/* --- CSS 변수 정의 --- */
+:root {
+    --primary-color: #4361ee;
+    --primary-light: #e0e6fc;
+    --secondary-color: #6c757d;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --warning-color: #ffc107;
+    --gray-color: #6c757d;
+    --light-gray: #f0f2f5;
+    --medium-gray: #d1d8e0;
+    --dark-gray: #495057;
+    --dark-color: #343a40;
+    --white-color: #ffffff;
+    --black-color: #000000;
+    --border-radius: 8px;
+    --border-color: #e9ecef;
+    --font-family-base: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+        sans-serif;
+    --box-shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --transition-base: all 0.3s ease-in-out;
+    --primary-rgb: 67, 97, 238;
+}
+
+/* --- 드롭존 --- */
+#dropZone {
+    width: 100%;
+    min-height: 120px; /* 180px → 120px로 축소 */
+    border: 3px dashed var(--medium-gray);
+    border-radius: var(--border-radius);
+    /* display: flex; */ /* JS에서 제어하므로 주석 처리 또는 제거 가능 */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem; /* 0.6rem → 0.4rem로 축소 */
+    cursor: pointer;
+    transition:
+        opacity 0.3s ease-out,
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        transform 0.2s ease;
+    color: var(--gray-color);
+    position: relative;
+    overflow: hidden;
+    background-color: rgba(255, 255, 255, 0.6);
+    padding: 0.8rem; /* 1.2rem → 0.8rem로 축소 */
+    margin-bottom: 0.6rem; /* 1rem → 0.6rem로 축소 */
+}
+#dropZone.hover {
+    background-color: rgba(var(--primary-rgb), 0.05);
+    border-color: var(--primary-color);
+    transform: scale(1.01);
+}
+
+/* 드롭존 내부 초기 안내 요소들 */
+.upload-icon-container {
+    width: 40px; /* 50px → 40px로 축소 */
+    height: 40px; /* 50px → 40px로 축소 */
+    border-radius: 50%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition-base);
+    margin-bottom: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+}
+#dropZone.hover .upload-icon-container {
+    background-color: var(--primary-light);
+}
+
+#dropZone i.fa-cloud-upload-alt {
+    font-size: 1.5rem; /* 폰트 크기 유지 */
+    color: var(--primary-color);
+    transition: var(--transition-base);
+}
+#dropZone.hover i.fa-cloud-upload-alt {
+    color: var(--white-color);
+    transform: scale(1.1);
+}
+
+#dropZone > p {
+    font-size: 0.9rem; /* 폰트 크기 유지 */
+    margin: 0;
+    font-weight: 500;
+    color: var(--dark-gray);
+}
+#dropZone > .small {
+    font-size: 0.75rem; /* 폰트 크기 유지 */
+    opacity: 0.7;
+    color: var(--gray-color);
+}
+
+/* 드롭존 장식 요소 */
+.upload-decorations {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+.decoration {
+    position: absolute;
+    border-radius: 50%;
+    background-color: var(--primary-light);
+    opacity: 0.1;
+    transform: scale(0);
+    transition: transform 0.5s ease;
+}
+#dropZone.hover .decoration {
+    transform: scale(1);
+}
+.decoration.d1 {
+    width: 25px; /* 35px → 25px로 축소 */
+    height: 25px;
+    top: 10%;
+    left: 10%;
+    transition-delay: 0.1s;
+}
+.decoration.d2 {
+    width: 35px; /* 50px → 35px로 축소 */
+    height: 35px;
+    top: 60%;
+    left: 15%;
+    transition-delay: 0.2s;
+}
+.decoration.d3 {
+    width: 30px; /* 40px → 30px로 축소 */
+    height: 30px;
+    top: 30%;
+    right: 15%;
+    transition-delay: 0.3s;
+}
+.decoration.d4 {
+    width: 20px; /* 25px → 20px로 축소 */
+    height: 20px;
+    bottom: 15%;
+    right: 10%;
+    transition-delay: 0.4s;
+}
+
+/* --- 파일 정보 및 옵션 컨테이너 --- */
+#fileActionsContainer {
+    /* display: none; */ /* JS에서 초기 display:block으로 설정하므로 제거 또는 주석 */
+    width: 100%;
+    /* opacity: 0; */ /* JS에서 초기 opacity:1로 설정하므로 제거 또는 주석 */
+    /* transition: opacity 0.3s ease-in-out 0.1s; */ /* JS에서 클래스로 제어 가능 */
+}
+/* #fileActionsContainer.visible {
+    opacity: 1;
+} */ /* JS에서 직접 opacity를 1로 설정하므로 이 클래스는 불필요할 수 있음 */
+
+/* #uploadInfo: 파일 정보 전체를 감싸는 div */
+#uploadInfo {
+    margin-bottom: 0.6rem; /* 1rem → 0.6rem로 축소 */
+}
+
+/* .file-info: 아이콘, 상세정보, 제거버튼을 포함하는 한 줄 */
+.file-info {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem; /* 0.8rem → 0.6rem로 축소 */
+    background-color: var(--light-gray);
+    padding: 0.8rem 1rem; /* 1.2rem 1.5rem → 0.8rem 1rem로 축소 */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+}
+.file-info:hover {
+    background-color: #e9ecef;
+}
+
+.file-icon {
+    width: 30px; /* 36px → 30px로 축소 */
+    height: 30px; /* 36px → 30px로 축소 */
+    border-radius: 6px;
+    background: var(--primary-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.file-info i.fa-file-video {
+    color: var(--white-color);
+    font-size: 0.9rem; /* 폰트 크기 유지 */
+}
+
+.file-details {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-width: 0;
+}
+
+#fileName {
+    font-weight: 600;
+    color: var(--dark-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.75rem; /* 폰트 크기 유지 */
+    margin-bottom: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+    line-height: 1.3; /* 라인 높이 유지 */
+}
+
+.file-meta-data {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.2rem 0.4rem; /* 0.3rem 0.6rem → 0.2rem 0.4rem로 축소 */
+    font-size: 0.6rem; /* 폰트 크기 유지 */
+    color: var(--gray-color);
+    line-height: 1.2; /* 라인 높이 유지 */
+}
+#fileSize,
+#fileDuration,
+#fileType,
+#fileResolution,
+#fileBitrate {
+    white-space: nowrap;
+}
+.meta-divider {
+    color: var(--medium-gray);
+    font-size: 0.7rem; /* 폰트 크기 유지 */
+    padding: 0 0.1rem;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    width: 24px; /* 28px → 24px로 축소 */
+    height: 24px; /* 28px → 24px로 축소 */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--gray-color);
+    cursor: pointer;
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+    padding: 0;
+    flex-shrink: 0;
+}
+.icon-btn:hover {
+    background-color: rgba(0, 0, 0, 0.07);
+    color: var(--dark-color);
+}
+
+/* --- 요약 옵션 (성향 선택, 길이 설정) --- */
+.summary-controls-group {
+    margin-top: 0.6rem; /* 1rem → 0.6rem로 축소 */
+}
+.summary-options {
+    background-color: var(--light-gray);
+    padding: 0.3rem 0.8rem; /* 0.4rem 1.2rem → 0.3rem 0.8rem로 축소 */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    margin-bottom: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+}
+
+/* "원하는 요약 영상 비율" 섹션 컨테이너 */
+.summary-duration {
+    background-color: var(--light-gray);
+    padding: 0.4rem 0.8rem; /* 0.6rem 1.2rem → 0.4rem 0.8rem로 축소 */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    margin-top: 0.2rem; /* 0.3rem → 0.2rem로 축소 */
+}
+
+.summary-options h5,
+.summary-duration > label {
+    display: block;
+    margin-bottom: 0.05rem; /* 마진 유지 */
+    font-weight: 600;
+    color: var(--dark-color);
+    font-size: 0.85rem; /* 폰트 크기 유지 */
+}
+.summary-options h5 i,
+.summary-duration > label i {
+    margin-right: 0.4rem; /* 마진 유지 */
+    color: var(--primary-color);
+}
+
+/* 요약 성향 슬라이더 */
+.weight-slider-container {
+    margin-top: 0;
+}
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.6rem; /* 폰트 크기 유지 */
+    color: var(--gray-color);
+    margin-bottom: 0.05rem; /* 마진 유지 */
+}
+.slider-wrapper {
+    position: relative;
+}
+#importanceSlider {
+    width: 100%;
+    cursor: pointer;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+.slider-value-display {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0;
+    font-size: 0.75rem; /* 폰트 크기 유지 */
+    font-weight: 700;
+    color: var(--dark-color);
+    padding: 0 2px;
+}
+.slider-value-colon {
+    font-weight: normal;
+    color: var(--gray-color);
+    font-size: 0.65rem; /* 폰트 크기 유지 */
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.slider-wrapper::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background-color: var(--black-color);
+    transform: translateX(-50%);
+    z-index: 1;
+}
+
+/* 원하는 요약 영상 길이 입력 그룹 */
+.duration-input-group {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    background-color: var(--white-color);
+    padding: 0.3rem 0.6rem; /* 0.4rem 0.8rem → 0.3rem 0.6rem로 축소 */
+    border-radius: var(--border-radius);
+    border: 1px solid var(--medium-gray);
+    margin-top: 0.3rem; /* 0.4rem → 0.3rem로 축소 */
+    box-shadow: var(--box-shadow-sm);
+}
+.duration-input-group input[type="number"],
+.duration-input-group input[type="text"]#calculatedDurationOutput {
+    border: none;
+    outline: none;
+    padding: 0.15rem 0.1rem; /* 0.2rem 0.1rem → 0.15rem 0.1rem로 축소 */
+    font-size: 0.75rem; /* 폰트 크기 유지 */
+    text-align: center;
+    background-color: transparent;
+    box-shadow: none;
+}
+.duration-input-group input[type="number"]#durationPercentageInput {
+    width: 55px; /* 65px → 55px로 축소 */
+    font-weight: 700;
+    color: var(--primary-color);
+    -moz-appearance: textfield;
+}
+.duration-input-group input[type="number"]#durationPercentageInput::-webkit-outer-spin-button,
+.duration-input-group input[type="number"]#durationPercentageInput::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.duration-input-group input[type="text"]#calculatedDurationOutput {
+    width: 70px; /* 80px → 70px로 축소 */
+    color: var(--dark-color);
+    font-weight: 600;
+    cursor: default;
+}
+.duration-input-group .unit {
+    font-size: 0.95rem; /* 폰트 크기 유지 */
+    color: var(--gray-color);
+    font-weight: 500;
+}
+.duration-input-group .duration-arrow {
+    color: var(--primary-color);
+    font-size: 0.95rem; /* 폰트 크기 유지 */
+    margin: 0 0.3rem; /* 0 0.4rem → 0 0.3rem로 축소 */
+}
+.duration-input-group:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(var(--primary-rgb), 0.25);
+}
+
+.spinner-btn {
+    background: #f8f9fa;
+    border: none;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s ease;
+    font-size: 12px;
+}
+
+.spinner-btn:hover {
+    background: #e9ecef;
+    color: #374151;
+}
+
+.spinner-btn:active {
+    background: #dee2e6;
+    transform: scale(0.95);
+}
+
+.spinner-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #f8f9fa;
+}
+
+.spinner-btn.up {
+    border-top-right-radius: 6px;
+    border-bottom: 1px solid #e1e5e9;
+}
+
+.spinner-btn.down {
+    border-bottom-right-radius: 6px;
+}
+
+.spinner-buttons {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* --- 시작 버튼 --- */
+#startBtn {
+    margin-top: 0.6rem; /* 0.8rem → 0.6rem로 축소 */
+    width: 100%;
+}
+
+/* --- #uploadCard 숨김/표시 애니메이션 --- */
+#uploadCard.hidden-anim {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.98);
+    max-height: 0 !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+    border-width: 0 !important;
+}
+
+/* --- 기존 요약 보기 관련 --- */
+.existing-summaries-container {
+    margin-top: 0.8rem; /* 1.2rem → 0.8rem로 축소 */
+    text-align: center;
+    transition:
+        opacity 0.3s ease-out,
+        visibility 0.3s ease-out;
+}
+
+#existingSummariesCard {
+    text-align: left;
+    margin-top: 0.8rem; /* 1.2rem → 0.8rem로 축소 */
+}
+#existingSummariesCard .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+#backToUploadBtn {
+    font-size: 1.1rem; /* 폰트 크기 유지 */
+    color: var(--gray-color);
+}
+#backToUploadBtn:hover {
+    color: var(--dark-color);
+}
+.existing-summaries-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 6px; /* 8px → 6px로 축소 */
+    max-height: 250px; /* 320px → 250px로 축소 */
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+}
+.existing-summaries-list li {
+    display: flex;
+    align-items: center;
+    padding: 8px 10px; /* 10px 12px → 8px 10px로 축소 */
+    border-bottom: 1px solid #f1f3f5;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+.existing-summaries-list li:last-child {
+    border-bottom: none;
+}
+.existing-summaries-list li:hover {
+    background-color: var(--light-gray);
+}
+.existing-summaries-list li i.fa-film {
+    font-size: 1.1rem; /* 폰트 크기 유지 */
+    color: var(--primary-color);
+    margin-right: 8px; /* 10px → 8px로 축소 */
+    min-width: 16px; /* 18px → 16px로 축소 */
+    text-align: center;
+}
+.existing-summaries-list li span {
+    flex-grow: 1;
+    font-size: 0.9em; /* 폰트 크기 유지 */
+    color: var(--dark-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#loadingExistingSummaries {
+    padding: 12px; /* 16px → 12px로 축소 */
+    color: var(--gray-color);
+}
+#loadingExistingSummaries i {
+    margin-right: 5px; /* 6px → 5px로 축소 */
+}
+.animate__fadeInUpSm {
+    animation-name: fadeInUpSm;
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+@keyframes fadeInUpSm {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 20px, 0) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+}
+.animate__fadeOutDownSm {
+    animation-name: fadeOutDownSm;
+    animation-duration: 0.4s;
+    animation-fill-mode: both;
+}
+@keyframes fadeOutDownSm {
+    from {
+        opacity: 1;
+        transform: translate3d(0, 0, 0) scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: translate3d(0, 10px, 0) scale(0.98);
+    }
+}
