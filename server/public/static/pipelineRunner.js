@@ -228,7 +228,6 @@ async function fetchReportAndScoreForUIInternal(baseFilenameForReport) {
     if (summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
   }
   if (document.getElementById('result-section')?.classList.contains('active-scroll-section')) {
-    animateMetrics();
     animateScoreCounter();
   }
 }
@@ -468,49 +467,7 @@ function animateScoreCounter() {
   requestAnimationFrame(updateScoreCounter);
 }
 
-function animateMetrics() {
-  const metricsItems = document.querySelectorAll('.shortform-details-sidebar .metric-item');
-  if (metricsItems.length === 0) return;
-  metricsItems.forEach((item, index) => {
-    setTimeout(() => {
-      item.style.opacity = '0';
-      item.style.transform = 'translateY(20px)';
-      item.classList.add('animate__animated', 'animate__fadeInUp');
-      item.style.opacity = '1';
-      item.style.transform = 'translateY(0)';
 
-      const valueElement = item.querySelector('.metric-value');
-      if (valueElement) {
-        const originalHTML = valueElement.innerHTML;
-        const textContentForParsing = valueElement.textContent;
-
-        if (textContentForParsing === 'N/A' || !textContentForParsing || textContentForParsing.includes('n')) return;
-
-        if (valueElement.id === 'viewingTimeValue') { }
-        else {
-          const match = textContentForParsing.match(/([0-9.]+)(.*)/);
-          if (match && match[1]) {
-            const finalValue = parseFloat(match[1]);
-            let suffix = '';
-            let isComplex = false;
-            if (originalHTML.includes('<span class="metric-unit">')) {
-              suffix = originalHTML.substring(originalHTML.indexOf('%') + 1).trim();
-              if (valueElement.id === 'keyScenesCountValue') {
-                suffix = originalHTML.substring(originalHTML.indexOf('개') + 1).trim();
-              }
-              isComplex = true;
-            } else {
-              suffix = match[2] ? match[2].trim() : '';
-            }
-            if (!isNaN(finalValue)) {
-              animateCounter(valueElement, 0, finalValue, textContentForParsing.includes('.') ? 1 : 0, suffix, isComplex);
-            }
-          }
-        }
-      }
-    }, index * 150);
-  });
-}
 
 export async function loadResultDataForExistingSummary(originalFile, baseName, summaryVideoPath) {
   setGlobalUploadedFileName(originalFile);
@@ -870,7 +827,6 @@ export function initPipelineRunner() {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('active-scroll-section');
-          animateMetrics();
           animateScoreCounter();
         } else {
           entry.target.classList.remove('active-scroll-section');

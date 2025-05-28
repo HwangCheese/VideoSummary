@@ -256,7 +256,8 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         "summary_duration": round(summary_duration, 2),
         "compression_ratio": compression_ratio,
         "selected_segment_count": selected_segment_count, 
-        "total_scene_count": total_scene_count 
+        "total_scene_count": total_scene_count,
+        "importance_weight_used_by_pipeline": importance_weight
     }
 
     report_path = os.path.join(output_dir, f"{base}_report.json")
