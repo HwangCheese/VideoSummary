@@ -162,31 +162,26 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
     # 9. 품질 점수 계산
     score_path = os.path.join(output_dir, f"{base}_score.json")
     final_quality_score = 0.0
-    score_calculation_successful = False  # 최종 점수가 유효하게 로드 또는 계산되었는지 여부
+    score_calculation_successful = False 
 
-    # 먼저 기존 점수 파일 로드 시도
     if os.path.exists(score_path):
-        print(f"\n📊 품질 점수 - 기존 점수 파일({score_path}) 확인 중...", flush=True)
+        print(f"\n📊 품질 점수 - 점수 파일({score_path}) 확인 중...", flush=True)
         try:
             with open(score_path, "r", encoding="utf-8") as f:
                 loaded_score_data = json.load(f)
-            # "summary_score" 키가 있고, 숫자 타입인지 확인
             if "summary_score" in loaded_score_data and isinstance(loaded_score_data["summary_score"], (float, int)):
                 final_quality_score = float(loaded_score_data["summary_score"])
                 score_calculation_successful = True
                 print(f"  📈 기존 품질 점수 로드됨: {final_quality_score:.1f}/100", flush=True)
             else:
                 print(f"  ⚠️ 경고: 기존 점수 파일({score_path})에 유효한 'summary_score'가 없습니다. 점수를 새로 계산합니다.", flush=True)
-                # score_calculation_successful는 False로 유지되어 재계산 로직으로 넘어감
         except json.JSONDecodeError:
             print(f"  ⚠️ 경고: 기존 점수 파일({score_path})이 유효한 JSON 형식이 아닙니다. 점수를 새로 계산합니다.", flush=True)
         except Exception as e:
             print(f"  ⚠️ 경고: 기존 점수 파일 로드 중 오류 발생 ({e}). 점수를 새로 계산합니다.", flush=True)
     else:
-        # score_path 파일이 존재하지 않으면 계산 필요 메시지 출력
         print(f"\n📊 품질 점수 - 점수 파일({score_path}) 없음. 계산을 진행합니다.", flush=True)
 
-    # 점수가 성공적으로 로드되지 않았다면(파일이 없거나, 로드 실패, 내용 부적절 등) 새로 계산
     if not score_calculation_successful:
         print("  품질 점수 계산 로직 실행 중...", flush=True)
         try:
@@ -196,31 +191,24 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
                 all_segments_json_path=sorted_json,
                 selected_segments_info_path=selected_json,
             )
-            # run_evaluation 결과가 숫자인지 확인
             if isinstance(calculated_score, (float, int)):
                 final_quality_score = float(calculated_score)
                 score_calculation_successful = True  # 계산 성공
             else:
                 print(f"⚠️ 경고: 품질 점수 계산 함수(run_evaluation)가 유효한 숫자 값을 반환하지 않았습니다 (반환값: {calculated_score}). 점수를 0.0으로 설정합니다.")
                 final_quality_score = 0.0
-                # score_calculation_successful는 False로 유지될 수 있음 (또는 명시적으로 False)
         
         except Exception as e:
             print(f"⚠️ 오류: 품질 점수 계산 함수(run_evaluation) 실행 중 예외 발생 - {e}")
             final_quality_score = 0.0  # 예외 발생 시 0점 처리
-            # score_calculation_successful는 False로 유지
             
-        # 새로 계산된 점수 (또는 실패 시 0점)를 파일에 저장
         score_data_to_save = {
             "summary_score": final_quality_score
-            # "score_type": "rank_based_relative", 
-            # "based_on_sort_key": sort_key # 원본 코드에서 주석 처리됨
         }
         
         try:
             with open(score_path, "w", encoding="utf-8") as f:
                 json.dump(score_data_to_save, f, indent=2, ensure_ascii=False)
-            # 저장 성공 메시지 (계산 성공 여부에 따라 다르게 표시 가능)
             if score_calculation_successful:
                  print(f"  [📁 SCORE PATH] 신규 점수 ({final_quality_score:.1f}/100) 저장 완료: {score_path}")
             else:
@@ -228,11 +216,9 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         except IOError as e:
             print(f"⚠️ 오류: 최종 점수 파일 저장 실패 - {score_path} - {e}")
 
-    # 최종 점수 상태 출력 (로드되었거나 새로 계산된 상태 반영)
     if score_calculation_successful:
         print(f"📈 최종 품질 점수: {final_quality_score:.1f}/100", flush=True)
     else:
-        # 이 메시지는 로드도 실패하고 재계산도 실패했거나 유효하지 않은 결과를 얻었을 때 표시됨
         print(f"📉 품질 점수 계산/로드에 실패했거나 유효한 결과를 얻지 못했습니다. 최종 점수: {final_quality_score:.1f}/100", flush=True)
     # 10. 요약 메타 정보 저장
     print("\n📊 요약 리포트 정보 계산 중...", flush=True)

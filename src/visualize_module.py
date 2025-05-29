@@ -118,8 +118,8 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
     frame_patch = mpatches.Patch(color="lightgray", label="Frame scores")
     sel_patch   = mpatches.Patch(color="crimson", alpha=0.3, label="Selected segments")
     ax.legend(handles=[frame_patch, sel_patch],
-              loc="upper left",             # 기본 위치
-              bbox_to_anchor=(1.01, 1),     # 오른쪽 바깥에 배치
+              loc="upper left", 
+              bbox_to_anchor=(1.01, 1),  
               borderaxespad=0.)
 
     # --- 6) 저장 또는 표시 ---
