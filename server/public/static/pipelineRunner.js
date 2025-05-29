@@ -333,7 +333,6 @@ function updateSummaryMetricsFromServerData(data) {
       const highlightRatioForText = Math.round((1 - sliderVal) * 100);
       const storyRatioForText = Math.round(sliderVal * 100);
 
-      // 콘솔 로그는 유지하여 값 확인
       console.log("Slider Value:", sliderVal);
       console.log("Highlight Ratio:", highlightRatioForText, "Display:", `하이라이트 ${highlightRatioForText}%`);
       console.log("Story Ratio:", storyRatioForText, "Display:", `스토리 ${storyRatioForText}%`);
@@ -344,11 +343,13 @@ function updateSummaryMetricsFromServerData(data) {
       const secondaryStyle = "color: var(--dark-color); font-weight: normal;";
 
       if (sliderVal === 0) {
-        summaryHtmlContent = `<span style="${primaryStyle}">하이라이트 100%</span>`;
+        summaryHtmlContent = `<span style="${primaryStyle}">${highlightTextDisplay}</span>`;
       } else if (sliderVal === 1) {
-        summaryHtmlContent = `<span style="${primaryStyle}">스토리 100%</span>`;
+        summaryHtmlContent = `<span style="${primaryStyle}">${storyTextDisplay}</span>`;
+      } else if (sliderVal === 0.5) {
+        summaryHtmlContent = `<span style="${secondaryStyle}"><b>${highlightTextDisplay}</b></span><br><span style="${secondaryStyle}"><b>${storyTextDisplay}</b></span>`;
       } else {
-        if (highlightRatioForText >= storyRatioForText) {
+        if (highlightRatioForText > storyRatioForText) {
           summaryHtmlContent = `<span style="${primaryStyle}">${highlightTextDisplay}</span><br><span style="${secondaryStyle}">${storyTextDisplay}</span>`;
         } else {
           summaryHtmlContent = `<span style="${primaryStyle}">${storyTextDisplay}</span><br><span style="${secondaryStyle}">${highlightTextDisplay}</span>`;
@@ -356,7 +357,6 @@ function updateSummaryMetricsFromServerData(data) {
       }
     }
   } else {
-    // 슬라이더가 없는 경우 (예: 이전 요약 불러오기 등) data.summary_type_text를 사용하거나 기본값 유지
     if (data && data.summary_type_text) {
       summaryHtmlContent = data.summary_type_text; // 서버 제공 텍스트 사용
     } else {
@@ -364,7 +364,6 @@ function updateSummaryMetricsFromServerData(data) {
     }
   }
 
-  // --- 다른 메트릭 업데이트 ---
   if (summaryScoreValueEl) {
     summaryScoreValueEl.textContent = data.summary_score !== undefined ? parseFloat(data.summary_score).toFixed(1) : 'N/A';
   }
