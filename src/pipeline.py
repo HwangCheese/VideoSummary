@@ -40,16 +40,13 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         extract_features_pipe(video_path, h5_path, scene_json, device=device)
 
     # 2. 오디오 추출
-    if os.path.exists(audio_wav):
-        print("\n🔊 [2/6] Whisper용 오디오 추출 - 기존 파일 발견, 스킵", flush=True)
-    else:
-        print("\n🔊 [2/6] Whisper용 오디오 추출", flush=True)
-        subprocess.run([
-            "ffmpeg", "-y", "-i", video_path,
-            "-vn", "-acodec", "pcm_s16le",
-            "-ar", "16000", "-ac", "1",
-            audio_wav
-        ], check=True)
+    print("\n🔊 [2/6] Whisper용 오디오 추출", flush=True)
+    subprocess.run([
+        "ffmpeg", "-y", "-i", video_path,
+        "-vn", "-acodec", "pcm_s16le",
+        "-ar", "16000", "-ac", "1",
+        audio_wav
+    ], check=True)
 
     # 3. Whisper 세그먼트
     if os.path.exists(whisper_json):
@@ -92,15 +89,12 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
         print(f"❌ 프레임 점수 시각화 실패: {e}")
 
    # 6. 요약 영상 생성
-    if os.path.exists(highlight_video):
-        print("\n🎞️ [6/6] 요약 영상 생성 - 기존 파일 발견, 스킵", flush=True)
-    else:
-        print("\n🎞️ [6/6] 요약 영상 생성", flush=True)
-        create_highlight_video(
-            selected_segments=json.load(open(refined_json, encoding="utf-8")),
-            video_path=video_path,
-            output_video=highlight_video
-        )
+    print("\n🎞️ [6/6] 요약 영상 생성", flush=True)
+    create_highlight_video(
+        selected_segments=json.load(open(refined_json, encoding="utf-8")),
+        video_path=video_path,
+        output_video=highlight_video
+    )
 
     # 7. 썸네일 사진 생성
     try:
