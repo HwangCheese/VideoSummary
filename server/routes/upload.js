@@ -198,12 +198,12 @@ router.get("/process", (req, res) => {
         updated = true;
       } else if (line.includes("[3/6]")) { // Python script step 3 is Whisper
         progressState.step = 4;
-        progressState.message = "🧠 문장 추출 중...";
+        progressState.message = "🧠 문장 변환 중...";
         progressState.percent = Math.max(progressState.percent, 65);
         updated = true;
       } else if (line.includes("[4/6]")) { // Python script step 4 is PGL-SUM (AI Analysis)
         progressState.step = 5;
-        progressState.message = "🎯 AI 분석 중...";
+        progressState.message = "🎯 장면 병합 중...";
         progressState.percent = Math.max(progressState.percent, 80);
         updated = true;
       } else if (line.includes("[6/6]") && !line.includes("기존 파일 발견")) { // Python script step 6 is Video Gen

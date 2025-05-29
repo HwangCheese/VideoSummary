@@ -108,6 +108,9 @@ function updateProgressUI(state) {
       sseSource = null;
     }
     stopElapsedTime();
+    if (!state.error) {
+      updateProgressStep(7);
+    }
     if (statusDiv) statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> 100% - 요약 완료!`;
 
     if (state.reportData) {
@@ -660,7 +663,7 @@ export function initPipelineRunner() {
       if (viewResultsBtn) {
         viewResultsBtn.style.display = "none";
       }
-      startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 생성 중...';
+      startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 요약 중...';
       if (highlightEditor) {
         highlightEditor.destroy();
         highlightEditor = null;
@@ -669,7 +672,7 @@ export function initPipelineRunner() {
       resetSummaryMetrics();
       if (progressCard) progressCard.style.display = "block";
       if (resultCard) resultCard.style.display = "none";
-      if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-hourglass-start"></i> 0% - 생성 시작 중...';
+      if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-hourglass-start"></i> 0% - 요약 시작 중...';
       if (progressBarInner) progressBarInner.style.width = "0%";
 
       startElapsedTime();

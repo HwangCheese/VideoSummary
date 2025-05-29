@@ -111,11 +111,29 @@ export function resetProgressSteps() {
     .forEach((s) => s.classList.remove("active", "completed"));
 }
 
-export function updateProgressStep(currentStep) {
-  document.querySelectorAll(".step").forEach((step, i) => {
-    const stepNum = i + 1;
-    step.classList.toggle("completed", stepNum < currentStep);
-    step.classList.toggle("active", stepNum === currentStep);
+export function updateProgressStep(currentStepNumber) {
+  const steps = document.querySelectorAll("#progressSteps .step");
+  steps.forEach(step => {
+    const stepNumberAttribute = step.dataset.step;
+    if (!stepNumberAttribute) return; // data-step이 없는 요소는 무시
+
+    const stepNum = parseInt(stepNumberAttribute, 10);
+
+    // 현재 지정된 단계(currentStepNumber)보다 작은 단계는 'completed'
+    if (stepNum < currentStepNumber) {
+      step.classList.add("completed");
+      step.classList.remove("active");
+    }
+    // 현재 지정된 단계와 같은 단계는 'active'
+    else if (stepNum === currentStepNumber) {
+      step.classList.remove("completed"); // 혹시 completed가 있었다면 제거
+      step.classList.add("active");
+    }
+    // 현재 지정된 단계보다 큰 단계는 모두 비활성화
+    else {
+      step.classList.remove("completed");
+      step.classList.remove("active");
+    }
   });
 }
 
