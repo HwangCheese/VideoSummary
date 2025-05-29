@@ -116,8 +116,8 @@
             /* Aligns "Video" and "Summary" nicely */
         }
 
-        .header-logo{
-            width:200px
+        .header-logo {
+            width: 200px
         }
 
         .user-icon {
@@ -132,7 +132,8 @@
 
         /* Adjust Hero section if necessary, body padding-top should handle it */
         .hero {
-            position: relative; /* 중요: 내부 absolute 요소의 기준점 */
+            position: relative;
+            /* 중요: 내부 absolute 요소의 기준점 */
             z-index: 1;
             min-height: calc(100vh - var(--header-height));
             min-height: auto;
@@ -143,7 +144,8 @@
             padding: 20vh 10vw 0 15vw;
             /* 기존 hero의 padding-bottom을 유지하되, features 섹션이 겹쳐서 표시될 공간을 확보해야 합니다. */
             /* 만약 features 섹션이 hero의 padding-bottom 영역에 들어간다면 이 값을 충분히 확보해야 합니다. */
-            min-height: 800px; /* features 섹션이 들어갈 공간을 충분히 확보 */
+            min-height: 800px;
+            /* features 섹션이 들어갈 공간을 충분히 확보 */
         }
 
         .hero-content {
@@ -317,27 +319,27 @@
 
         /* Features */
         .features {
-            position: absolute; 
-            left: 50%; 
+            position: absolute;
+            left: 50%;
             top: 25%;
-            transform: translateY(-50%); 
-            
-            opacity: 1; 
-            visibility: visible; 
-            transition: opacity 0.8s ease-in-out; 
-            
+            transform: translateY(-50%);
+
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.8s ease-in-out;
+
             width: 100%;
-            max-width: 700px; 
-            margin: 0; 
+            max-width: 700px;
+            margin: 0;
 
             text-align: center;
             background: rgba(255, 255, 255, 0.226);
             border-radius: 12px;
             padding: 10px 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
-        .features:not(.active) { 
+        .features:not(.active) {
             opacity: 0;
             visibility: hidden;
         }
@@ -483,8 +485,8 @@
                 </button>
                 <a href="index.html" class="logo-link">
                     <div class="logo-text-container">
-                        <img src="/images/logo.png" alt="logo img" class="header-logo" /> 
-                    </div> 
+                        <img src="/images/logo.png" alt="logo img" class="header-logo" />
+                    </div>
                 </a>
             </div>
         </div>
@@ -634,7 +636,7 @@
 
                 // 다음 기능 보여주기 (active 클래스와 AOS 속성 다시 추가)
                 const nextFeature = featureSections[currentFeatureIndex];
-                
+
                 // AOS 애니메이션을 다시 트리거하기 위해 잠시 대기
                 setTimeout(() => {
                     nextFeature.setAttribute('data-aos', 'fade-left'); // AOS 속성 다시 추가
@@ -647,15 +649,16 @@
             // 초기 로드 시 첫 번째 기능에 active 클래스 추가 (나머지는 CSS에 의해 숨겨짐)
             if (featureSections.length > 0) {
                 // 첫 번째 카드를 직접 active로 설정하면, AOS가 이를 감지하고 애니메이션을 시작합니다.
-                featureSections[0].classList.add('active'); 
+                featureSections[0].classList.add('active');
                 AOS.refresh(); // 첫 번째 카드에 대한 AOS 애니메이션을 확실히 트리거합니다.
 
                 // 첫 번째 기능이 나타난 후에 셔플 시작 (AOS 애니메이션 완료 시간 고려)
                 setTimeout(() => {
-                    setInterval(showNextFeature, 2500); // <-- setTimeout 지연 시간이 1000으로 변경
-                }, 1000); 
+                    setInterval(showNextFeature, 5500);
+                }, 1000);
             }
         });
     </script>
 </body>
+
 </html>
