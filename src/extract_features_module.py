@@ -150,6 +150,22 @@ def save_segments_to_json(scene_changes, output_json, total_frames, fps):
 
 # 특징 추출 및 TransNetV2 장면 분할 파이프라인
 def extract_features_pipe(video_path, output_h5, output_json, device="cuda"):
+    """
+    비디오 파일에서 시각적 특징(feature)과 장면(scene) 정보를 추출하여 파일로 저장한다.
+
+    이 함수는 파이프라인의 첫 단계로, 비디오를 분석하여 후속 AI 모델이 사용할 기초 데이터를 생성한다. 
+    macOS 호환성을 위해 내부적으로 비디오 처리 라이브러리를 선택한다.
+
+    Args:
+        video_path (str): 분석할 원본 비디오 파일의 경로
+        output_h5 (str): 추출된 시각적 특징 벡터를 저장할 .h5 파일 경로
+        output_json (str): 감지된 장면들의 시간 정보를 저장할 .json 파일 경로
+        device (str, optional): 연산에 사용할 장치("cpu" 또는 "cuda"). 기본값: cuda
+
+    Returns:
+        None: 이 함수는 값을 반환하는 대신 지정된 경로에 h5와 json 파일을 생성한다.
+    """
+
     os.makedirs(os.path.dirname(output_h5), exist_ok=True)
     os.makedirs(os.path.dirname(output_json), exist_ok=True)
 
