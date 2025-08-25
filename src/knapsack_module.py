@@ -1,4 +1,3 @@
-# knapsack_module.py
 import json
 import numpy as np
 import h5py
@@ -88,10 +87,21 @@ def greedy_submodular_knapsack_selection(segment_ids, segment_vectors, importanc
 
 def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combined_json, importance_weight, top_ratio=None, budget_time=None):
     """
-    pgl_module에서 생성한 세그먼트 프레임 범위 JSON 파일과 feature 파일을 이용해
-    Submodular + Knapsack 기반 세그먼트 선택을 실행하는 파이프라인 함수.
-    
-    선택된 세그먼트 ID들을 JSON 파일로 저장하고, 메모리 내 리스트로 반환합니다.
+    Submodular + Knapsack 알고리즘을 사용하여 최적의 세그먼트 조합을 선택한다.
+
+    주어진 예산(시간) 내에서 '중요도'와 '다양성'을 모두 고려하여 가치가 가장 높은 세그먼트들을 선택한다.
+
+    Args:
+        feature_h5 (str): 세그먼트 간 다양성(유사도) 계산에 사용할 특징(.h5) 파일 경로
+        scene_json (str): 각 세그먼트의 시간(비용) 정보를 담은 .json 파일 경로
+        fps (float): 비디오의 초당 프레임 수
+        output_sorted_combined_json (str): 중요도 점수 순으로 정렬된 모든 세그먼트 후보 리스트 .json 파일 경로
+        importance_weight (float): 중요도와 다양성 간의 가중치 (0.0~1.0) 1에 가까울수록 중요도에 집중한다.
+        top_ratio (float, optional): 전체 영상 길이 대비 요약 영상의 목표 비율. `budget_time`이 없으면 사용된다.
+        budget_time (float, optional): 요약 영상의 목표 시간을 초 단위로 직접 지정한다. `top_ratio`보다 우선된다.
+
+    Returns:
+        list: 최종적으로 선택된 세그먼트 객체(dict)들의 리스트
     """
 
     # h5_file = args.feature_h5  # pgl_module에서 사용한 feature 파일과 동일
@@ -140,10 +150,6 @@ def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combine
 
     print("선택된 세그먼트:", selected_ids)
     print("선택된 세그먼트 총 시간 (초):", used_time)
-
-    # with open(output_id_path, "w") as f:
-    #     json.dump(selected_ids, f, indent=2)
-    # print(f"💾 선택된 세그먼트 ID 저장됨 (JSON): {output_id_path}")
     
     # selected_ids → 실제 segment 객체들로 변환
     selected_segments = [seg for seg in sorted_combined if seg["segment_id"] in selected_ids]

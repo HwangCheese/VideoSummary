@@ -9,6 +9,22 @@ def check_overlap(whisper_start, whisper_end, vad_start, vad_end):
     return whisper_start < vad_end and whisper_end > vad_start
 
 def process(audio_path, scene_json_path, output_json_path, model_size="small", max_segment_gap_ms=500): # 최대 세그먼트 간격 추가
+    """
+    오디오 파일에서 음성 구간을 감지하고 텍스트로 변환하여 타임스탬프가 포함된 자막 세그먼트를 생성한다.
+
+    Silero-VAD로 음성 구간을 먼저 찾고, Whisper 모델로 해당 구간의 텍스트를 추출하여
+    정확도를 높인다.
+
+    Args:
+        audio_path (str): 분석할 오디오(.wav) 파일 경로
+        output_json_path (str): 생성된 자막 세그먼트를 저장할 .json 파일 경로
+        model_size (str, optional): 사용할 Whisper 모델의 크기. 기본값: "small"
+        max_segment_gap_ms (int, optional): 문장을 나눌 때 기준이 되는 단어 사이의 최대 간격(ms) 기본값: 500
+
+    Returns:
+        None: 이 함수는 값을 반환하는 대신 지정된 경로에 자막 .json 파일을 생성한다.
+    """
+
     device = "cuda" if torch.cuda.is_available() else "cpu"
     print(f"디바이스: {device} (Silero VAD + Whisper {model_size})")
 

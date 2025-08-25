@@ -44,11 +44,21 @@ def refine_boundaries(seg, whisper_segments, margin_before=0.2, margin_after=0.3
 
 def refine_selected_segments(selected_json, whisper_json, output_json, min_duration=0.01):
     """
-    selected_json: run_pgl_module에서 출력한 segments 리스트 파일 (list of dict)
-    whisper_json: whisper_process가 생성한 Whisper 문장 구간 리스트 파일 (list of dict)
-    output_json: 보정된 세그먼트를 리스트 형태로 저장할 파일 경로
-    min_duration: 유효한 세그먼트로 간주할 최소 길이 (초)
+    선택된 세그먼트의 경계를 Whisper 자막 기준으로 보정하고, 겹치는 구간을 정리합니다.
+
+    VideoSummary의 장면 선택 모듈이 선택한 세그먼트의 문장이 중간에 잘리는 것을 방지하고, 최종 영상에 사용될
+    자연스러운 세그먼트 리스트를 생성하는 후처리 과정입니다.
+
+    Args:
+        selected_json (str): PGL-SUM이 선택한 세그먼트 리스트 .json 파일 경로
+        whisper_json (str): Whisper가 생성한 자막 세그먼트 리스트 .json 파일 경로
+        output_json (str): 최종 보정된 세그먼트 리스트를 저장할 .json 파일 경로
+        min_duration (float, optional): 유효한 세그먼트로 간주할 최소 길이(초). 기본값: 0.01
+
+    Returns:
+        None: 이 함수는 값을 반환하는 대신 지정된 경로에 보정된 세그먼트 .json 파일을 생성한다.
     """
+
     selected_segments = load_json(selected_json)
     whisper_segments = load_json(whisper_json)
 

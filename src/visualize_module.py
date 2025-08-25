@@ -1,4 +1,3 @@
-# visualize_module.py
 import json
 import os
 import numpy as np
@@ -8,12 +7,13 @@ import matplotlib.patches as mpatches
 # 구간을 선택했는지/아닌지를 보이는 함수
 def visualize_selected_segments0(segments, selected_ids, save_path=None):
     """
-    전체 세그먼트 정보(segments) 중 선택된 segment_id에 해당하는 구간만 시각화합니다.
+    전체 세그먼트 정보(segments) 중 선택된 segment_id에 해당하는 구간만 시각화한다.
     
-    매개변수:
-      - segments: 전체 세그먼트 정보 (각 세그먼트는 딕셔너리 형태로, "segment_id", "start_time", "end_time" 등을 포함)
-      - selected_ids: 선택된 segment_id들이 담긴 집합 또는 리스트
-      - save_path: 이미지 파일로 저장할 경로 (None인 경우 화면에 출력)
+    Args:
+        segments: 전체 세그먼트 정보 (각 세그먼트는 딕셔너리 형태로, "segment_id", "start_time", "end_time" 등을 포함)
+        selected_ids: 선택된 segment_id들이 담긴 집합 또는 리스트
+        save_path: 이미지 파일로 저장할 경로 (None인 경우 화면에 출력)
+
     """
     # 선택된 세그먼트 추출: (시작 시간, 기간)
     bars_sel = [(s["start_time"], s["end_time"] - s["start_time"]) 
@@ -32,28 +32,28 @@ def visualize_selected_segments0(segments, selected_ids, save_path=None):
 
     if save_path:
         plt.savefig(save_path, bbox_inches="tight")
-        print(f"✅ 시각화 저장 완료: {save_path}")
+        print(f"시각화 저장 완료: {save_path}")
     else:
         plt.show()
 
 def visualize_selected_segments(segments, selected_ids, save_path=None):
     """
     전체 세그먼트의 frame_scores를 “실제 시간” 축 위에 막대그래프로 그리고,
-    선택된 세그먼트 구간은 겹치는 부분 없이 반투명 crimson 배경으로 강조합니다.
+    선택된 세그먼트 구간은 겹치는 부분 없이 반투명 crimson 배경으로 강조한다.
 
     - x축: 실제 시간(sec), 각 세그먼트의 start_time~end_time 구간을 frame_scores 길이만큼 균등 분할
     - y축: frame_score 값
     - 기본 막대: lightgray
     - 선택된 세그먼트 구간 전체: crimson, alpha=0.3
 
-    세그먼트가 겹치더라도 병합하여 한 번만 강조합니다.
+    세그먼트가 겹치더라도 병합하여 한 번만 강조!
     """
     import numpy as np
     import matplotlib.pyplot as plt
     import matplotlib.patches as mpatches
     import os
 
-    # --- 1) 세그먼트를 시간 순으로 정렬하고 frame_times, widths, scores flatten ---
+    # 1) 세그먼트를 시간 순으로 정렬하고 frame_times, widths, scores flatten 
     segments_sorted = sorted(segments, key=lambda s: s["start_time"])
     times, widths, scores = [], [], []
     for seg in segments_sorted:
@@ -70,14 +70,14 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
             scores.append(sc)
 
     if not times:
-        print("❗ 프레임 점수 데이터가 없습니다.")
+        print("프레임 점수 데이터가 없습니다.")
         return
 
     times = np.array(times)
     widths = np.array(widths)
     scores = np.array(scores)
 
-    # --- 2) 선택된 세그먼트 구간을 병합해서 하나의 리스트로 만들기 ---
+    # 2) 선택된 세그먼트 구간을 병합해서 하나의 리스트로 만들기
     sel_intervals = [
         (s["start_time"], s["end_time"])
         for s in segments_sorted
@@ -91,7 +91,7 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
         else:
             merged[-1][1] = max(merged[-1][1], e)
 
-    # --- 3) 플롯 그리기 (세로를 짧게) ---
+    # 3) 플롯 그리기 (세로를 짧게)
     fig, ax = plt.subplots(figsize=(14, 2))
 
     # 기본 프레임 점수 (lightgray)
@@ -104,7 +104,7 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
     for s, e in merged:
         ax.axvspan(s, e, ymin=0, ymax=1, color="crimson", alpha=0.3)
 
-    # --- 4) 축 설정 및 레이블 ---
+    # 4) 축 설정 및 레이블
     ax.set_xlim(segments_sorted[0]["start_time"], segments_sorted[-1]["end_time"])
     ax.set_ylim(0, scores.max())
 
@@ -114,7 +114,7 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
 
     ax.grid(axis="y", linestyle="--", alpha=0.4)
 
-    # --- 5) 범례 ---
+    # 5) 범례
     frame_patch = mpatches.Patch(color="lightgray", label="Frame scores")
     sel_patch   = mpatches.Patch(color="crimson", alpha=0.3, label="Selected segments")
     ax.legend(handles=[frame_patch, sel_patch],
@@ -122,11 +122,11 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
               bbox_to_anchor=(1.01, 1),  
               borderaxespad=0.)
 
-    # --- 6) 저장 또는 표시 ---
+    # 6) 저장 또는 표시
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
         plt.savefig(save_path, bbox_inches="tight")
-        print(f"✅ 시각화 저장 완료: {save_path}")
+        print(f"시각화 저장 완료: {save_path}")
     else:
         plt.show()
 
@@ -151,7 +151,19 @@ def load_selected_segments(json_path):
 
 def run_visualize_pipeline(segments_path, selected_segments_path, save_path=None):
     """
-    전체 시각화 파이프라인 (모든 입력을 경로로 받음)
+    분석 결과를 이미지로 시각화하여 저장한다.
+
+    전체 시간 축 위에 프레임별 중요도 점수를 그리고, 그 위에 선택된 세그먼트 구간을
+    다른 색으로 강조하여 표시한다.
+
+    Args:
+        segments_path (str): 모든 세그먼트의 점수 정보가 담긴 .json 파일 경로
+        selected_segments_path (str): 선택된 세그먼트 정보가 담긴 .json 파일 경로
+        save_path (str, optional): 생성된 시각화 이미지를 저장할 .png 파일 경로
+                                  None이면 화면에 바로 출력한다. 기본값: None
+
+    Returns:
+        None: 이 함수는 값을 반환하는 대신 시각화 이미지를 생성하거나 화면에 표시한다.
     """
     if save_path:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)

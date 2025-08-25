@@ -8,14 +8,14 @@ from pathlib import Path
 def visualize_all_segments_frame_scores(segments_path):
     """
     세그먼트 JSON 파일로부터 프레임 점수를 시간 축에 따라 시각화하고,
-    CreateShorts/server/public/images/frameScore/{baseName}_frameScoreGraph.png 에 저장합니다.
+    CreateShorts/server/public/images/frameScore/{baseName}_frameScoreGraph.png 에 저장
     """
 
-    # ─────── 1. JSON 파일 로드 ───────
+    # 1. JSON 파일 로드
     with open(segments_path, 'r', encoding='utf-8') as f:
         segments = json.load(f)
 
-    # ─────── 2. 각 프레임별 시간 및 점수 추출 ───────
+    # 2. 각 프레임별 시간 및 점수 추출 
     segments_sorted = sorted(segments, key=lambda s: s["start_time"])
     times, widths, scores = [], [], []
 
@@ -36,7 +36,7 @@ def visualize_all_segments_frame_scores(segments_path):
         print("❗ 프레임 점수 데이터가 없습니다.")
         return
 
-    # ─────── 3. 그래프 그리기 ───────
+    # 3. 그래프 그리기
     times = np.array(times)
     widths = np.array(widths)
     scores = np.array(scores)
@@ -58,7 +58,7 @@ def visualize_all_segments_frame_scores(segments_path):
     # subplot 내부 여백 제거
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
 
-    # ─────── 4. 저장 경로 설정 및 이미지 저장 ───────
+    # 4. 저장 경로 설정 및 이미지 저장
     # 현재 파일 기준으로 상대 경로 계산
     output_dir = os.path.join(os.path.dirname(__file__), "../server/public/images/frameScore")
     os.makedirs(output_dir, exist_ok=True)
