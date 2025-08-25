@@ -56,6 +56,46 @@
 
 <br><br>
 
+## 🎈사용자 메뉴얼
+
+- <b>랜딩페이지
+  <p align="center">
+  <img src="https://github.com/user-attachments/assets/531f3f60-38df-410b-9a55-4f2e1f10e36f" width="600">
+  </p>
+  <br>
+  
+- 영상 첨부
+  <p align="center">
+  <img src="https://github.com/user-attachments/assets/f7be9363-fa4a-4099-85c7-58b48117ffd0" width="600">
+  </p>
+  <br>
+
+- 요약 방식 조절
+  <p align="center">
+  <img src="https://github.com/user-attachments/assets/1157ecde-9427-4f5d-97c3-550a22d5bf92" width="600">
+  </p>
+  <br>
+  
+- 요약 과정
+  <p align="center">
+  <img src="https://github.com/user-attachments/assets/7e633c4f-2aa5-496b-a4f4-e08259a31e71" width="600">
+  </p>
+  <br>
+  
+- 결과 화면
+  <p align="center">
+  <img src="https://github.com/user-attachments/assets/e886bee7-b87e-48de-b84e-d65c3aa8790f" width="600">
+  </p>
+  <br>
+  
+- 수동 편집
+  <p align="center">
+  <img src="https://github.com/user-attachments/assets/d52cfdfe-aa99-4c88-84c8-dd06606e27d1" width="600">
+  </p>
+  <br>
+
+  <br><br>
+  
 ## 🎬 시연 영상
 <div align="center">
   <a href="https://youtu.be/NDl8Q00G98E" target="_blank"> 
