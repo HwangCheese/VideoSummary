@@ -6,7 +6,7 @@
 </p>
 <p align="center"><i>VideoSummary : 하이라이트와 스토리의 비율 조절이 가능한 영상 요약 시스템</i></p>
 
-## 🎬 작품 개요
+## ❤️ 작품 개요
 
 ### 1. 개발 배경
 
@@ -42,12 +42,11 @@
     
 - **반응형 웹으로 구현**
     
-    반응형 웹으로 구현되어 다양한 기기 환경에서 접근 가능하며, 언제 어디서든 쉽게 사용 가
-    능하다.
+    반응형 웹으로 구현되어 다양한 기기 환경에서 접근 가능하며, 언제 어디서든 쉽게 사용 가능하다.
   
 <br><br>
 
-## :wrench: VideoSummary 시스템 아키텍처
+## :wrench: 시스템 구조
 
 <img width="1460" height="785" alt="Image" src="https://github.com/user-attachments/assets/46d41365-c0c7-4bd7-b0b2-5e2a7078c8af" />
 <br>
@@ -57,6 +56,14 @@
 
 <br><br>
 
+## 🎬 시연 영상
+<div align="center">
+  <a href="https://youtu.be/NDl8Q00G98E" target="_blank"> 
+    <img src="https://github.com/user-attachments/assets/fe4b0431-5ba8-49bb-9fc2-43ea503f278f" width="600">
+  </a>
+</div>
+<br><br>
+  
 ## 📃 라이선스
 
 Copyright (c) 2023  
