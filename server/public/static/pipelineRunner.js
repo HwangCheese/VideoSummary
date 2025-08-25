@@ -130,7 +130,72 @@ function updateProgressUI(state) {
     stopElapsedTime();
     if (!state.error) {
       updateProgressStep(7);  // '완료' 단계 활성화
+
+      const baseName = currentUploadedFileNameFromHandler.replace(/\.mp4$/i, "");
+      
+      // 원본 영상과 결과 영상을 불러옵니다.
+      if (originalVideo) originalVideo.src = `/uploads/${currentUploadedFileNameFromHandler}?t=${Date.now()}`;
+      if (finalVideo) finalVideo.src = `/clips/${baseName}/highlight_${baseName}.mp4?t=${Date.now()}`;
+      if (importanceOverlay) importanceOverlay.src = `/images/frameScore/${baseName}_frameScoreGraph.png?t=${Date.now()}`;
+
+      // 비디오 메타데이터가 로드된 후 후속 작업을 처리하는 로직
+      let originalVideoReady = false;
+      let finalVideoReady = false;
+      let errorOccurred = false;
+
+      const checkAndProceed = async () => {
+        if (originalVideoReady && finalVideoReady && !errorOccurred) {
+          if (resultCard) resultCard.style.display = "block";
+      
+          if (highlightBarContainer && originalVideo && currentUploadedFileNameFromHandler && resultCard) {
+            if (highlightEditor) highlightEditor.destroy();
+            highlightEditor = initHighlightEditor(highlightBarContainer, originalVideo, currentUploadedFileNameFromHandler, resultCard);
+            if (highlightEditor) {
+              await loadHighlightDataFromServerInternal(baseName, originalVideo);
+              await loadAndRenderThumbnailsInternal(baseName);
+            }
+          }
+      
+          await fetchReportAndScoreForUIInternal(baseName);
+          if (transcriptListEl) await loadAndDisplayShortformTranscriptInternal(baseName);
+        }
+      };
+      
+      const onOriginalVideoMetadataLoaded = () => {
+        originalVideo.removeEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
+        originalVideo.removeEventListener("error", onVideoError);
+        originalVideoReady = true; 
+        checkAndProceed();
+      };
+      const onFinalVideoMetadataLoaded = () => {
+        finalVideo.removeEventListener("loadedmetadata", onFinalVideoMetadataLoaded);
+        finalVideo.removeEventListener("error", onVideoError);
+        finalVideoReady = true; 
+        checkAndProceed();
+      };
+      const onVideoError = (e) => {
+        if (errorOccurred) return; 
+        errorOccurred = true;
+        // ... (기존 onVideoError 함수의 내용과 동일) ...
+        const videoType = e.target.id === "originalVideo" ? "원본" : "요약";
+        console.error(`Error loading ${videoType} video after processing:`, e.target.error);
+        showToast(`${videoType} 영상 로드 실패 (처리 후): ${e.target.error?.message || '알 수 없는 오류'}`, "error");
+        if (statusDiv && !sseSource) statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${videoType} 영상 로드 실패`;
+      };
+
+      if (originalVideo) {
+        originalVideo.addEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
+        originalVideo.addEventListener("error", onVideoError);
+        if (originalVideo.readyState >= 2) onOriginalVideoMetadataLoaded();
+      } else { originalVideoReady = true; }
+      
+      if (finalVideo) {
+        finalVideo.addEventListener("loadedmetadata", onFinalVideoMetadataLoaded);
+        finalVideo.addEventListener("error", onVideoError);
+        if (finalVideo.readyState >= 2) onFinalVideoMetadataLoaded();
+      } else { finalVideoReady = true; }
     }
+    
     if (statusDiv) statusDiv.innerHTML = `<i class="fas fa-check-circle"></i> 100% - 요약 완료!`;
 
     // 최종 리포트 데이터가 있으면 통계 UI 업데이트
@@ -795,99 +860,6 @@ export function initPipelineRunner() {
           const errorMessage = processResponseData?.message || processResponseData?.error || `요청 처리 실패 (${processRes.status})`;
           throw new Error(errorMessage);
         }
-
-        // 요약 완료 후 결과 비디오 소스 설정
-        if (originalVideo) originalVideo.src = `/uploads/${currentUploadedFileNameFromHandler}?t=${Date.now()}`;
-        const baseName = currentUploadedFileNameFromHandler.replace(/\.mp4$/i, "");
-        if (finalVideo) finalVideo.src = `/clips/${baseName}/highlight_${baseName}.mp4?t=${Date.now()}`;
-        if (importanceOverlay) importanceOverlay.src = `/images/frameScore/${baseName}_frameScoreGraph.png?t=${Date.now()}`;
-
-        let originalVideoReady = false;
-        let finalVideoReady = false;
-        let errorOccurred = false;
-
-        const checkAndProceed = async () => {
-          if (originalVideoReady && finalVideoReady && !errorOccurred) {
-            // if (progressCard) progressCard.style.display = "none";
-            if (resultCard) resultCard.style.display = "block";
-
-            if (highlightBarContainer && originalVideo && currentUploadedFileNameFromHandler && resultCard) {
-              if (highlightEditor) highlightEditor.destroy();
-              highlightEditor = initHighlightEditor(highlightBarContainer, originalVideo, currentUploadedFileNameFromHandler, resultCard);
-              if (highlightEditor) {
-                await loadHighlightDataFromServerInternal(baseName, originalVideo);
-                await loadAndRenderThumbnailsInternal(baseName);
-              }
-            }
-
-            await fetchReportAndScoreForUIInternal(baseName);
-            if (transcriptListEl) await loadAndDisplayShortformTranscriptInternal(baseName);
-            setTimeout(() => {
-              const resultSection = document.getElementById('result-section');
-              const allSectionsNodeList = document.querySelectorAll('.scroll-section');
-              const allSectionsArray = Array.from(allSectionsNodeList);
-              const resultSectionIndex = allSectionsArray.indexOf(resultSection);
-
-              if (resultSectionIndex !== -1) {
-                //scrollToSectionExternally(2, true);
-              } else {
-                console.warn("Result section not found for auto-scroll in pipelineRunner.");
-              }
-            }, 400);
-          }
-        };
-
-        // 비디오 메타데이터 로드 후 결과 표시 로직
-        const onOriginalVideoMetadataLoaded = () => {
-          originalVideo.removeEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
-          originalVideo.removeEventListener("error", onVideoError);
-          originalVideoReady = true; checkAndProceed();
-        };
-        const onFinalVideoMetadataLoaded = () => {
-          finalVideo.removeEventListener("loadedmetadata", onFinalVideoMetadataLoaded);
-          finalVideo.removeEventListener("error", onVideoError);
-          finalVideoReady = true; checkAndProceed();
-        };
-        const onVideoError = (e) => {
-          if (errorOccurred) return; errorOccurred = true;
-          originalVideo.removeEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
-          finalVideo.removeEventListener("loadedmetadata", onFinalVideoMetadataLoaded);
-          originalVideo.removeEventListener("error", onVideoError);
-          finalVideo.removeEventListener("error", onVideoError);
-          const videoType = e.target.id === "originalVideo" ? "원본" : "요약";
-          console.error(`Error loading ${videoType} video after processing:`, e.target.error);
-          showToast(`${videoType} 영상 로드 실패 (처리 후): ${e.target.error?.message || '알 수 없는 오류'}`, "error");
-          if (statusDiv && !sseSource) statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${videoType} 영상 로드 실패`;
-        };
-
-        if (originalVideo) {
-          originalVideo.addEventListener("loadedmetadata", onOriginalVideoMetadataLoaded);
-          originalVideo.addEventListener("error", onVideoError);
-          if (originalVideo.readyState >= 2) onOriginalVideoMetadataLoaded();
-          else if (originalVideo.error) onVideoError({ target: originalVideo });
-        } else { originalVideoReady = true; }
-
-        if (finalVideo) {
-          finalVideo.addEventListener("loadedmetadata", onFinalVideoMetadataLoaded);
-          finalVideo.addEventListener("error", onVideoError);
-          if (finalVideo.readyState >= 2) onFinalVideoMetadataLoaded();
-          else if (finalVideo.error) onVideoError({ target: finalVideo });
-        } else { finalVideoReady = true; }
-
-
-        if (downloadBtn) {
-          downloadBtn.onclick = () => {
-            const link = document.createElement("a");
-            if (finalVideo) link.href = finalVideo.src; else return;
-            const summaryPrefix = "summary";
-            const weightSuffix = `_w${parseFloat(currentImportanceWeight).toFixed(1).replace('.', '')}`;
-            link.download = `${summaryPrefix}${weightSuffix}_${currentUploadedFileNameFromHandler}`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          };
-        }
-
       } catch (err) {
         console.error("요약 처리 시작 중 오류:", err);
         if (statusDiv) statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> 오류: ${err.message}`;

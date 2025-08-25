@@ -68,10 +68,10 @@ router.get("/original/:filename", (req, res) => {
 router.get("/score/:filename", (req, res) => {
   const baseName = req.params.filename.replace(/\.mp4$/i, "");
   const scorePath = path.join(__dirname, "../../clips", baseName, `${baseName}_score.json`);
-  console.log("[📁 SCORE PATH]", scorePath);
+  console.log("[SCORE PATH]", scorePath);
 
   if (!fs.existsSync(scorePath)) {
-    console.warn("[⚠️ SCORE NOT FOUND]", scorePath);
+    console.warn("[SCORE NOT FOUND]", scorePath);
     return res.status(404).json({ message: "점수 파일 없음" });
   }
 
@@ -79,7 +79,7 @@ router.get("/score/:filename", (req, res) => {
     const scoreData = JSON.parse(fs.readFileSync(scorePath, "utf8"));
     return res.json(scoreData);
   } catch (error) {
-    console.error("[❌ SCORE PARSE ERROR]", error);
+    console.error("[SCORE PARSE ERROR]", error);
     return res.status(500).json({ message: "점수 파싱 오류", error: error.message });
   }
 });
