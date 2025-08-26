@@ -1,9 +1,7 @@
-# 프로젝트 설치 및 환경 설정 (Installation Guide)
-
-본 문서는 VideoSummary를 로컬 환경에서 실행하기 위한 설치 및 환경 설정 가이드입니다.</br>
-**Windows 11을 기준으로 작성되었습니다.**
-</br>
-</br>
+# VideoSummary Installation Guide
+본 문서는 VideoSummary를 로컬 환경에서 실행하기 위한 설치 및 환경 설정 가이드입니다.  
+**Windows 11을 기준으로 작성되었습니다.**  
+<br/>
 
 ## 0. 사전 요구사항
 
@@ -45,15 +43,12 @@ conda activate vidsum
 <br/>
 
 ## 3. 의존성 설치
-Express 서버 실행에 필요한 Node 모듈 설치
 ### 3-1. Node.js 서버
+Express 서버 실행에 필요한 Node 모듈 설치
 ```bash
 cd VideoSummary/server
 npm install
 ```
-
-<br/>
-
 ### 3-2. Python 패키지
 
 - **PyTorch 설치**
@@ -80,6 +75,8 @@ npm install
 
 
 ## 4. transnetv2 설치
+`transnetv2` 패키지는 PyPI에 등록되어 있지 않으므로 **GitHub 저장소에서 직접 설치**해야 합니다.
+
 ### 4-1. GitHub에서 소스 다운로드 및 설치
 ```bash
 # GitHub 웹사이트에서 ZIP 파일 다운로드 또는 git clone
@@ -89,7 +86,6 @@ cd TransNetV2
 # 현재 활성화된 Conda 환경에 설치
 pip install .
 ```
-<br/>
 
 ### 4-2. 모델(weights) 파일 복사
 GitHub에서 clone만 하면 `transnetv2-weights` 폴더는 비어 있습니다. <br/>
@@ -101,7 +97,6 @@ python -c "import transnetv2; print(transnetv2.__path__)"
 ```
 3. 확인된 경로 안에 `transnetv2-weights` 폴더를 그대로 복사
 > 예:`[가상환경]/Lib/site-packages/transnetv2/transnetv2-weights`
-<br/>
 
 ### 4-3. 설치 후 정리
 - 원본 `TransNetV2` 디렉토리는 삭제 가능
