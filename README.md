@@ -56,6 +56,110 @@
 
 <br><br>
 
+## 👀 기대 효과
+<details>
+<summary><b>높은 정량적 성능 달성</b></summary>
+<div>
+  &nbsp;본 팀은 VideoSummary가 생성하는 요약 영상의 정확성을 정량적으로 검증하였다.
+  YouTube ‘Most Replayed’ 구간과의 일치율 분석에서 하이라이트 중심 요약은 평균 93.75%의 높은 적중률을 보였으며,
+  LLM 기반 시놉시스 비교를 통해 평가한 스토리 중심 요약의 일치도는 평균 92.8%로 나타났다. 
+<br>
+  &nbsp;이러한 검증 결과를 바탕으로, 사용자는 시스템이 제공하는 요약 결과를 신뢰할 수 있으며,
+  자신의 목적에 맞게 하이라이트와 스토리 중심 요약의 비율을 조절함으로써 효율적이고 만족스러운 영상 요약을 경험할 수 있다.
+</div>
+</details>
+
+<details>
+<summary><b>사용자 맞춤형 요약 생성</b></summary>
+<div>
+  &nbsp;사용자는 요약 영상의 “요약 스타일”과 “길이(시간)”를 개인의 필요에 따라 직접 설정할 수 있으며,
+  VideoSummary 시스템의 요약 알고리즘이 이러한 사용자 설정을 반영하여 맞춤형 요약 영상을 자동 생성한다.
+  이를 통해 사용자는 자신의 목적과 용도에 적합한 요약 영상을 제공받을 수 있다.
+</div>
+</details>
+
+<details>
+<summary><b>기술의 실효성 입증 및 구현 모델 제시</b></summary>
+  <div>
+  &nbsp;본 프로젝트는 제안한 기술을 실제 웹 서비스로 구현하여 그 실용성을 검증했을 뿐만 아니라,
+  성능 검증을 통해 우수한 성능을 객관적인 데이터로 입증했다.
+  이처럼 아이디어를 실제로 구현하고 데이터로 증명한 과정 전체는 향후 유사 시스템을 개발하려는 연구자나 개발자들에게 구체적이고 신뢰할 수 있는 구현 모델을 제시하는 선례가 될 것이다.
+</div>
+</details>
+
+<details>
+<summary><b>기술 개방을 통한 개발 생태계 기여</b></summary>
+<div>
+  &nbsp;본 시스템의 핵심 프레임워크를 공개 소프트웨어 형태로 배포함으로써, 누구나 자유롭게 기술을 활용하고 목적에 맞게 확장할 수 있는 기반을 마련한다.
+  결과적으로 본 프로젝트는 단순한 하나의 솔루션을 넘어, 영상 AI 개발 생태계 전반의 혁신과 성장에 기여할 것으로 기대된다. 
+</div>
+</details>
+<br><br>
+
+## 👍 활용 분야
+<details>
+<summary><b>높은 범용성</b></summary>
+<div>
+  &nbsp;웹 기반 서비스로 언제 어디서나 접속할 수 있으며, 반응형 웹으로 구현되어 PC, 태블릿, 스마트폰 등 다양한 기기에서 손쉽게 사용할 수 있다.
+</div>
+</details>
+
+<details>
+<summary><b>동영상 플랫폼에서의 예고편 생성</b></summary>
+<div>
+  &nbsp;YouTube, Netflix 등의 플랫폼에서 긴 콘텐츠의 예고편이나 하이라이트 영상을 자동으로 생성할 수 있다. 
+  사용자 취향에 따라 액션 중심의 하이라이트나 스토리 흐름을 담은 예고편을 선택적으로 제공하여 콘텐츠 발견과 선택을 돕는다.
+</div>
+</details>
+
+<details>
+<summary><b>효율적인 영상 검색 및 탐색</b></summary>
+<div>
+  &nbsp;요약 영상은 핵심 세그먼트의 특징만 인덱싱하므로 메타데이터 크기가 줄어 저장 및 처리 비용을 낮춘다. 
+  이로 인해 대규모 영상 레포지토리를 보유한 동영상 플랫폼이나 교육 기관 등에서 사용자가 원하는 내용을 빠르게 찾아낼 수 있으며, 응답 속도 향상으로 실시간에 가까운 검색이 가능하다.
+</div>
+</details>
+
+<details>
+<summary><b>개인 미디어 관리 및 공유</b></summary>
+<div>
+  &nbsp;사용자는 여행, 가족 행사 등 개인적으로 촬영한 긴 영상을 간편하게 요약하여 핵심 순간만 공유할 수 있다. 
+  이를 통해 소셜 미디어에 게시하거나 지인과 빠르고 가볍게 추억을 나눌 수 있다. 
+</div>
+</details>
+
+<details>
+<summary><b>공공기관 및 기업의 영상 보고서 활용</b></summary>
+<div>
+  &nbsp;공공기관이나 기업에서 주최하는 장시간의 행사, 회의, 세미나 영상을 자동으로 요약하여 핵심 내용만 담은 영상 보고서로 활용할 수 있다. 
+  이를 통해 내부 구성원 간의 신속한 정보 공유 및 기록 보관이 용이해진다. 
+</div>
+</details>
+
+<details>
+<summary><b>CCTV 영상 데이터 분석</b></summary>
+<div>
+  &nbsp;장시간 녹화된 CCTV 영상을 요약하여 시간대별 유동 인구나 전반적인 움직임 등 데이터 패턴을 분석하는 데 활용할 수 있다. 
+  예를 들어, 매장의 시간대별 고객 방문 추이를 파악하거나 특정 구역의 일일 활동량을 직관적으로 확인할 수 있다.
+</div>
+</details>
+<br><br>
+
+### - 개발 도구
+![apple](https://img.shields.io/badge/apple-000000?style=for-the-badge&logo=apple&logoColor=white)
+![Windows11](https://img.shields.io/badge/windows11-00008B?style=for-the-badge&logoColor=white)
+![vscode](https://img.shields.io/badge/vscode-8B008B?style=for-the-badge&logoColor=white)
+
+
+### - 개발 언어
+![python](https://img.shields.io/badge/python-0000FF?style=for-the-badge&logo=python&logoColor=white)
+![html](https://img.shields.io/badge/HTML-FF0000?style=for-the-badge&logo=html5&logoColor=white)
+![CSS](https://img.shields.io/badge/CSS-FF1493?style=for-the-badge&logo=css3&logoColor=white)
+![Javascript](https://img.shields.io/badge/Javascript-FFFF00?style=for-the-badge&logo=Javascript&logoColor=black)
+
+<br><br>
+
+
 ## 🎈사용자 메뉴얼
 
 - <b>랜딩페이지
