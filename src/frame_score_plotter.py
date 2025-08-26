@@ -33,7 +33,7 @@ def visualize_all_segments_frame_scores(segments_path):
             scores.append(sc)
 
     if not times:
-        print("❗ 프레임 점수 데이터가 없습니다.")
+        print("프레임 점수 데이터가 없습니다.")
         return
 
     # 3. 그래프 그리기
@@ -72,4 +72,4 @@ def visualize_all_segments_frame_scores(segments_path):
     save_path = os.path.join(output_dir, file_name)
 
     plt.savefig(save_path, dpi=150, bbox_inches="tight", pad_inches=0, transparent=True)
-    print(f"✅ 시각화 저장 완료: {save_path}")
+    print(f"시각화 저장 완료: {save_path}")

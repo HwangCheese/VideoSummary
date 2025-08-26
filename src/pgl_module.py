@@ -108,7 +108,7 @@ def save_sorted_segments_with_combined_score_json(segment_scores, alpha, std_wei
     sorted_segments = sorted(segment_scores, key=lambda x: x["combined_score"], reverse=True)
     with open(output_json, "w") as f:
         json.dump(sorted_segments, f, indent=2, ensure_ascii=False)
-    print(f"📄 Sorted segments JSON saved (combined_score): {output_json}")
+    print(f"Sorted segments JSON saved (combined_score): {output_json}")
     return sorted_segments
 
 # def save_segment_frame_ranges_json(scene_segments, segment_scores, fps, output_path):
@@ -160,7 +160,7 @@ def run_pgl_module(ckpt_path, feature_h5, scene_json, output_json, output_sorted
         list: 최종적으로 선택된 세그먼트 객체(dict)들의 리스트
     """
 
-    print(f"🚀 디바이스: {device}")
+    print(f"사용 디바이스: {device}")
 
 # video_path로부터 base_filename (예: "shortbox") 결정
     # base_filename = os.path.splitext(os.path.basename(args.video_path))[0]

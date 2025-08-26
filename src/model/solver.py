@@ -149,7 +149,7 @@ class Solver(object):
         
         for data in dataloader:
             if data is None:
-                # ✅ 배치 자체가 None이면 건너뛰기
+                # 배치 자체가 None이면 건너뛰기
                 continue
             frame_features = data['features'].to(self.config.device)
             gtscore = data['gtscore'].to(self.config.device)
