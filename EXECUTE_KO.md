@@ -78,3 +78,36 @@ python pipeline.py --video_path [비디오_경로] --fine_ckpt [체크포인트_
 | `--importance_weight` | 0.1  | 중요도 가중치(0\~1). <br> 낮을수록 스토리 중심 요약, 높을수록 하이라이트 중심 요약    |
 | `--budget_time`       | -    | 목표 요약 길이(초). <br> 지정하지 않으면 원본 영상 길이의 0.2배로 자동 설정    |
 
+### 사용 예시
+
+**기본 사용법:**
+
+```bash
+python pipeline.py \
+  --video_path "input/my_video.mp4" \
+  --fine_ckpt "../dataset/checkpoint_file.pkl" \
+  --output_dir "output"
+```
+
+**사용자 정의 매개변수를 사용한 사용법:**
+```bash
+python pipeline.py \
+  --video_path "input/lecture.mp4" \
+  --fine_ckpt "../dataset/checkpoint_file.pkl" \
+  --output_dir "output" \
+  --device "cuda" \
+  --importance_weight 0.8 \
+  --budget_time 300 \
+  --model_size "medium"
+```
+
+### 파이프라인 출력 파일
+
+파이프라인은 출력 디렉토리에 다음 파일들을 생성합니다:
+
+- `highlight_[video_name].mp4`: 요약 영상
+- `[video_name]_refined_segments.json`: 최종 선택된 세그먼트
+- `[video_name]_reScript.json`: 요약을 위해 재구성된 자막
+- `[video_name]_score.json`: 품질 점수
+- `thumbnails/`: 생성된 썸네일 이미지들
+- 디버깅 및 분석을 위한 다양한 중간 파일들
