@@ -75,7 +75,7 @@ VideoSummary 프로젝트에 기여해주셔서 감사합니다.
 
 ### 2.3. 개발 및 커밋(Commit)
 
-- 본 프로젝트는 [**Conventional Commits**](https://www.google.com/url?sa=E&q=https%3A%2F%2Fwww.conventionalcommits.org%2Fko%2Fv1.0.0%2F) 명세에 따라 커밋 메시지를 작성합니다.
+- 본 프로젝트는 [**Conventional Commits**](https://www.conventionalcommits.org/ko/v1.0.0/) 명세에 따라 커밋 메시지를 작성합니다.
     - **타입**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore` 중 선택
 - **커밋 메시지 예시**:
     - `feat: Add thumbnail generation to pipeline`
