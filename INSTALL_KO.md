@@ -1,6 +1,6 @@
 # VideoSummary Installation Guide
 본 문서는 VideoSummary를 로컬 환경에서 실행하기 위한 설치 및 환경 설정 가이드입니다.  
-**Windows 11을 기준으로 작성되었습니다.**  
+**Windows 11 및 macOS sequoia 기준으로 작성되었습니다.**  
 <br/>
 
 ## 0. 사전 요구사항
@@ -61,16 +61,22 @@ npm install
     conda install pytorch==2.5.1 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
     ```
 
-- **decord 설치**
-  - macOS / Linux:
-    ```bash
-    conda install -c conda-forge decord
-    ```
-  - Windows:
-    ```bash
-    pip install decord
-    ```
-  > Windows 64bit 환경에서는 `decord` Conda 패키지가 없으므로 PIP 사용 필수
+- **운영체제에 따라 decord 또는 OpenCV 설치**
+    - **Windows/Linux: decord 설치**
+      ```bash
+      pip install decord
+      ```
+    > Windows 64bit 환경에서는 `decord` Conda 패키지가 없으므로 PIP 사용 필수
+  
+    - **macOS: OpenCV 설치**
+      ```bash
+      pip install opencv-python
+      ```
+    - OpenCV 설치 후 확인
+      ```bash
+      python -c "import cv2; print(cv2.__version__)"
+      ```    
+
   
 - **기본 패키지 설치**
   ```bash
@@ -122,19 +128,7 @@ python -c "import transnetv2; print(transnetv2.__path__)"
 <br/>
 
 
-## 6. OpenCV 설치
-- **OpenCV 설치**
-    ```bash
-    pip install opencv-python
-    ```
-- **OpenCV 설치 후 확인**
-    ```bash
-    python -c "import cv2; print(cv2.__version__)"
-    ```    
-<br/>
-
-
-## 7. Matplotlib 설치
+## 6. Matplotlib 설치
 - **Matplotlib 설치**
     ```bash
     conda install -c conda-forge matplotlib
@@ -145,7 +139,7 @@ python -c "import transnetv2; print(transnetv2.__path__)"
     ```    
 <br/>
 
-## 8. PGL-SUM 체크포인트 다운로드
+## 7. PGL-SUM 체크포인트 다운로드
 
 1. 프로젝트 루트 디렉토리로 이동합니다.
     ```bash
