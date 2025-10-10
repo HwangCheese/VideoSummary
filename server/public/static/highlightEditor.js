@@ -15,8 +15,10 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     let originalDuration = 0; // 원본 영상의 전체 길이
     let isEditMode = false; // 현재 편집 모드인지 여부
     let backupSegments = null; // 편집 취소 시 복원을 위한 원본 구간 데이터
-
-     // 필수 요소 확인
+    let originalFinalVideoSrc = finalVideo?.src || null; // 다운로드 후 복귀용 원본 요약 영상
+    let systemSegments = []; // 시스템(초기) 선택 세그먼트 스냅샷
+    
+    // 필수 요소 확인
     if (!resultCard) {
         console.error("Highlight Editor 초기화 실패: resultCard 요소가 필요합니다.");
         return null;
@@ -35,7 +37,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     const saveCustomBtn = document.createElement("button");
     saveCustomBtn.id = "saveCustomBtn";
     saveCustomBtn.className = "primary-btn";
-    saveCustomBtn.innerHTML = '<i class="fas fa-save"></i> 변경사항 저장';
+    saveCustomBtn.innerHTML = '<i class="fas fa-download"></i> 결과 다운로드';
     saveCustomBtn.style.display = "none";
 
     const cancelEditBtn = document.createElement("button");
@@ -228,7 +230,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             // 편집 모드일 때만 추가 기능(삭제, 리사이즈, 드래그) 활성화
             if (isEditMode) {
                 block.style.cursor = "pointer"
-                block.title = "클릭하여 삭제, 드래그하여 이동, 핸들로 크기 조절";
+                block.title = "클릭하여 삭제, 핸들로 크기 조절";
                 // 클릭 시 구간 삭제
                 block.addEventListener("click", (e) => {
                     if (!isEditMode) return;
@@ -261,12 +263,14 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
      * @param {Array<object>} segments - 하이라이트 구간 데이터 배열
      * @param {number} duration - 원본 영상의 전체 길이
      */
-    function loadHighlightData(segments, duration) {
-        highlightSegments = segments.map(s => ({ ...s }));
+     function loadHighlightData(segments, duration) {
+        // 시스템 기본 세그먼트를 보존해두고, 편집/표시는 그 복사본으로 진행
+        systemSegments = segments.map(s => ({ ...s }));
+        highlightSegments = systemSegments.map(s => ({ ...s }));
         originalDuration = duration;
         highlightSegments.sort((a, b) => a.start_time - b.start_time); // 시간순 정렬
         showHighlightBar();
-    }
+     }
 
     /**
      * 리사이즈 핸들의 드래그 이벤트 설정
@@ -365,7 +369,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     /**
      * 편집된 하이라이트 구간 정보를 서버에 저장
      */
-    async function saveChanges() {
+    async function downloadEditedResult() {
         // 유효성 검사
         if (highlightSegments.length === 0) {
             showToast("적어도 하나 이상의 구간이 필요합니다.", "warning");
@@ -390,41 +394,64 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
 
         try {
             saveCustomBtn.disabled = true;
-            saveCustomBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 저장 중...';
+            saveCustomBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 준비 중...';
             cancelEditBtn.disabled = true;
 
-            // 서버에 변경된 구간 데이터 전송
-            const res = await fetch(`/upload/update-highlights`, {
+            // 1) 다운로드 전용 엔드포인트 우선 시도
+            let res = await fetch(`/download/highlights`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ filename: uploadedFileName, segments: highlightSegments })
             });
 
-            // 버튼 상태 복원
-            saveCustomBtn.innerHTML = '<i class="fas fa-save"></i> 변경사항 저장';
-            saveCustomBtn.disabled = false;
-            cancelEditBtn.disabled = false;
-
-            if (res.ok) {
-                const data = await res.json();
-                // 서버로부터 받은 새 비디오 경로로 플레이어 소스 업데이트
-                if (finalVideo && data.video_path) {
-                    finalVideo.src = data.video_path;
-                    finalVideo.load();
+            // 2) 없으면 기존 엔드포인트로 생성 후 파일 다운로드 폴백
+            if (!res.ok) {
+                const gen = await fetch(`/upload/update-highlights`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ filename: uploadedFileName, segments: highlightSegments, download: true })
+                });
+                if (!gen.ok) {
+                    const errorData = await gen.json().catch(() => ({ message: "알 수 없는 오류" }));
+                    throw new Error(errorData.message || gen.statusText);
                 }
-                backupSegments = JSON.parse(JSON.stringify(highlightSegments));
-                exitEditModeAfterSave(); // 편집 모드 종료
-                showToast("변경사항이 성공적으로 저장되었습니다.", "success");
-            } else {
-                const errorData = await res.json().catch(() => ({ message: "알 수 없는 오류" }));
-                showToast(`변경사항 저장 실패: ${errorData.message || res.statusText}`, "error");
+                // 서버가 JSON으로 video_path를 주면 그 파일을 다시 받아서 다운로드 처리
+                const data = await gen.json();
+                if (!data.video_path) throw new Error("video_path가 응답에 없습니다.");
+                res = await fetch(data.video_path);
+                if (!res.ok) throw new Error("결과 파일 다운로드 실패");
             }
-        } catch (err) {
-            console.error("숏폼 저장 오류:", err);
-            showToast(`네트워크 오류 또는 처리 중 문제 발생: ${err.message}`, "error");
 
+            // Blob 다운로드 처리
+            const blob = await res.blob();
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            
+            // (영상제목)_edited.mp4 로 단순화
+            a.download = `${uploadedFileName.replace(/\.[^/.]+$/, "")}_edited.mp4`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+
+            // 원본 요약 영상으로 복귀 + 편집 종료
+            if (finalVideo && originalFinalVideoSrc) {
+                finalVideo.src = originalFinalVideoSrc;
+                finalVideo.load();
+            }
+
+            // 다음 편집을 깨끗하게 시작: 시스템 기본 세그먼트로 리셋
+            highlightSegments = systemSegments.map(s => ({ ...s }));
+            backupSegments = null;
+            exitEditModeAfterSave();
+            showToast("편집 결과를 다운로드했습니다.", "success");
+        } catch (err) {
+            console.error("다운로드 오류:", err);
+            showToast(`다운로드 실패: ${err.message}`, "error");
+        } finally {
             // 버튼 상태 복원
-            saveCustomBtn.innerHTML = '<i class="fas fa-save"></i> 변경사항 저장';
+            saveCustomBtn.innerHTML = '<i class="fas fa-download"></i> 결과 다운로드';
             saveCustomBtn.disabled = false;
             cancelEditBtn.disabled = false;
         }
@@ -480,7 +507,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     // 버튼 이벤트 리스너 연결
     customizeBtn.addEventListener("click", enterEditMode);
     cancelEditBtn.addEventListener("click", cancelEditing);
-    saveCustomBtn.addEventListener("click", saveChanges);
+    saveCustomBtn.addEventListener("click", downloadEditedResult);
 
     setButtonVisibility(false); // 초기 버튼 상태 설정
 
@@ -494,7 +521,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         destroy() {
             // 이벤트 리스너 제거
             customizeBtn.removeEventListener("click", enterEditMode);
-            saveCustomBtn.removeEventListener("click", saveChanges);
+            saveCustomBtn.removeEventListener("click", downloadEditedResult);
             cancelEditBtn.removeEventListener("click", cancelEditing);
 
             // 동적으로 추가된 버튼 제거
