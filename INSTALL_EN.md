@@ -1,6 +1,6 @@
 # VideoSummary Installation Guide
 This document provides an installation and environment setup guide for running VideoSummary in a local environment.  
-**Written based on Windows 11.**  
+**Written based on Windows 11 and macOS Sequoia.**  
 <br>
 
 ## 0. Prerequisites
@@ -60,16 +60,21 @@ npm install
     conda install pytorch==2.5.1 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
     ```
 
-- **decord Installation**
-  - macOS / Linux:
-    ```bash
-    conda install -c conda-forge decord
-    ```
-  - Windows:
-    ```bash
-    pip install decord
-    ```
+- **Installation of decord or OpenCV depending on the operating system﻿**
+    - **Windows/Linux: decord Installation**
+      ```bash
+      pip install decord
+      ```
     > In Windows 64bit environment, `decord` Conda package is not available, so PIP usage is mandatory
+  
+    - **macOS: OpenCV Installation**
+      ```bash
+      pip install opencv-python
+      ```
+    - Verify OpenCV Installation
+      ```bash
+      python -c "import cv2; print(cv2.__version__)"
+      ```
      
 - **Basic Package Installation**
   ```bash
@@ -124,19 +129,7 @@ The `transnetv2` library requires tensorflow internally, so TensorFlow needs to 
 <br/>
 
 
-## 6. Install OpenCV 
-- **OpenCV Installation**
-    ```bash
-    pip install opencv-python
-    ```
-- **Verify OpenCV Installation**
-    ```bash
-    python -c "import cv2; print(cv2.__version__)"
-    ```    
-<br/>
-
-
-## 7. Install Matplotlib
+## 6. Install Matplotlib
 - **Matplotlib Installation**
     ```bash
     conda install -c conda-forge matplotlib
@@ -148,7 +141,7 @@ The `transnetv2` library requires tensorflow internally, so TensorFlow needs to 
 <br/>
 
 
-## 8. Download PGL-SUM Checkpoint
+## 7. Download PGL-SUM Checkpoint
 
 1. Navigate to the project root directory.
    ```bash
