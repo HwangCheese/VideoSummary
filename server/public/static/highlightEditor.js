@@ -90,7 +90,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         highlightBarContainer.style.pointerEvents = "auto";
         highlightBarContainer.style.cursor = "crosshair";
 
-        showToast("편집 모드 활성화. 구간을 클릭하여 삭제하거나, 드래그/조절하세요.", "info");
+        showToast("편집 모드: 구간 클릭 시 삭제, 양 끝 드래그로 길이 조절", "info");
         showHighlightBar(); // 편집 모드 UI로 다시 렌더링
     }
 
@@ -178,7 +178,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 borderRadius: "6px",
                 boxShadow: "0 1px 3px rgba(0,0,0,0.2)",
                 zIndex: "2",
-                cursor: isEditMode ? "grab" : "pointer",
+                cursor: isEditMode ? "pointer" : "default",
                 opacity: isEditMode ? "0.9" : "1.0",
                 transition: "opacity 0.2s ease, background-color 0.2s ease, left 0.1s ease, width 0.1s ease, box-shadow 0.2s ease",
             });
@@ -232,18 +232,14 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 // 클릭 시 구간 삭제
                 block.addEventListener("click", (e) => {
                     if (!isEditMode) return;
-
                     // 리사이즈 핸들 클릭은 무시
-                    if (e.target.classList.contains('resize-handle')) return;
-
+                    if ((e.target).classList?.contains('resize-handle')) return;
+                    e.preventDefault();
                     e.stopPropagation();
-
-                    if (confirm(`이 구간(${formatTime(seg.start_time)} ~ ${formatTime(seg.end_time)})을 삭제하시겠습니까?`)) {
-                        highlightSegments.splice(index, 1);
-                        showHighlightBar(); // UI 갱신
-                    }
+                    highlightSegments.splice(index, 1);
+                    showHighlightBar(); // UI 갱신
+                    showToast("구간 삭제됨", "info");
                 });
-
                 // 리사이즈 핸들 생성
                 const leftHandle = document.createElement("div");
                 leftHandle.className = "resize-handle left";
