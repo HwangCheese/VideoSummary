@@ -70,7 +70,7 @@ npm install
     ```bash
     pip install decord
     ```
-  > Windows 64bit 환경에서는 `decord` Conda 패키지가 없으므로 PIP 사용 필수 <br/>
+  > Windows 64bit 환경에서는 `decord` Conda 패키지가 없으므로 PIP 사용 필수
   
 - **기본 패키지 설치**
   ```bash
