@@ -13,6 +13,8 @@ def get_segment_average_vectors(h5_filename, segments, fps):
     """
     H5 파일에서 프레임 feature를 불러와서 각 세그먼트별 평균 벡터를 계산
     """
+    print("\nH5 파일에서 프레임 feature를 불러와서 각 세그먼트별 평균 벡터를 계산", flush=True)
+    
     with h5py.File(h5_filename, 'r') as f:
         features = f['features'][:]  # shape: (num_frames, feature_dim)
     segment_avg_dict = {}
@@ -30,6 +32,8 @@ def greedy_submodular_knapsack_selection(segment_ids, segment_vectors, importanc
     그리디 방식의 서브모듈러 + Knapsack 기반 세그먼트 선택 알고리즘.
     각 세그먼트의 시간(비용)과 중요도(combined_score)를 고려하여 선택.
     """
+    print("\n그리디 방식의 서브모듈러 + Knapsack 기반 세그먼트 선택 알고리즘 실행", flush=True)
+
     N = segment_vectors.shape[0]
     # 각 세그먼트의 지속 시간(초)
     cost = np.array([seg["end_time"] - seg["start_time"] for seg in sorted_combined])
@@ -104,6 +108,8 @@ def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combine
         list: 최종적으로 선택된 세그먼트 객체(dict)들의 리스트
     """
 
+    print("\n[4/6]그리디 방식의 서브모듈러 + Knapsack 기반 세그먼트 선택 알고리즘 실행", flush=True)
+    
     # h5_file = args.feature_h5  # pgl_module에서 사용한 feature 파일과 동일
     # output_h5_path = f"./features/{base_filename}.h5"
     # output_id_path = f"./{base_filename}/{base_filename}_selected_segmentID.json"

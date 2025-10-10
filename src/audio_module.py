@@ -13,7 +13,7 @@ def extract_audio(video_path: str, output_dir: str, base_name: str) -> str:
     Returns:
         str: 생성된 오디오 파일의 경로
     """
-    print("\n[2/6] Whisper용 오디오 추출", flush=True)
+    print("\nWhisper용 오디오 추출", flush=True)
     audio_wav_path = os.path.join(output_dir, f"{base_name}.wav")
 
     # ffmpeg으로 원본 영상에서 오디오 추출

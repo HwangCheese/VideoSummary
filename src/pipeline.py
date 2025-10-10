@@ -20,7 +20,7 @@ from report_module import generate_summary_report
 from thumbnail_module import generate_thumbnails
 
 
-def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
+def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
                  alpha=0.7, std_weight=0.3, top_ratio=0.2,
                  model_size="base", importance_weight=0.8, budget_time=None):
 
@@ -54,13 +54,14 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cpu", fps=1.0,
 
     # 3. Whisper 세그먼트 생성
     if os.path.exists(whisper_json):
-        print("\n[3/6] Whisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
+        print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
     else:
-        print("\n[3/6] Whisper 자막 기반 문장 세그먼트 생성", flush=True)
+        print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
         whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
 
     # 4. 중요도 기반 세그먼트 선택
-    print("\n[4/6] 중요도 기반 상위 세그먼트 선택 (PGL‑SUM)", flush=True)
+    print("\n[3/6] 중요도 기반 상위 세그먼트 선택 (PGL‑SUM)", flush=True)
+    # [4/6] 과정은 knapsack_module.py 내에서 진행
     selected_segments = run_pgl_module(
         ckpt_path=ckpt_path, feature_h5=h5_path, scene_json=scene_json,
         output_json=segment_json, output_sorted_combined_json=sorted_json,

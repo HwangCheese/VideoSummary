@@ -116,9 +116,9 @@ function updateProgressUI(state) {
   const msg = state.message || "";
   if (msg.includes("특징 추출")) updateProgressStep(1);
   else if (msg.includes("장면 분할") || msg.includes("TransNetV2")) updateProgressStep(2);
-  else if (msg.includes("오디오 추출")) updateProgressStep(3);
-  else if (msg.includes("문장 추출") || msg.includes("Whisper") || msg.includes("자막") || msg.includes("세그먼트")) updateProgressStep(4);
-  else if (msg.includes("AI 분석") || msg.includes("PGL-SUM") || msg.includes("중요도") || msg.includes("경계 보정")) updateProgressStep(5);
+  else if (msg.includes("PGL-SUM") || msg.includes("중요도")) updateProgressStep(3);
+  else if (msg.includes("그리디") || msg.includes("서브모듈러") || msg.includes("Knapsack")) updateProgressStep(4);
+  else if (msg.includes("경계 보정")) updateProgressStep(5);
   else if (msg.includes("영상 생성") || msg.includes("요약 영상") || msg.includes("편집")) updateProgressStep(6);
 
   // 작업 완료 시
