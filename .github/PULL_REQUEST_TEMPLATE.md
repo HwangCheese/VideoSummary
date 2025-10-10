@@ -1,33 +1,33 @@
-## #️⃣ 연관된 이슈
-> 예: closes #이슈번호, resolves #이슈번호
+## Related Issues
+> e.g., closes #issue-number, resolves #issue-number
 
 <br>
 
-## 📝 작업 개요
-> 어떤 기능(이슈)을 구현/수정했는지 간략히 설명해주세요.  
-> 예: 로그인 토큰 만료 시 자동 로그아웃 기능 추가
+## Overview
+> Briefly describe what this PR implements or fixes.  
+> e.g., Added auto logout feature when access token expires
 
 <br>
 
-## 🔧 상세 작업 내용
+## Details of Changes
 - [ ] TODO 1  
 - [ ] TODO 2  
 - [ ] TODO 3  
 
-(필요하다면 작업 흐름이나 로직 요약도 아래에 추가)
+(You may also include a short summary of the workflow or logic if necessary.)
 
 <br>
 
-## 📸 스크린샷 (선택)
-> UI 변경이 있거나 시각적으로 확인이 필요한 경우 이미지를 첨부해주세요.
+## Screenshots (optional)
+> Attach screenshots or GIFs if there are any UI or visual changes.
 
 <br>
 
-## 💬 리뷰 포인트 (선택)
-> 리뷰어가 특히 확인해야 할 부분이나 고민 중인 부분이 있다면 작성해주세요.  
-> 예: 함수 네이밍이나 예외 처리 로직 의견 요청 등
+## Review Notes (optional)
+> Mention anything you’d like reviewers to focus on or get feedback about.  
+> e.g., Need opinions on function naming or exception handling logic.
 
 <br>
 
-## 🧩 참고 사항 (선택)
-> 관련 문서, 참고 링크, 테스트 방법 등이 있다면 작성해주세요.
+## Additional Notes (optional)
+> Add related documents, reference links, or testing instructions if applicable.
