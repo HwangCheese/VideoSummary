@@ -61,20 +61,29 @@ npm install
     conda install pytorch==2.5.1 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
     ```
 
+- **decord 설치**
+  - macOS / Linux:
+    ```bash
+    conda install -c conda-forge decord
+    ```
+  - Windows:
+    ```bash
+    pip install decord
+    ```
+  > Windows 64bit 환경에서는 `decord` Conda 패키지가 없으므로 PIP 사용 필수 <br/>
+  
 - **기본 패키지 설치**
   ```bash
   conda install h5py scikit-learn -c conda-forge
   conda install -c conda-forge moviepy
-  pip install decord
   pip install openai-whisper
   pip install ffmpeg-python
   ```
-  > Windows 64bit 환경에서는 `decord` Conda 패키지가 없으므로 PIP 사용 필수 <br/>
   > `moviepy`, `ffmpeg-python` 등은 Conda와 PIP 혼합 설치 가능
 <br/>
 
 
-## 4. transnetv2 설치
+## 4. TransNetV2 설치
 `transnetv2` 패키지는 PyPI에 등록되어 있지 않으므로 **GitHub 저장소에서 직접 설치**해야 합니다.
 
 ### 4-1. GitHub에서 소스 다운로드 및 설치
@@ -103,7 +112,40 @@ python -c "import transnetv2; print(transnetv2.__path__)"
 - 모델(weights) 파일은 반드시 가상환경 내에 유지
 <br/>
 
-## 5. PGL-SUM 체크포인트 다운로드
+
+## 5. TensorFlow 설치
+`transnetv2` 라이브러리는 내부적으로 tensorflow를 필요로 하므로, vidsum 가상환경에 TensorFlow 설치가 필요합니다.
+- **TensorFlow 설치**
+    ```bash
+    pip install tensorflow==2.19.0
+    ```
+<br/>
+
+
+## 6. OpenCV 설치
+- **OpenCV 설치**
+    ```bash
+    pip install opencv-python
+    ```
+- **OpenCV 설치 후 확인**
+    ```bash
+    python -c "import cv2; print(cv2.__version__)"
+    ```    
+<br/>
+
+
+## 7. Matplotlib 설치
+- **Matplotlib 설치**
+    ```bash
+    conda install -c conda-forge matplotlib
+    ```
+- **Matplotlib 설치 후 확인**
+    ```bash
+    python -c "import matplotlib.pyplot as plt; print('matplotlib OK')"
+    ```    
+<br/>
+
+## 8. PGL-SUM 체크포인트 다운로드
 
 1. 프로젝트 루트 디렉토리로 이동합니다.
     ```bash
