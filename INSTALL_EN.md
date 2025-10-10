@@ -59,6 +59,18 @@ npm install
     ```bash
     conda install pytorch==2.5.1 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
     ```
+
+- **decord Installation**
+  - macOS / Linux:
+    ```bash
+    conda install -c conda-forge decord
+    ```
+  - Windows:
+    ```bash
+    pip install decord
+    ```
+    > In Windows 64bit environment, `decord` Conda package is not available, so PIP usage is mandatory
+     
 - **Basic Package Installation**
   ```bash
   conda install h5py scikit-learn -c conda-forge
@@ -67,11 +79,11 @@ npm install
   pip install openai-whisper
   pip install ffmpeg-python
   ```
-  > In Windows 64bit environment, `decord` Conda package is not available, so PIP usage is mandatory  
   > `moviepy`, `ffmpeg-python`, etc. can be installed using mixed Conda and PIP
 <br>
 
-## 4. Install transnetv2
+
+## 4. Install TransNetV2
 The `transnetv2` package is not registered on PyPI, so it must be **installed directly from the GitHub repository**.
 ### 4-1. Download and Install Source from GitHub
 
@@ -102,7 +114,41 @@ To use pretrained models (weights), you need to download them directly from GitH
 - Model (weights) files must be maintained within the virtual environment
 <br>
 
-## 5. Download PGL-SUM Checkpoint
+
+## 5. Install TensorFlow
+The `transnetv2` library requires tensorflow internally, so TensorFlow needs to be installed in the vidsum virtual environment.
+- **TensorFlow Installation**
+    ```bash
+    pip install tensorflow==2.19.0
+    ```
+<br/>
+
+
+## 6. Install OpenCV 
+- **OpenCV Installation**
+    ```bash
+    pip install opencv-python
+    ```
+- **Verify OpenCV Installation**
+    ```bash
+    python -c "import cv2; print(cv2.__version__)"
+    ```    
+<br/>
+
+
+## 7. Install Matplotlib
+- **Matplotlib Installation**
+    ```bash
+    conda install -c conda-forge matplotlib
+    ```
+- **Verify Matplotlib Installation**
+    ```bash
+    python -c "import matplotlib.pyplot as plt; print('matplotlib OK')"
+    ```    
+<br/>
+
+
+## 8. Download PGL-SUM Checkpoint
 
 1. Navigate to the project root directory.
    ```bash
