@@ -7,16 +7,29 @@ assignees: ''
 
 ---
 
-## 어떤 버그인가요?
+## What is the bug?
 
-> 어떤 버그인지 간결하게 설명해주세요
+> Briefly describe the bug you encountered.
 
-## 어떤 상황에서 발생한 버그인가요?
+---
 
-> (가능하면) Given-When-Then 형식으로 서술해주세요
+## When does the bug occur?
 
-## 예상 결과
+> (If possible) Use the Given-When-Then format to describe the situation.
 
-> 예상했던 정상적인 결과가 어떤 것이었는지 설명해주세요
+**Example:**
+> Given the user is logged in  
+> When they click the "Save" button  
+> Then the app crashes unexpectedly
 
-## 참고할만한 자료(선택)
+---
+
+## Expected behavior
+
+> Describe what you expected to happen instead.
+
+---
+
+## References (optional)
+
+> Add screenshots, logs, or related links if available.
