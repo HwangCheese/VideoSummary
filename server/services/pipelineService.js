@@ -87,27 +87,27 @@ function runPipeline({ filename, importanceWeight, topRatio }) {
 function parseLogAndUpdateProgress(line, progressState) {
     let updated = false;
     // 파이썬 출력 로그를 파싱하여 단계별 진행 상황 업데이트
-    if (line.includes("프레임 특징") || line.includes("[1/6]")) {
+    if (line.includes("[1/6]") || line.includes("프레임 특징")) {
         progressState.step = 1;
         progressState.message = "🎬 특징 추출 중...";
         updated = true;
-    } else if (line.includes("TransNetV2") || line.includes("장면 분할")) {
+    } else if (line.includes("[2/6]") || line.includes("TransNetV2") || line.includes("장면 분할")) {
         progressState.step = 2;
         progressState.message = "🎬 장면 분할 중...";
         updated = true;
-    } else if (line.includes("[2/6]")) {
+    } else if (line.includes("[3/6]")) {
         progressState.step = 3;
-        progressState.message = "🔊 오디오 추출 중...";
+        progressState.message = "🔊 프레임 중요도 산출 중...";
         progressState.percent = Math.max(progressState.percent, 60);
         updated = true;
-    } else if (line.includes("[3/6]")) { 
+    } else if (line.includes("[4/6]")) { 
         progressState.step = 4;
-        progressState.message = "🧠 문장 변환 중...";
+        progressState.message = "🧠 장면 선택 중...";
         progressState.percent = Math.max(progressState.percent, 65);
         updated = true;
-    } else if (line.includes("[4/6]")) { 
+    } else if (line.includes("[5/6]")) { 
         progressState.step = 5;
-        progressState.message = "🎯 장면 병합 중...";
+        progressState.message = "🎯 경계 보정 중...";
         progressState.percent = Math.max(progressState.percent, 80);
         updated = true;
     } else if (line.includes("[6/6]") && !line.includes("기존 파일 발견")) { 
