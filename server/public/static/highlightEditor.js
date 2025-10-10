@@ -255,8 +255,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
                 // 각 핸들에 리사이즈 로직 설정
                 setupResizeHandle(leftHandle, highlightSegments[index], true, index);
                 setupResizeHandle(rightHandle, highlightSegments[index], false, index);
-                // 블록 전체에 드래그 앤 드롭 로직 설정
-                setupDragAndDrop(block, highlightSegments[index], index);
             }
             highlightBarContainer.appendChild(block);
         });
@@ -482,89 +480,6 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         highlightSegments.sort((a, b) => a.start_time - b.start_time);
         showHighlightBar(); // UI 갱신
     });
-
-    /**
-     * 하이라이트 구간 블록의 드래그 앤 드롭 기능을 설정
-     * @param {HTMLElement} block - 드래그 대상인 구간 블록 요소
-     * @param {object} segRef - 참조할 세그먼트 데이터 객체
-     * @param {number} segmentIndex - 세그먼트 배열의 인덱스
-     */
-    function setupDragAndDrop(block, segRef, segmentIndex) {
-        let isDragging = false, startX = 0, initialStart = 0, segmentDuration = 0, containerWidth = 0, ghost = null;
-
-        block.addEventListener('mousedown', (e) => {
-            // 리사이즈 핸들 클릭은 무시
-            if (!isEditMode || e.target.classList.contains('resize-handle')) return;
-            e.preventDefault();
-
-            isDragging = true;
-            startX = e.clientX;
-            initialStart = segRef.start_time;
-            segmentDuration = segRef.end_time - segRef.start_time;
-            containerWidth = highlightBarContainer.getBoundingClientRect().width;
-
-            // 시각적 피드백을 위한 '고스트' 요소 생성
-            ghost = block.cloneNode(true);
-            Object.assign(ghost.style, {
-                opacity: '0.6',
-                pointerEvents: 'none',
-                backgroundColor: 'var(--primary-light)',
-                zIndex: '100'
-            });
-            highlightBarContainer.appendChild(ghost);
-            block.style.opacity = '0.3';
-
-            document.addEventListener('mousemove', onMouseMove);
-            document.addEventListener('mouseup', onMouseUp);
-        });
-
-        function onMouseMove(e) {
-            if (!isDragging) return;
-            const dx = e.clientX - startX;
-            let newProposedStart = initialStart + (dx / containerWidth) * originalDuration;
-
-            // 이동 가능한 범위 제한 (컨테이너 및 다른 구간과 겹치지 않도록)
-            newProposedStart = Math.max(0, Math.min(newProposedStart, originalDuration - segmentDuration));
-
-            if (segmentIndex > 0) {
-                const prevSegment = highlightSegments[segmentIndex - 1];
-                newProposedStart = Math.max(newProposedStart, prevSegment.end_time);
-            }
-            if (segmentIndex < highlightSegments.length - 1) {
-                const nextSegment = highlightSegments[segmentIndex + 1];
-                newProposedStart = Math.min(newProposedStart, nextSegment.start_time - segmentDuration);
-            }
-
-            // 고스트 요소 위치 실시간 업데이트
-            const newLeft = (newProposedStart / originalDuration) * 100;
-            ghost.style.left = `${newLeft}%`;
-            const tooltip = ghost.querySelector('.highlight-tooltip');
-            if (tooltip) tooltip.textContent = `${formatTime(newProposedStart)} ~ ${formatTime(newProposedStart + segmentDuration)}`;
-        }
-
-        function onMouseUp(e) {
-            if (!isDragging) return;
-            isDragging = false;
-
-            // 마우스를 놓은 위치를 기반으로 실제 데이터 업데이트
-            const finalGhostLeftPercentage = parseFloat(ghost.style.left);
-            if (!isNaN(finalGhostLeftPercentage)) {
-                let newActualStart = (finalGhostLeftPercentage / 100) * originalDuration;
-                const currentDuration = segRef.end_time - segRef.start_time;
-
-                segRef.start_time = newActualStart;
-                segRef.end_time = newActualStart + currentDuration;
-            }
-
-            block.style.opacity = '';
-            if (ghost) ghost.remove();
-            document.removeEventListener('mousemove', onMouseMove);
-            document.removeEventListener('mouseup', onMouseUp);
-
-            highlightSegments.sort((a, b) => a.start_time - b.start_time);
-            showHighlightBar(); // 최종 UI 갱신
-        }
-    }
 
     // 버튼 이벤트 리스너 연결
     customizeBtn.addEventListener("click", enterEditMode);
