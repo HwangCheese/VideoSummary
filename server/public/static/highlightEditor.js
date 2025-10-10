@@ -37,7 +37,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
     const saveCustomBtn = document.createElement("button");
     saveCustomBtn.id = "saveCustomBtn";
     saveCustomBtn.className = "primary-btn";
-    saveCustomBtn.innerHTML = '<i class="fas fa-download"></i> 결과 다운로드';
+    saveCustomBtn.innerHTML = '<i class="fas fa-download"></i> 편집 결과 다운로드';
     saveCustomBtn.style.display = "none";
 
     const cancelEditBtn = document.createElement("button");
@@ -393,9 +393,19 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         console.log("총 숏폼 길이:", totalDuration.toFixed(1) + "초");
 
         try {
+            // 저장(다운로드) 진행 UI
             saveCustomBtn.disabled = true;
-            saveCustomBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 준비 중...';
+            saveCustomBtn.setAttribute('aria-busy', 'true');
+            saveCustomBtn.style.color = '#fff'; // 흰 글씨
+            saveCustomBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>&nbsp; 저장 중...';
             cancelEditBtn.disabled = true;
+
+            // 편집 차단
+            highlightBarContainer.style.pointerEvents = "none";
+            // 버튼은 saveCustomBtn만 활성, 나머지는 비활성
+            resultCard.querySelectorAll("button").forEach(btn => {
+                if (btn !== saveCustomBtn) btn.disabled = true;
+            });
 
             // 1) 다운로드 전용 엔드포인트 우선 시도
             let res = await fetch(`/download/highlights`, {
@@ -428,7 +438,7 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             const a = document.createElement("a");
             a.href = url;
             
-            // (영상제목)_edited.mp4 로 단순화
+            // (영상제목)_edited.mp4 로 저장
             a.download = `${uploadedFileName.replace(/\.[^/.]+$/, "")}_edited.mp4`;
             document.body.appendChild(a);
             a.click();
@@ -450,10 +460,15 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
             console.error("다운로드 오류:", err);
             showToast(`다운로드 실패: ${err.message}`, "error");
         } finally {
-            // 버튼 상태 복원
-            saveCustomBtn.innerHTML = '<i class="fas fa-download"></i> 결과 다운로드';
+            // 버튼/상호작용 복원
+            saveCustomBtn.innerHTML = '<i class="fas fa-download"></i> 편집 결과 다운로드';
+            saveCustomBtn.style.color = ''; // 기본색
+            saveCustomBtn.removeAttribute('aria-busy');
             saveCustomBtn.disabled = false;
             cancelEditBtn.disabled = false;
+
+            highlightBarContainer.style.pointerEvents = "auto";
+            resultCard.querySelectorAll("button").forEach(btn => (btn.disabled = false));
         }
     }
 
