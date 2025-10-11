@@ -6,6 +6,7 @@ import json
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from extract_features_module import extract_features_pipe
+from scene_detection_module import run_scene_detect_pipeline
 from pgl_module import run_pgl_module
 from video_module import create_highlight_video
 from whisper_segmentor import process as whisper_process
@@ -43,21 +44,18 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
     highlight_transcript_json = os.path.join(output_dir, f"{base}_reScript.json")
     
     # 1. 특징 추출
-    if os.path.exists(h5_path) and os.path.exists(scene_json):
+    if os.path.exists(h5_path):
         print("\n[1/6] 특징 추출 - 기존 파일 발견, 스킵", flush=True)
     else:
         print("\n[1/6] 특징 추출", flush=True)
-        extract_features_pipe(video_path, h5_path, scene_json, device=device)
+        video_fps = extract_features_pipe(video_path, h5_path, device="cuda")
 
-    # 2. 오디오 추출
-    audio_wav = extract_audio(video_path, output_dir, base)
-
-    # 3. Whisper 세그먼트 생성
-    if os.path.exists(whisper_json):
-        print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
+    # 장면 분할
+    if os.path.exists(scene_json):
+        print("\n장면 분할 - 기존 파일 발견, 스킵", flush=True)
     else:
-        print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
-        whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
+        print("\n장면 분할", flush=True)
+        run_scene_detect_pipeline(video_path, scene_json, video_fps)
 
     # 4. 중요도 기반 세그먼트 선택
     print("\n[3/6] 중요도 기반 상위 세그먼트 선택 (PGL‑SUM)", flush=True)
@@ -70,6 +68,16 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
     )
     with open(selected_json, "w", encoding="utf-8") as f:
         json.dump(selected_segments, f, indent=2, ensure_ascii=False)
+
+    # 2. 오디오 추출
+    audio_wav = extract_audio(video_path, output_dir, base)
+
+    # 3. Whisper 세그먼트 생성
+    if os.path.exists(whisper_json):
+        print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
+    else:
+        print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
+        whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
 
     # 5. 세그먼트 경계 보정
     print("\n[5/6] Whisper 기반으로 경계 보정", flush=True)
