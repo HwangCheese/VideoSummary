@@ -8,11 +8,13 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 from extract_features_module import extract_features_pipe
 from scene_detection_module import run_scene_detect_pipeline
 from pgl_module import run_pgl_module
+from segment_importance import run_segment_importance_pipeline
 from video_module import create_highlight_video
 from whisper_segmentor import process as whisper_process
 from refine_selected_segments import refine_selected_segments
 from visualize_module import run_visualize_pipeline
 from frame_score_plotter import visualize_all_segments_frame_scores
+from knapsack_module import run_sub_knapsack_pipeline
 
 from audio_module import extract_audio
 from transcript_module import reconstruct_highlight_transcripts
@@ -50,24 +52,30 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
         print("\n[1/6] 특징 추출", flush=True)
         video_fps = extract_features_pipe(video_path, h5_path, device="cuda")
 
-    # 장면 분할
+    # 2. 중요도 기반 세그먼트 선택
+    print("\n[2/6] 대표 프레임별 중요도 점수 산출 (PGL‑SUM)", flush=True)
+    frame_scores = run_pgl_module(ckpt_path=ckpt_path, feature_h5=h5_path,device=device)
+
+    # 3. 장면 분할
     if os.path.exists(scene_json):
-        print("\n장면 분할 - 기존 파일 발견, 스킵", flush=True)
+        print("\n[3/6] 장면 분할 - 기존 파일 발견, 스킵", flush=True)
     else:
-        print("\n장면 분할", flush=True)
+        print("\n[3/6]TransNetV2로 장면 전환 감지 중...")
         run_scene_detect_pipeline(video_path, scene_json, video_fps)
 
-    # 4. 중요도 기반 세그먼트 선택
-    print("\n[3/6] 중요도 기반 상위 세그먼트 선택 (PGL‑SUM)", flush=True)
-    # [4/6] 과정은 knapsack_module.py 내에서 진행
-    selected_segments = run_pgl_module(
-        ckpt_path=ckpt_path, feature_h5=h5_path, scene_json=scene_json,
-        output_json=segment_json, output_sorted_combined_json=sorted_json,
-        fps=fps, device=device, alpha=alpha, std_weight=std_weight, top_ratio=top_ratio,
-        importance_weight=importance_weight, budget_time=budget_time
-    )
-    with open(selected_json, "w", encoding="utf-8") as f:
-        json.dump(selected_segments, f, indent=2, ensure_ascii=False)
+    print("\n[4/6]세그먼트 중요도 산출 및 세그먼트 선택")
+    run_segment_importance_pipeline(
+        scene_json=scene_json, frame_scores=frame_scores, 
+        output_json=segment_json, output_sorted_combined_json=sorted_json, 
+        alpha=alpha, std_weight=std_weight, fps=fps)
+
+    run_sub_knapsack_pipeline(
+        feature_h5=h5_path, scene_json=scene_json, fps=fps,
+        output_sorted_combined_json=sorted_json, importance_weight=importance_weight,
+        selected_json=selected_json, top_ratio=top_ratio, budget_time=None)
+
+
+    print("\n[5/6] Whisper 기반으로 경계 보정", flush=True)
 
     # 2. 오디오 추출
     audio_wav = extract_audio(video_path, output_dir, base)
@@ -80,7 +88,6 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
         whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
 
     # 5. 세그먼트 경계 보정
-    print("\n[5/6] Whisper 기반으로 경계 보정", flush=True)
     refine_selected_segments(selected_json, whisper_json, refined_json)
     
     # 6. 요약 영상 생성

@@ -89,7 +89,7 @@ def greedy_submodular_knapsack_selection(segment_ids, segment_vectors, importanc
     selected_ids = [segment_ids[j] for j in selected]
     return selected_ids, total_time
 
-def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combined_json, importance_weight, top_ratio=None, budget_time=None):
+def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combined_json, importance_weight, selected_json, top_ratio=None, budget_time=None):
     """
     Submodular + Knapsack 알고리즘을 사용하여 최적의 세그먼트 조합을 선택한다.
 
@@ -107,8 +107,6 @@ def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combine
     Returns:
         list: 최종적으로 선택된 세그먼트 객체(dict)들의 리스트
     """
-
-    print("\n[4/6]그리디 방식의 서브모듈러 + Knapsack 기반 세그먼트 선택 알고리즘 실행", flush=True)
     
     # h5_file = args.feature_h5  # pgl_module에서 사용한 feature 파일과 동일
     # output_h5_path = f"./features/{base_filename}.h5"
@@ -159,4 +157,6 @@ def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combine
     
     # selected_ids → 실제 segment 객체들로 변환
     selected_segments = [seg for seg in sorted_combined if seg["segment_id"] in selected_ids]
-    return selected_segments
+    
+    with open(selected_json, "w", encoding="utf-8") as f:
+        json.dump(selected_segments, f, indent=2, ensure_ascii=False)
