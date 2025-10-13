@@ -15,11 +15,6 @@ def reconstruct_highlight_transcripts(
         output_json_path (str): 재구성된 자막을 저장할 JSON 파일 경로
     """
 
-    # 기존 파일 존재시 스킵
-    if os.path.exists(output_json_path):
-        print("\n요약 영상 자막 재구성 - 기존 파일 발견, 스킵", flush=True)
-        return
-
     print("\n요약 영상 자막 재구성 중...", flush=True)
     try:
         with open(refined_json_path, "r", encoding="utf-8") as f:

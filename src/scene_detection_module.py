@@ -5,7 +5,6 @@ from transnetv2 import TransNetV2
 
 # TransNetV2를 이용한 장면 전환 감지
 def detect_scenes_transnetv2(video_path, threshold=0.5):
-    print("\n[2/6]TransNetV2로 장면 전환 감지 중...")
     model = TransNetV2()
     video_frames, single_frame_predictions, _ = model.predict_video(video_path)
     scene_changes = np.where(single_frame_predictions > threshold)[0]
