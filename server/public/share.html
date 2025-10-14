@@ -13,22 +13,34 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
   <script type="module" src="/static/sharePage.js"></script>
 </head>
+
 <body>
+  <header class="site-header">
+    <div class="header-container">
+      <div class="logo-area">
+        <div class="logo-text-container">
+          <img src="/images/logo.png" alt="logo img" class="header-logo" />
+        </div>
+      </div>
+  </header>
+
   <section id="result-section" class="scroll-section result-section" data-filename="{{FILENAME_SAFE}}">
     <div id="resultCard" class="card">
       <div class="card-body">
         <div class="video-container-group">
           <div class="video-box original-video-box">
             <h3>원본 영상</h3>
-            {{ORIGINAL_VIDEO_HTML}}
-            <img id="importanceOverlay" src="" alt="Frame Importance" class="frame-graph-overlay">
-            <div id="highlightBarContainer" class="highlight-overlay">
-              <div class="time-markers">
-                <span class="time-marker" style="left: 0%">00:00</span>
-                <span class="time-marker" style="left: 25%">25%</span>
-                <span class="time-marker" style="left: 50%">50%</span>
-                <span class="time-marker" style="left: 75%">75%</span>
-                <span class="time-marker" style="left: 100%">100%</span>
+            <div class="video-wrapper">
+              {{ORIGINAL_VIDEO_HTML}}
+              <img id="importanceOverlay" src="" alt="Frame Importance" class="frame-graph-overlay">
+              <div id="highlightBarContainer" class="highlight-overlay">
+                <div class="time-markers">
+                  <span class="time-marker" style="left: 0%">00:00</span>
+                  <span class="time-marker" style="left: 25%">25%</span>
+                  <span class="time-marker" style="left: 50%">50%</span>
+                  <span class="time-marker" style="left: 75%">75%</span>
+                  <span class="time-marker" style="left: 100%">100%</span>
+                </div>
               </div>
             </div>
             <div class="highlight-legend">
@@ -102,4 +114,5 @@
     </div>
   </section>
 </body>
+
 </html>
