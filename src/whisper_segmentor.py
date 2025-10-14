@@ -8,7 +8,7 @@ def check_overlap(whisper_start, whisper_end, vad_start, vad_end):
     """두 시간 범위가 겹치는지 확인"""
     return whisper_start < vad_end and whisper_end > vad_start
 
-def process(audio_path, scene_json_path, output_json_path, model_size="small", max_segment_gap_ms=500): # 최대 세그먼트 간격 추가
+def process(audio_path, vad_output_json_path, output_json_path, model_size="small", max_segment_gap_ms=500): # 최대 세그먼트 간격 추가
     """
     오디오 파일에서 음성 구간을 감지하고 텍스트로 변환하여 타임스탬프가 포함된 자막 세그먼트를 생성한다.
 
@@ -17,7 +17,8 @@ def process(audio_path, scene_json_path, output_json_path, model_size="small", m
 
     Args:
         audio_path (str): 분석할 오디오(.wav) 파일 경로
-        output_json_path (str): 생성된 자막 세그먼트를 저장할 .json 파일 경로
+        vad_output_json_path (str): Silero VAD로 감지한 음성 구간(start/end)을 저장할 JSON 파일 경로
+        output_json_path (str): VAD 필터링 후 Whisper 단어 기반으로 생성된 최종 자막 세그먼트를 저장할 JSON 파일 경로
         model_size (str, optional): 사용할 Whisper 모델의 크기. 기본값: "small"
         max_segment_gap_ms (int, optional): 문장을 나눌 때 기준이 되는 단어 사이의 최대 간격(ms) 기본값: 500
 
@@ -53,10 +54,20 @@ def process(audio_path, scene_json_path, output_json_path, model_size="small", m
             window_size_samples=512, 
             speech_pad_ms=50     
         )
+        
         vad_time_ranges = [(s['start'] / 16000, s['end'] / 16000) for s in vad_segments]
         print(f"VAD 감지된 음성 구간 수: {len(vad_time_ranges)}")
+       
         if not vad_time_ranges:
             print("경고: VAD가 음성 구간을 감지하지 못했습니다.")
+        else:
+        # VAD 감지 결과를 json 파일로 저장
+            try:
+                with open(vad_output_json_path, 'w', encoding='utf-8') as f:
+                    json.dump(vad_time_ranges, f, ensure_ascii=False, indent=4)
+                print(f"VAD 타임 범위 JSON 저장 완료: {vad_output_json_path}")
+            except Exception as e:
+                print(f"경고: VAD 타임 범위 저장 중 오류 발생 - {e}")
 
     except Exception as e:
         print(f"오류: Silero VAD 실행 중 문제 발생 - {e}")

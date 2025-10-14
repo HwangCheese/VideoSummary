@@ -38,7 +38,8 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
     segment_json = os.path.join(output_dir, f"{base}_segment_scores.json")
     sorted_json = os.path.join(output_dir, f"{base}_sorted_combined.json")
     selected_json = os.path.join(output_dir, f"{base}_selected_segments.json")
-    whisper_json = os.path.join(output_dir, f"{base}_whisper_segments.json")
+    vad_json = os.path.join(output_dir, f"{base}_vad_segments.json")
+    vad_whisper_json  = os.path.join(output_dir, f"{base}_vad_whisper_segments.json")
     refined_json = os.path.join(output_dir, f"{base}_refined_segments.json")
     highlight_video = os.path.join(output_dir, f"highlight_{base}.mp4")
     visualize_png = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
@@ -75,20 +76,20 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
         selected_json=selected_json, top_ratio=top_ratio, budget_time=None)
 
 
-    print("\n[5/6] Whisper 기반으로 경계 보정", flush=True)
+    print("\n[5/6] VAD + Whisper 기반으로 경계 보정", flush=True)
 
     # 2. 오디오 추출
     audio_wav = extract_audio(video_path, output_dir, base)
 
     # 3. Whisper 세그먼트 생성
-    if os.path.exists(whisper_json):
+    if os.path.exists(vad_whisper_json):
         print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
     else:
         print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
-        whisper_process(audio_wav, scene_json, whisper_json, model_size=model_size)
+        whisper_process(audio_wav, vad_json, vad_whisper_json, model_size=model_size)
 
     # 5. 세그먼트 경계 보정
-    refine_selected_segments(selected_json, whisper_json, refined_json)
+    refine_selected_segments(selected_json, vad_whisper_json, refined_json)
     
     # 6. 요약 영상 생성
     print("\n[6/6] 요약 영상 생성", flush=True)
@@ -104,7 +105,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
     generate_thumbnails(video_path, refined_json, output_dir, base)
 
     # 8. 요약 영상 자막 재구성
-    reconstruct_highlight_transcripts(refined_json, whisper_json, highlight_transcript_json)
+    reconstruct_highlight_transcripts(refined_json, vad_whisper_json, highlight_transcript_json)
 
     # 9. 품질 점수 계산
     manage_quality_score(
