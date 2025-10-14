@@ -114,12 +114,12 @@ function updateProgressUI(state) {
 
   // 메시지 내용에 따라 진행 단계(step) 아이콘을 활성화
   const msg = state.message || "";
-  if (msg.includes("특징 추출")) updateProgressStep(1);
-  else if (msg.includes("장면 분할") || msg.includes("TransNetV2")) updateProgressStep(2);
-  else if (msg.includes("PGL-SUM") || msg.includes("중요도")) updateProgressStep(3);
-  else if (msg.includes("그리디") || msg.includes("서브모듈러") || msg.includes("Knapsack")) updateProgressStep(4);
-  else if (msg.includes("경계 보정")) updateProgressStep(5);
-  else if (msg.includes("영상 생성") || msg.includes("요약 영상") || msg.includes("편집")) updateProgressStep(6);
+  if (msg.includes("[1/6]]")) updateProgressStep(1);
+  else if (msg.includes("[2/6]]")) updateProgressStep(2);
+  else if (msg.includes("[3/6]]")) updateProgressStep(3);
+  else if (msg.includes("[4/6]]")) updateProgressStep(4);
+  else if (msg.includes("[5/6]]")) updateProgressStep(5);
+  else if (msg.includes("[6/6]]")) updateProgressStep(6);
 
   // 작업 완료 시
   if (state.done) {
