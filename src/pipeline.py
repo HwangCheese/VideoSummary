@@ -1,6 +1,7 @@
 import argparse
 import os
 import json
+import platform
 
 # KMP_DUPLICATE_LIB_OK 환경 변수 설정
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -22,10 +23,22 @@ from score_module import manage_quality_score
 from report_module import generate_summary_report
 from thumbnail_module import generate_thumbnails
 
+def get_video_fps(video_path):
+    IS_MACOS = platform.system() == 'Darwin'
+    if IS_MACOS:
+        import cv2
+        cap = cv2.VideoCapture(video_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        cap.release()
+    else:
+        from decord import VideoReader, cpu
+        vr = VideoReader(video_path, ctx=cpu(0))
+        fps = vr.get_avg_fps()
+    return fps
 
 def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
-                 alpha=0.7, std_weight=0.3, top_ratio=0.2,
-                 model_size="base", importance_weight=0.8, budget_time=None):
+                alpha=0.7, std_weight=0.3, top_ratio=0.2,
+                model_size="base", importance_weight=0.8, budget_time=None):
 
     os.makedirs(output_dir, exist_ok=True)
     base = os.path.splitext(os.path.basename(video_path))[0]
