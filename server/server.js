@@ -26,5 +26,5 @@ app.use("/results", resultRouter);
 app.use("/", shareRouter);
 
 app.listen(PORT, () => {
-  console.log(`✅ 서버 실행: http://localhost:${PORT}`);
+  console.log(`서버 실행: http://localhost:${PORT}`);
 });
