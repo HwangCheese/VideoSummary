@@ -127,11 +127,11 @@ router.get('/share/:id', async (req, res) => {
 
     // 비디오 블록 HTML
     const originalHtml = originalExists
-        ? `<div class="video-wrapper"><video id="originalVideo" controls src="${originalVideoUrl}"></video></div>`
+        ? `<video id="originalVideo" controls src="${originalVideoUrl}"></video>`
         : `<div class="muted">원본 영상 파일을 찾을 수 없습니다.</div>`;
 
     const summaryHtml = summaryExists
-        ? `<div class="video-wrapper"><video id="finalVideo" controls src="${summaryVideoUrl}"></video></div>`
+        ? `<video id="finalVideo" controls src="${summaryVideoUrl}"></video>`
         : `<div class="muted">요약 영상 파일을 찾을 수 없습니다.</div>`;
 
     // 세그먼트 정렬 및 렌더
