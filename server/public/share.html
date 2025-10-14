@@ -1,0 +1,105 @@
+<!-- server/public/share.html -->
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>결과 영상 공유</title>
+  <link rel="icon" type="image/png" href="/images/head-icon.png" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+  <script type="module" src="/static/sharePage.js"></script>
+</head>
+<body>
+  <section id="result-section" class="scroll-section result-section" data-filename="{{FILENAME_SAFE}}">
+    <div id="resultCard" class="card">
+      <div class="card-body">
+        <div class="video-container-group">
+          <div class="video-box original-video-box">
+            <h3>원본 영상</h3>
+            {{ORIGINAL_VIDEO_HTML}}
+            <img id="importanceOverlay" src="" alt="Frame Importance" class="frame-graph-overlay">
+            <div id="highlightBarContainer" class="highlight-overlay">
+              <div class="time-markers">
+                <span class="time-marker" style="left: 0%">00:00</span>
+                <span class="time-marker" style="left: 25%">25%</span>
+                <span class="time-marker" style="left: 50%">50%</span>
+                <span class="time-marker" style="left: 75%">75%</span>
+                <span class="time-marker" style="left: 100%">100%</span>
+              </div>
+            </div>
+            <div class="highlight-legend">
+              <span class="legend-item"><span class="legend-color original"></span> 프레임 중요도</span>
+              <span class="legend-item"><span class="legend-color highlight"></span> 요약된 구간</span>
+            </div>
+            <div class="highlight-section">
+              <div class="highlight-thumbnails">
+                <h3><i class="fas fa-images"></i> 원본의 주요 장면</h3>
+                <div class="thumbnail-slider" id="thumbnailSlider"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="video-box shortform-video-box">
+            <div class="video-title-header">
+              <h3> 요약 영상</h3>
+              <span id="quickDownloadBtn" class="quick-download-icon" title="요약 영상 다운로드">
+                <i class="fas fa-download"></i>
+              </span>
+            </div>
+            {{SUMMARY_VIDEO_HTML}}
+            <div class="transcript-header">
+              <h4><i class="fas fa-closed-captioning"></i> 요약 영상 스크립트</h4>
+            </div>
+            <div id="shortformTranscriptSection" class="shortform-transcript-section">
+              <ul id="transcriptList" class="transcript-list"></ul>
+            </div>
+          </div>
+
+          <div class="shortform-details-sidebar">
+            <div class="sidebar-header">
+              <i class="fas fa-award sidebar-title-icon"></i>
+              <h4 class="sidebar-title">요약 품질 점수</h4>
+            </div>
+            <div class="score-display">
+              <span class="score-value" id="summaryScoreValue">n</span>
+              <span class="score-max">/ 100</span>
+            </div>
+            <p class="score-description" id="summaryScoreDescription">
+              요약 영상이 원본 영상에서 중요도가 높은 구간을 얼마나 잘 포함했는지와, 선택된 장면들이 전체 내용을 얼마나 잘 대표하는지를 기준으로 점수가 계산됩니다.
+            </p>
+            <ul class="summary-metrics-list">
+              <li class="metric-item">
+                <div class="metric-icon-wrapper"><i class="fas fa-filter"></i></div>
+                <div class="metric-info"><span class="metric-label">요약 방식</span><span class="metric-value"
+                    id="summaryMethodValue"></span></div>
+              </li>
+              <li class="metric-item">
+                <div class="metric-icon-wrapper"><i class="fas fa-film"></i></div>
+                <div class="metric-info"><span class="metric-label">핵심 장면</span><span class="metric-value"
+                    id="keyScenesCountValue">n개 <span class="metric-unit">추출됨</span></span></div>
+              </li>
+              <li class="metric-item">
+                <div class="metric-icon-wrapper"><i class="fas fa-compress-alt"></i></div>
+                <div class="metric-info"><span class="metric-label">원본 대비 요약 비율</span><span class="metric-value"
+                    id="compressionRateValue">n% <span class="metric-unit">압축</span></span></div>
+              </li>
+              <li class="metric-item">
+                <div class="metric-icon-wrapper"><i class="fas fa-clock"></i></div>
+                <div class="metric-info"><span class="metric-label">시청 시간</span><span class="metric-value"
+                    id="viewingTimeValue"><span class="time-original">n:n</span> → <span
+                      class="time-summary">n:n</span></span></div>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <p class="muted" style="margin-top:16px">※ 이 페이지는 편집이 불가능한 공유 전용 화면입니다.</p>
+      </div>
+    </div>
+  </section>
+</body>
+</html>
