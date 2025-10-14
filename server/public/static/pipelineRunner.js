@@ -463,42 +463,33 @@ function updateSummaryMetricsFromServerData(data) {
 
   let summaryHtmlContent = "맞춤형 요약"; // 기본값
 
-  const sliderElement = document.getElementById('importanceSlider');
-  if (sliderElement) {
-    const sliderVal = parseFloat(sliderElement.value); // 0 (하이라이트) ~ 1 (스토리)
-    if (!isNaN(sliderVal)) {
-      const highlightRatioForText = Math.round((1 - sliderVal) * 100);
-      const storyRatioForText = Math.round(sliderVal * 100);
+  // 슬라이더 제거하고, importance_weight_used_by_pipeline 값 기준으로 계산
+  const importanceWeight = data.importance_weight_used_by_pipeline;
+  if (importanceWeight !== undefined && !isNaN(importanceWeight)) {
+    const highlightRatio = Math.round(importanceWeight * 100); // 1.0: 하이라이트
+    const storyRatio = Math.round((1 - importanceWeight) * 100); // 0.0: 스토리
 
-      console.log("Slider Value:", sliderVal);
-      console.log("Highlight Ratio:", highlightRatioForText, "Display:", `하이라이트 ${highlightRatioForText}%`);
-      console.log("Story Ratio:", storyRatioForText, "Display:", `스토리 ${storyRatioForText}%`);
+    const highlightTextDisplay = `하이라이트 ${highlightRatio}%`;
+    const storyTextDisplay = `스토리 ${storyRatio}%`;
 
-      const highlightTextDisplay = `하이라이트 ${highlightRatioForText}%`;
-      const storyTextDisplay = `스토리 ${storyRatioForText}%`;
     const primaryStyle = "color: var(--accent-color); font-weight: bold;";
     const secondaryStyle = "color: var(--dark-color); font-weight: normal;";
 
-      if (sliderVal === 0) {
+    if (importanceWeight === 1) {
       summaryHtmlContent = `<span style="${primaryStyle}">${highlightTextDisplay}</span>`;
-      } else if (sliderVal === 1) {
+    } else if (importanceWeight === 0) {
       summaryHtmlContent = `<span style="${primaryStyle}">${storyTextDisplay}</span>`;
-      } else if (sliderVal === 0.5) {
+    } else if (importanceWeight === 0.5) {
       summaryHtmlContent = `<span style="${secondaryStyle}"><b>${highlightTextDisplay}</b></span><br><span style="${secondaryStyle}"><b>${storyTextDisplay}</b></span>`;
     } else {
-        if (highlightRatioForText > storyRatioForText) {
+      if (highlightRatio > storyRatio) {
         summaryHtmlContent = `<span style="${primaryStyle}">${highlightTextDisplay}</span><br><span style="${secondaryStyle}">${storyTextDisplay}</span>`;
       } else {
         summaryHtmlContent = `<span style="${primaryStyle}">${storyTextDisplay}</span><br><span style="${secondaryStyle}">${highlightTextDisplay}</span>`;
-        }
       }
     }
   } else {
-    if (data && data.summary_type_text) {
-      summaryHtmlContent = data.summary_type_text; // 서버 제공 텍스트 사용
-    } else {
-      summaryHtmlContent = "요약 방식 정보 없음"; // 또는 다른 적절한 기본값
-    }
+    summaryHtmlContent = "요약 방식 정보 없음";
   }
 
   if (summaryScoreValueEl) {
