@@ -39,6 +39,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
     sorted_json = os.path.join(output_dir, f"{base}_sorted_combined.json")
     selected_json = os.path.join(output_dir, f"{base}_selected_segments.json")
     vad_json = os.path.join(output_dir, f"{base}_vad_segments.json")
+    whisper_json  = os.path.join(output_dir, f"{base}_whisper_segments.json")
     vad_whisper_json  = os.path.join(output_dir, f"{base}_vad_whisper_segments.json")
     refined_json = os.path.join(output_dir, f"{base}_refined_segments.json")
     highlight_video = os.path.join(output_dir, f"highlight_{base}.mp4")
@@ -86,7 +87,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
         print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
     else:
         print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
-        whisper_process(audio_wav, vad_json, vad_whisper_json, model_size=model_size)
+        whisper_process(audio_wav, vad_json, whisper_json, vad_whisper_json, model_size=model_size)
 
     # 5. 세그먼트 경계 보정
     refine_selected_segments(selected_json, vad_whisper_json, refined_json)

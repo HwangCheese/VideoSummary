@@ -8,7 +8,7 @@ def check_overlap(whisper_start, whisper_end, vad_start, vad_end):
     """두 시간 범위가 겹치는지 확인"""
     return whisper_start < vad_end and whisper_end > vad_start
 
-def process(audio_path, vad_output_json_path, output_json_path, model_size="small", max_segment_gap_ms=500): # 최대 세그먼트 간격 추가
+def process(audio_path, vad_output_json_path, whisper_output_json_path, output_json_path, model_size="small", max_segment_gap_ms=500): # 최대 세그먼트 간격 추가
     """
     오디오 파일에서 음성 구간을 감지하고 텍스트로 변환하여 타임스탬프가 포함된 자막 세그먼트를 생성한다.
 
@@ -18,6 +18,7 @@ def process(audio_path, vad_output_json_path, output_json_path, model_size="smal
     Args:
         audio_path (str): 분석할 오디오(.wav) 파일 경로
         vad_output_json_path (str): Silero VAD로 감지한 음성 구간(start/end)을 저장할 JSON 파일 경로
+        whisper_output_json_path (str): Whisper 모델로 전사한 전체 원본 결과를 저장할 JSON 파일 경로
         output_json_path (str): VAD 필터링 후 Whisper 단어 기반으로 생성된 최종 자막 세그먼트를 저장할 JSON 파일 경로
         model_size (str, optional): 사용할 Whisper 모델의 크기. 기본값: "small"
         max_segment_gap_ms (int, optional): 문장을 나눌 때 기준이 되는 단어 사이의 최대 간격(ms) 기본값: 500
@@ -102,7 +103,9 @@ def process(audio_path, vad_output_json_path, output_json_path, model_size="smal
 
     try:
         print("Whisper 전사 시작...")
-        result = model.transcribe(audio_path, language=detected_lang, word_timestamps=True)
+        whisper_result = model.transcribe(audio_path, language=detected_lang, word_timestamps=True)
+        with open(whisper_output_json_path, 'w', encoding='utf-8') as f:
+            json.dump(whisper_result, f, ensure_ascii=False, indent=2)
         print("Whisper 전사 완료.")
 
     except Exception as e:
@@ -113,12 +116,12 @@ def process(audio_path, vad_output_json_path, output_json_path, model_size="smal
 
     # VAD 결과와 단어 타임스탬프 결합
     valid_words = []
-    if 'segments' not in result or not result['segments']:
+    if 'segments' not in whisper_result or not whisper_result['segments']:
         print("경고: Whisper 결과에 세그먼트가 없습니다.")
     else:
-        print(f"Whisper 추출 세그먼트 수: {len(result['segments'])}")
+        print(f"Whisper 추출 세그먼트 수: {len(whisper_result['segments'])}")
         total_word_count = 0
-        for segment in result['segments']:
+        for segment in whisper_result['segments']:
             if 'words' in segment and isinstance(segment['words'], list):
                 total_word_count += len(segment['words'])
                 for word_info in segment['words']:
@@ -143,8 +146,8 @@ def process(audio_path, vad_output_json_path, output_json_path, model_size="smal
     if not valid_words:
         print("경고: VAD 필터링된 유효 단어가 없습니다. Whisper 세그먼트 기준으로 대체합니다.")
         filtered_segments = []
-        if 'segments' in result and result['segments']:
-             for seg in result['segments']:
+        if 'segments' in whisper_result and whisper_result['segments']:
+             for seg in whisper_result['segments']:
                  if 'start' in seg and 'end' in seg and 'text' in seg:
                     filtered_segments.append({
                         "start": round(seg['start'], 2),
