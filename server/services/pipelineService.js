@@ -87,33 +87,36 @@ function runPipeline({ filename, importanceWeight, topRatio }) {
 function parseLogAndUpdateProgress(line, progressState) {
     let updated = false;
     // 파이썬 출력 로그를 파싱하여 단계별 진행 상황 업데이트
-    if (line.includes("[1/6]") || line.includes("프레임 특징")) {
+    if (line.includes("[1/6]")) {
         progressState.step = 1;
-        progressState.message = "🎬 특징 추출 중...";
+        progressState.message = "🔍 특징 추출 중...";
+        progressState.percent = Math.max(progressState.percent, 8);
         updated = true;
-    } else if (line.includes("[2/6]") || line.includes("TransNetV2") || line.includes("장면 분할")) {
+    } else if (line.includes("[2/6]")) {
         progressState.step = 2;
-        progressState.message = "🎬 장면 분할 중...";
+        progressState.message = "📊 프레임 중요도 산출 중...";
+        // Step 1이 완료된 25%로 설정
+        progressState.percent = Math.max(progressState.percent, 25);
         updated = true;
     } else if (line.includes("[3/6]")) {
         progressState.step = 3;
-        progressState.message = "🔊 프레임 중요도 산출 중...";
-        progressState.percent = Math.max(progressState.percent, 60);
+        progressState.message = "✂️ 장면 분할 중...";
+        progressState.percent = Math.max(progressState.percent, 42);
         updated = true;
     } else if (line.includes("[4/6]")) { 
         progressState.step = 4;
-        progressState.message = "🧠 장면 선택 중...";
-        progressState.percent = Math.max(progressState.percent, 65);
+        progressState.message = "🎯 장면 선택 중...";
+        progressState.percent = Math.max(progressState.percent, 60);
         updated = true;
     } else if (line.includes("[5/6]")) { 
         progressState.step = 5;
-        progressState.message = "🎯 경계 보정 중...";
-        progressState.percent = Math.max(progressState.percent, 80);
+        progressState.message = "🛠️ 장면 경계 보정 중...";
+        progressState.percent = Math.max(progressState.percent, 75);
         updated = true;
-    } else if (line.includes("[6/6]") && !line.includes("기존 파일 발견")) { 
+    } else if (line.includes("[6/6]")) { 
         progressState.step = 6;
-        progressState.message = "🎞️ 요약 영상 생성 중...";
-        progressState.percent = Math.max(progressState.percent, 85);
+        progressState.message = "🎬 요약 영상 생성 중...";
+        progressState.percent = Math.max(progressState.percent, 92);
         updated = true;
     } else if (line.includes("✅ 파이프라인 완료!")) {
         progressState.percent = 100;
@@ -128,21 +131,21 @@ function parseLogAndUpdateProgress(line, progressState) {
         processedFrames_initial = parseInt(frameMatch1[1], 10);
         totalFrames_initial = parseInt(frameMatch1[2], 10);
         if (totalFrames_initial > 0) {
-            const percent = Math.floor(25 * (processedFrames_initial / totalFrames_initial));
-            progressState.percent = Math.max(0, Math.min(percent, 25));
+            const percent = 8 + Math.floor(17 * (processedFrames_initial / totalFrames_initial));
+            progressState.percent = Math.max(8, Math.min(percent, 25));
             progressState.message = `🎬 특징 추출 중... (${processedFrames_initial}/${totalFrames_initial} 프레임)`;
             updated = true;
         }
     }
 
-    // 정규식을 사용하여 장면 분할 진행률 파싱
+    // 정규식을 사용하여 장면 분할 진행률 파싱 - 제대로 동작하지 않음
     const frameMatch2 = line.match(/\[TransNetV2\] Processing video frames (\d+)\/(\d+)/);
-    if (progressState.step === 2 && frameMatch2) {
+    if (progressState.step === 3 && frameMatch2) {
         processedFrames_transnet = parseInt(frameMatch2[1], 10);
         totalFrames_transnet = parseInt(frameMatch2[2], 10);
         if (totalFrames_transnet > 0) {
-            const percent = 25 + Math.floor(35 * (processedFrames_transnet / totalFrames_transnet));
-            progressState.percent = Math.max(25, Math.min(percent, 60));
+            const percent = 45 + Math.floor(15 * (processedFrames_transnet / totalFrames_transnet));
+            progressState.percent = Math.max(45, Math.min(percent, 60)); 
             progressState.message = `🎬 장면 분할 중... (${processedFrames_transnet}/${totalFrames_transnet} 프레임)`;
             updated = true;
         }

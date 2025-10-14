@@ -111,18 +111,19 @@ function updateProgressUI(state) {
   const icon = state.done
     ? '<i class="fas fa-check-circle"></i>'
     : '<i class="fas fa-sync fa-spin"></i>';
-  if (statusDiv) statusDiv.innerHTML = `${icon} ${state.percent}% - ${state.message || "처리 중..."}`;
+  //if (statusDiv) statusDiv.innerHTML = `${icon} ${state.percent}% - ${state.message || "처리 중..."}`;
+  if (statusDiv) statusDiv.innerHTML = `${icon} ${state.message || "처리 중..."}`;
 
   if (state.step) updateProgressStep(state.step);
 
   // 메시지 내용에 따라 진행 단계(step) 아이콘을 활성화
   const msg = state.message || "";
-  if (msg.includes("특징 추출")) updateProgressStep(1);
-  else if (msg.includes("장면 분할") || msg.includes("TransNetV2")) updateProgressStep(2);
-  else if (msg.includes("PGL-SUM") || msg.includes("중요도")) updateProgressStep(3);
-  else if (msg.includes("그리디") || msg.includes("서브모듈러") || msg.includes("Knapsack")) updateProgressStep(4);
-  else if (msg.includes("경계 보정")) updateProgressStep(5);
-  else if (msg.includes("영상 생성") || msg.includes("요약 영상") || msg.includes("편집")) updateProgressStep(6);
+  if (msg.includes("[1/6]]")) updateProgressStep(1);
+  else if (msg.includes("[2/6]]")) updateProgressStep(2);
+  else if (msg.includes("[3/6]]")) updateProgressStep(3);
+  else if (msg.includes("[4/6]]")) updateProgressStep(4);
+  else if (msg.includes("[5/6]]")) updateProgressStep(5);
+  else if (msg.includes("[6/6]]")) updateProgressStep(6);
 
   // 작업 완료 시
   if (state.done) {
@@ -835,10 +836,13 @@ export function initPipelineRunner() {
 
       // UI를 '진행 중' 상태로 변경
       startBtn.disabled = true;
+      startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 요약 중...';
+      startBtn.style.display = "none"
+
       if (viewResultsBtn) {
         viewResultsBtn.style.display = "none";
       }
-      startBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 요약 중...';
+      
       if (highlightEditor) {
         highlightEditor.destroy();
         highlightEditor = null;
@@ -847,13 +851,12 @@ export function initPipelineRunner() {
       resetSummaryMetrics();
       if (progressCard) progressCard.style.display = "block";
       if (resultCard) resultCard.style.display = "none";
-      if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-hourglass-start"></i> 0% - 요약 시작 중...';
+      if (statusDiv) statusDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 요약 준비 중...';
       if (progressBarInner) progressBarInner.style.width = "0%";
 
       // 타이머 및 SSE 시작
       startElapsedTime();
       resetProgressSteps();
-      updateProgressStep(1);
 
       // 진행률 섹션으로 스크롤
       scrollToSectionExternally(1, true);
@@ -898,7 +901,8 @@ export function initPipelineRunner() {
         stopElapsedTime();
         if (sseSource) { sseSource.close(); sseSource = null; }
         startBtn.disabled = false;
-        startBtn.innerHTML = '<i class="fas fa-magic"></i> 요약 시작';
+        startBtn.style.display = "block"
+        startBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> 요약 시작';
       }
     });
   }
