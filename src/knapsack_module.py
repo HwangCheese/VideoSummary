@@ -160,3 +160,5 @@ def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combine
     
     with open(selected_json, "w", encoding="utf-8") as f:
         json.dump(selected_segments, f, indent=2, ensure_ascii=False)
+
+    return selected_ids
