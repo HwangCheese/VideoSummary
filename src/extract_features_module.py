@@ -121,7 +121,7 @@ def save_to_h5(features, output_h5):
         hf.create_dataset("features", data=features)
 
 # 특징 추출 및 TransNetV2 장면 분할 파이프라인
-def extract_features_pipe(video_path, output_h5, device="cuda"):
+def extract_features_pipe(video_path, output_h5, device):
     """
     비디오 파일에서 시각적 특징(feature)과 장면(scene) 정보를 추출하여 파일로 저장한다.
 

@@ -9,7 +9,7 @@ def load_h5_features(h5_path):
     with h5py.File(h5_path, "r") as hf:
         return np.array(hf["features"])
 
-def predict_scores(model, features, device="cpu"):
+def predict_scores(model, features, device):
     # 모델을 통해 하이라이트 점수를 예측
     x = torch.from_numpy(features).float().to(device)
     if x.ndim == 2:
@@ -31,7 +31,7 @@ def load_model_checkpoint(model, ckpt_path, device):
     return model
 
 
-def run_pgl_module(ckpt_path, feature_h5, device="cpu"):
+def run_pgl_module(ckpt_path, feature_h5, device):
     """
     PGL-SUM 모델을 사용하여 각 세그먼트의 중요도 점수를 계산하고, Knapsack 알고리즘으로 최종 세그먼트를 선택한다.
     Args:

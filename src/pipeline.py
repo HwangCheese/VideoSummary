@@ -36,7 +36,7 @@ def get_video_fps(video_path):
         fps = vr.get_avg_fps()
     return fps
 
-def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
+def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
                 alpha=0.7, std_weight=0.3, top_ratio=0.2,
                 model_size="base", importance_weight=0.8, budget_time=None):
 
@@ -66,7 +66,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
         video_fps = get_video_fps(video_path)
     else:
         print("\n[1/6] 특징 추출", flush=True)
-        video_fps = extract_features_pipe(video_path, h5_path, device="cuda")
+        video_fps = extract_features_pipe(video_path, h5_path, device)
 
     # 2. 중요도 기반 세그먼트 선택
     print("\n[2/6] 대표 프레임별 중요도 점수 산출 (PGL‑SUM)", flush=True)
