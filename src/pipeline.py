@@ -63,6 +63,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device="cuda", fps=1.0,
     # 1. 특징 추출
     if os.path.exists(h5_path):
         print("\n[1/6] 특징 추출 - 기존 파일 발견, 스킵", flush=True)
+        video_fps = get_video_fps(video_path)
     else:
         print("\n[1/6] 특징 추출", flush=True)
         video_fps = extract_features_pipe(video_path, h5_path, device="cuda")
