@@ -446,7 +446,7 @@ async function loadAndDisplayShortformTranscriptInternal(baseFilenameForTranscri
  */
 export function resetSummaryMetrics(excludeScore = false) {
   if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
-  if (compressionRateValueEl) compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">요약</span>';
+  if (compressionRateValueEl) compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">로 요약</span>';
   if (keyScenesCountValueEl) keyScenesCountValueEl.innerHTML = 'N/A <span class="metric-unit">추출됨</span>';
   if (viewingTimeValueEl) viewingTimeValueEl.innerHTML = `<span class="time-original">N/A</span> → <span class="time-summary">N/A</span>`;
   if (summaryMethodValueEl) summaryMethodValueEl.innerHTML = 'N/A';
@@ -499,12 +499,12 @@ function updateSummaryMetricsFromServerData(data) {
 
   if (compressionRateValueEl) {
     if (data.summarization_ratio_percentage !== undefined) {
-      compressionRateValueEl.innerHTML = `${parseFloat(data.summarization_ratio_percentage).toFixed(1)}% <span class="metric-unit">요약</span>`;
+      compressionRateValueEl.innerHTML = `${parseFloat(data.summarization_ratio_percentage).toFixed(1)}% <span class="metric-unit">로 요약</span>`;
     } else if (data.summary_duration !== undefined && data.full_duration !== undefined && data.full_duration > 0) {
       const ratio = (data.summary_duration / data.full_duration) * 100;
-      compressionRateValueEl.innerHTML = `${parseFloat(ratio).toFixed(1)}% <span class="metric-unit">요약</span>`;
+      compressionRateValueEl.innerHTML = `${parseFloat(ratio).toFixed(1)}% <span class="metric-unit">로 요약</span>`;
     } else {
-      compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">요약</span>';
+      compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">로 요약</span>';
     }
   }
 
