@@ -7,7 +7,7 @@ import platform
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from extract_features_module import extract_features_pipe
-from VideoSummary.src.scene_detection_module_tf import run_scene_detect_pipeline
+from scene_detection_module import run_scene_detect_pipeline
 from pgl_module import run_pgl_module
 from segment_importance import run_segment_importance_pipeline
 from video_module import create_highlight_video

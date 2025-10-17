@@ -1,9 +1,7 @@
 import os
 import json
-import numpy as np
-from transnetv2_pytorch import TransNetV2
-import torch
 import time
+from transnetv2_pytorch import TransNetV2
 
 def detect_scenes_transnetv2_pytorch(video_path, device, threshold=0.5):
     """
