@@ -65,7 +65,7 @@ def extract_features_opencv(video_path, model, device, batch_size=32):
             batch = []
     
     cap.release()
-    return np.concatenate(feats, axis=0), video_fps
+    return np.concatenate(feats, axis=0)
 
 # Decord를 사용한 특징 추출 함수 (Linux/Windows용)
 def extract_features_decord(video_path, model, device, batch_size=32):
@@ -99,7 +99,7 @@ def extract_features_decord(video_path, model, device, batch_size=32):
                 feats.append(batch_feats)
             batch = []
 
-    return np.concatenate(feats, axis=0), video_fps
+    return np.concatenate(feats, axis=0)
 
 # PCA 적용
 def apply_pca(features, max_components=1024):
@@ -144,12 +144,9 @@ def extract_features_pipe(video_path, output_h5, device):
     
     # OS에 따라 다른 함수를 호출하여 특징 추출
     if IS_MACOS:
-        features, video_fps = extract_features_opencv(video_path, model, device)
+        features = extract_features_opencv(video_path, model, device)
     else:
-        features, video_fps = extract_features_decord(video_path, model, device)
+        features = extract_features_decord(video_path, model, device)
     
     pca_features = apply_pca(features)
     save_to_h5(pca_features, output_h5)
-
-    # 비디오의 실제 초당 프레임 수
-    return video_fps 
