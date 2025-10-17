@@ -1,9 +1,7 @@
 import os
 import json
-import numpy as np
-from transnetv2_pytorch import TransNetV2
-import torch
 import time
+from transnetv2_pytorch import TransNetV2
 
 def detect_scenes_transnetv2_pytorch(video_path, device, threshold=0.5):
     """
@@ -45,28 +43,29 @@ def detect_scenes_transnetv2_pytorch(video_path, device, threshold=0.5):
     return scenes
 
 
-def save_segments_to_json(scenes, output_json, fps):
+def save_segments_to_json(scenes, output_json):
     """
     장면 구간을 JSON 파일로 저장합니다.
     
     Args:
         scenes (list): TransNetV2에서 반환된 장면 딕셔너리 리스트
         output_json (str): 출력 JSON 파일 경로
-        fps (float): 비디오 FPS
     """
     segment_data = []
     
     for idx, scene in enumerate(scenes):
-        start_frame = scene.get('start_frame')
-        end_frame = scene.get('end_frame')
-        
+        start_frame = int(scene.get('start_frame'))
+        end_frame = int(scene.get('end_frame'))
+        start_time = float(scene.get('start_time'))
+        end_time = float(scene.get('end_time'))
+
         segment_data.append({
             "segment_id": idx,
-            "start_frame": int(start_frame),
-            "end_frame": int(end_frame),
-            "start_time": round(start_frame / fps, 2),
-            "end_time": round(end_frame / fps, 2),
-            "duration": round((end_frame - start_frame) / fps, 2)
+            "start_frame": start_frame,
+            "end_frame": end_frame,
+            "start_time": round(start_time, 2),
+            "end_time": round(end_time, 2),
+            "duration": round(end_time - start_time, 2)
         })
     
     # JSON 저장
@@ -76,7 +75,7 @@ def save_segments_to_json(scenes, output_json, fps):
     print(f"장면 구간 JSON 저장 완료: {output_json}")
 
 
-def run_scene_detect_pipeline(video_path, device, output_json, fps):
+def run_scene_detect_pipeline(video_path, device, output_json):
     """
     장면 감지 파이프라인 실행
     
@@ -84,7 +83,6 @@ def run_scene_detect_pipeline(video_path, device, output_json, fps):
         video_path (str): 비디오 파일 경로
         device (str): 사용할 디바이스 ('cuda' 또는 'cpu')
         output_json (str): 출력 JSON 파일 경로
-        fps (float): 비디오 FPS
     """
     # 출력 디렉토리 생성
     os.makedirs(os.path.dirname(output_json), exist_ok=True)
@@ -93,4 +91,4 @@ def run_scene_detect_pipeline(video_path, device, output_json, fps):
     scenes = detect_scenes_transnetv2_pytorch(video_path, device)
     
     # JSON 저장
-    save_segments_to_json(scenes, output_json, fps)
+    save_segments_to_json(scenes, output_json)
