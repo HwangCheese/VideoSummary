@@ -1,7 +1,6 @@
 import argparse
 import os
 import json
-import platform
 
 # KMP_DUPLICATE_LIB_OK 환경 변수 설정
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -22,19 +21,6 @@ from transcript_module import reconstruct_highlight_transcripts
 from score_module import manage_quality_score
 from report_module import generate_summary_report
 from thumbnail_module import generate_thumbnails
-
-def get_video_fps(video_path):
-    IS_MACOS = platform.system() == 'Darwin'
-    if IS_MACOS:
-        import cv2
-        cap = cv2.VideoCapture(video_path)
-        fps = cap.get(cv2.CAP_PROP_FPS)
-        cap.release()
-    else:
-        from decord import VideoReader, cpu
-        vr = VideoReader(video_path, ctx=cpu(0))
-        fps = vr.get_avg_fps()
-    return fps
 
 def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
                 alpha=0.7, std_weight=0.3, top_ratio=0.2,
@@ -63,10 +49,9 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
     # 1. 특징 추출
     if os.path.exists(h5_path):
         print("\n[1/6] 특징 추출 - 기존 파일 발견, 스킵", flush=True)
-        video_fps = get_video_fps(video_path)
     else:
         print("\n[1/6] 특징 추출", flush=True)
-        video_fps = extract_features_pipe(video_path, h5_path, device)
+        extract_features_pipe(video_path, h5_path, device)
 
     # 2. 중요도 기반 세그먼트 선택
     print("\n[2/6] 대표 프레임별 중요도 점수 산출 (PGL‑SUM)", flush=True)
