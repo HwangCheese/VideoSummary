@@ -7,7 +7,7 @@ import platform
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from extract_features_module import extract_features_pipe
-from scene_detection_module import run_scene_detect_pipeline
+from VideoSummary.src.scene_detection_module_tf import run_scene_detect_pipeline
 from pgl_module import run_pgl_module
 from segment_importance import run_segment_importance_pipeline
 from video_module import create_highlight_video
@@ -77,7 +77,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
         print("\n[3/6] 장면 분할 - 기존 파일 발견, 스킵", flush=True)
     else:
         print("\n[3/6]TransNetV2로 장면 전환 감지 중...")
-        run_scene_detect_pipeline(video_path, scene_json, video_fps)
+        run_scene_detect_pipeline(video_path, device, scene_json, video_fps)
 
     print("\n[4/6]세그먼트 중요도 산출 및 세그먼트 선택")
     run_segment_importance_pipeline(
