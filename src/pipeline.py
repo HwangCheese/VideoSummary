@@ -7,7 +7,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from extract_features_module import extract_features_pipe
 from scene_detection_module import run_scene_detect_pipeline
-from pgl_module import run_pgl_module
+from frame_importance import run_importance_calculation
 from segment_importance import run_segment_importance_pipeline
 from video_module import create_highlight_video
 from whisper_segmentor import process as whisper_process
@@ -54,8 +54,8 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
         extract_features_pipe(video_path, h5_path, device)
 
     # 2. 중요도 기반 세그먼트 선택
-    print("\n[2/6] 대표 프레임별 중요도 점수 산출 (PGL‑SUM)", flush=True)
-    frame_scores = run_pgl_module(ckpt_path=ckpt_path, feature_h5=h5_path,device=device)
+    print("\n[2/6] 대표 프레임별 중요도 점수 산출", flush=True)
+    frame_scores = run_importance_calculation(ckpt_path=ckpt_path, feature_h5=h5_path,device=device)
 
     # 3. 장면 분할
     if os.path.exists(scene_json):
