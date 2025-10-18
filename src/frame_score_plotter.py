@@ -8,7 +8,7 @@ from pathlib import Path
 def visualize_all_segments_frame_scores(segments_path):
     """
     세그먼트 JSON 파일로부터 프레임 점수를 시간 축에 따라 시각화하고,
-    CreateShorts/server/public/images/frameScore/{baseName}_frameScoreGraph.png 에 저장
+    output_dir/{baseName}_frameScoreGraph.png 에 저장
     """
 
     # 1. JSON 파일 로드
