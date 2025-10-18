@@ -15,7 +15,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 from extract_features_module import extract_features_pipe
 from scene_detection_module import run_scene_detect_pipeline
-from pgl_module import run_pgl_module
+from frame_importance import run_frmae_importance_pipeline
 from segment_importance import run_segment_importance_pipeline
 from knapsack_module import run_sub_knapsack_pipeline
 from evaluation_module import run_evaluation
@@ -60,7 +60,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
 
     # ========== 2. 프레임 중요도 산출 ==========
     print("\n[2/5] 대표 프레임별 중요도 점수 산출 (PGL-SUM)", flush=True)
-    frame_scores = run_pgl_module(ckpt_path=ckpt_path, feature_h5=h5_path, device=device)
+    frame_scores = run_frmae_importance_pipeline(ckpt_path=ckpt_path, feature_h5=h5_path, device=device)
 
     # ========== 3. 장면 분할 ==========
     if os.path.exists(scene_json):
