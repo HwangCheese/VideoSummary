@@ -70,10 +70,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
         print("\n[3/6] 장면 분할 - 기존 파일 발견, 스킵", flush=True)
     else:
         print("\n[3/6]TransNetV2로 장면 전환 감지 중...")
-        if cuda_ok:
-            run_scene_detect_pipeline(video_path, device, scene_json)
-        else:
-            run_scene_detect_pipeline(video_path, scene_json, fps)
+        run_scene_detect_pipeline(video_path, scene_json)
 
     print("\n[4/6]세그먼트 중요도 산출 및 세그먼트 선택")
     run_segment_importance_pipeline(
