@@ -75,7 +75,7 @@ def load_model_checkpoint(model, ckpt_path, device):
     return model
 
 
-def run_frmae_importance_pipeline(ckpt_path, feature_h5, device):
+def run_frame_importance_pipeline(ckpt_path, feature_h5, device):
     """
     사전 학습된 모델을 사용하여 비디오 세그먼트의 중요도 점수를 계산하는 메인 함수.
     
