@@ -50,7 +50,7 @@ def refine_selected_segments(selected_json, whisper_json, output_json, min_durat
     자연스러운 세그먼트 리스트를 생성하는 후처리 과정입니다.
 
     Args:
-        selected_json (str): PGL-SUM이 선택한 세그먼트 리스트 .json 파일 경로
+        selected_json (str): 요약영상으로 선택한 세그먼트 리스트 .json 파일 경로
         whisper_json (str): Whisper가 생성한 자막 세그먼트 리스트 .json 파일 경로
         output_json (str): 최종 보정된 세그먼트 리스트를 저장할 .json 파일 경로
         min_duration (float, optional): 유효한 세그먼트로 간주할 최소 길이(초). 기본값: 0.01

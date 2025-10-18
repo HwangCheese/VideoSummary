@@ -108,11 +108,6 @@ def run_sub_knapsack_pipeline(feature_h5, scene_json, fps, output_sorted_combine
         list: 최종적으로 선택된 세그먼트 객체(dict)들의 리스트
     """
     
-    # h5_file = args.feature_h5  # pgl_module에서 사용한 feature 파일과 동일
-    # output_h5_path = f"./features/{base_filename}.h5"
-    # output_id_path = f"./{base_filename}/{base_filename}_selected_segmentID.json"
-    
-    # scenes_file = f'./{base_filename}/{base_filename}_scenes.json'
     scenes = load_file(scene_json)
     segment_avg_dict = get_segment_average_vectors(feature_h5, scenes,fps)
 
