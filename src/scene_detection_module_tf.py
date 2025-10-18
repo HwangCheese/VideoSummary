@@ -1,7 +1,19 @@
 import os
 import json
+import cv2
 import numpy as np
 from transnetv2 import TransNetV2
+
+# 비디오 파일에서 FPS(초당 프레임 수)를 자동으로 계산
+def get_video_fps(video_path):
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        raise ValueError(f"비디오를 열 수 없습니다: {video_path}")
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    cap.release()
+    if fps <= 0:
+        raise ValueError("FPS를 읽을 수 없습니다.")
+    return fps
 
 # TransNetV2를 이용한 장면 전환 감지
 def detect_scenes_transnetv2(video_path, threshold=0.5):
@@ -36,8 +48,15 @@ def save_segments_to_json(scene_changes, output_json, total_frames, fps):
         json.dump(segment_data, f, ensure_ascii=False, indent=4)
     print("장면 구간 JSON 저장 완료")
 
-def run_scene_detect_pipeline(video_path, output_json, fps):    
+def run_scene_detect_pipeline(video_path, output_json):    
     os.makedirs(os.path.dirname(output_json), exist_ok=True)
 
+    # FPS 자동 계산
+    fps = get_video_fps(video_path)
+    print(f"자동 계산된 FPS: {fps:.2f}")
+
+    # 장면 전환 감지
     scene_changes, total_frames = detect_scenes_transnetv2(video_path)
+
+    # JSON 저장
     save_segments_to_json(scene_changes, output_json, total_frames, fps)

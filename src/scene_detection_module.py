@@ -75,7 +75,7 @@ def save_segments_to_json(scenes, output_json):
     print(f"장면 구간 JSON 저장 완료: {output_json}")
 
 
-def run_scene_detect_pipeline(video_path, device, output_json):
+def run_scene_detect_pipeline(video_path, output_json):
     """
     장면 감지 파이프라인 실행
     
@@ -88,7 +88,7 @@ def run_scene_detect_pipeline(video_path, device, output_json):
     os.makedirs(os.path.dirname(output_json), exist_ok=True)
     
     # 장면 감지 실행
-    scenes = detect_scenes_transnetv2_pytorch(video_path, device)
+    scenes = detect_scenes_transnetv2_pytorch(video_path, device='cuda')
     
     # JSON 저장
     save_segments_to_json(scenes, output_json)
