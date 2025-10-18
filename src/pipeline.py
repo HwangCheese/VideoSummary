@@ -5,8 +5,9 @@ import json
 # KMP_DUPLICATE_LIB_OK 환경 변수 설정
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
+from device_utils import has_cuda, resolved_device, import_scene_module
+
 from extract_features_module import extract_features_pipe
-from scene_detection_module import run_scene_detect_pipeline
 from frame_importance import run_frame_importance_pipeline
 from segment_importance import run_segment_importance_pipeline
 from video_module import create_highlight_video
@@ -46,6 +47,13 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
     score_path = os.path.join(output_dir, f"{base}_score.json")
     highlight_transcript_json = os.path.join(output_dir, f"{base}_reScript.json")
     
+    cuda_ok = has_cuda()
+    forced_device = "cuda" if cuda_ok else "cpu"
+    device = forced_device
+
+    run_scene_detect_pipeline = import_scene_module(cuda_ok)
+    print(f"{device}로 실행됩니다.")
+
     # 1. 특징 추출
     if os.path.exists(h5_path):
         print("\n[1/6] 특징 추출 - 기존 파일 발견, 스킵", flush=True)
@@ -62,7 +70,10 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
         print("\n[3/6] 장면 분할 - 기존 파일 발견, 스킵", flush=True)
     else:
         print("\n[3/6]TransNetV2로 장면 전환 감지 중...")
-        run_scene_detect_pipeline(video_path, device, scene_json)
+        if cuda_ok:
+            run_scene_detect_pipeline(video_path, device, scene_json)
+        else:
+            run_scene_detect_pipeline(video_path, scene_json, fps)
 
     print("\n[4/6]세그먼트 중요도 산출 및 세그먼트 선택")
     run_segment_importance_pipeline(
@@ -149,11 +160,13 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    auto_dev = resolved_device()
+
     run_pipeline(
         video_path=args.video_path,
         ckpt_path=args.fine_ckpt,
         output_dir=args.output_dir,
-        device=args.device,
+        device=auto_dev,
         fps=args.fps,
         alpha=args.alpha,
         std_weight=args.std_weight,
