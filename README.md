@@ -48,7 +48,7 @@
 
 ## :wrench: 시스템 구조
 
-<img width="1460" height="785" alt="Image" src="https://github.com/user-attachments/assets/46d41365-c0c7-4bd7-b0b2-5e2a7078c8af" />
+<img width="1460" height="785" alt="Image" src="https://github.com/user-attachments/assets/ad7e987d-93b5-472a-8b26-0cd94cf31687" />
 <br>
   VideoSummary 시스템은 웹 기반 시스템으로 구현하였으며, 전체 시스템은 웹 클라이언트 애플리케이션과 웹 서버 애플리케이션으로 구성된다. 웹 클라이언트 애플리케이션은 사용자 인터페이스 역할을 담당하며, 웹페이지 형태의 UI를 제공한다. 사용자는 이를 통해 영상 업로드, 영상 요약 요청, 요약 결과 확인 등의 핵심 기능을 수행할 수 있다.
 
