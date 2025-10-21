@@ -61,7 +61,7 @@ function regenerateHighlights(filename, segments) {
         return reject(new Error("원본 영상 파일 없음"));
       }
 
-      const regenerate = spawn("conda", ["run", "-n", "mrhisum", "--live-stream", "python", "-u", videoModulePath, videoPath, jsonPath]);
+      const regenerate = spawn("conda", ["run", "-n", "vidsum", "--live-stream", "python", "-u", videoModulePath, videoPath, jsonPath]);
 
       let errorOutput = '';
       regenerate.stderr.on("data", data => { errorOutput += data.toString(); });
