@@ -38,7 +38,7 @@ function runPipeline({ filename, importanceWeight, topRatio }) {
   ];
 
   console.log("파이프라인 실행:", ["python", ...pipelineArgs].join(" "));
-  const pipeline = spawn("conda", ["run", "-n", "mrhisum", "--live-stream", "python", "-u", ...pipelineArgs]);
+  const pipeline = spawn("conda", ["run", "-n", "vidsum", "--live-stream", "python", "-u", ...pipelineArgs]);
 
   let stdoutBuffer = "";
   pipeline.stdout.on("data", (data) => {
