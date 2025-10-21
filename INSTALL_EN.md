@@ -141,17 +141,17 @@ The `transnetv2` library requires tensorflow internally, so TensorFlow needs to 
 <br/>
 
 
-## 7. Download PGL-SUM Checkpoint
+## 7. Download VASNet Checkpoint
 
 1. Navigate to the project root directory.
    ```bash
    cd VideoSummary
    ```
-2. Create `dataset` directory (if it doesn't exist)
+2. Create `dataset` directory
    ```bash
    mkdir dataset
    ```
-3. Go to the [mrhisum GitHub](https://github.com/MRHiSum/MR.HiSum) page and click the **"Download PGL-SUM checkpoint"** link to download the ZIP file.
+3. Go to the [Mr.HiSum GitHub](https://github.com/MRHiSum/MR.HiSum) page and click the **"Download VASNet checkpoint"** link to download the ZIP file.
 4. After extracting the downloaded ZIP file, place the `.pkl` file inside into the `dataset` folder.
    ```
    C:\VideoSummary-test\VideoSummary\dataset\filename.pkl
