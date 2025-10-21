@@ -139,17 +139,17 @@ python -c "import transnetv2; print(transnetv2.__path__)"
     ```    
 <br/>
 
-## 7. PGL-SUM 체크포인트 다운로드
+## 7. VASNet 체크포인트 다운로드
 
-1. 프로젝트 루트 디렉토리로 이동합니다.
+1. 프로젝트 루트 디렉토리로 이동
     ```bash
     cd VideoSummary
     ```
-2. `dataset` 디렉토리 생성 (없는 경우)
+2. `dataset` 디렉토리 생성
     ```bash
     mkdir dataset
     ```
-3. [mrhisum GitHub](https://github.com/MRHiSum/MR.HiSum) 페이지에서 **"Download PGL-SUM checkpoint"** 링크를 클릭하여 ZIP 파일을 다운로드합니다.
+3. [MR.HiSum GitHub](https://github.com/MRHiSum/MR.HiSum) 페이지에서 **"Download VASNet checkpoint"** 링크를 클릭하여 ZIP 파일을 다운로드
 4. 다운로드한 ZIP 파일을 압축 해제한 후, 그 안의 `.pkl` 파일을 `dataset` 폴더 안에 넣습니다.
     ```
     C:\VideoSummary-test\VideoSummary\dataset\파일명.pkl
