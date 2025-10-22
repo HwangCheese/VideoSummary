@@ -85,16 +85,16 @@ python pipeline.py --video_path [VIDEO_PATH] --fine_ckpt [CHECKPOINT_PATH] --out
 ```bash
 python pipeline.py \
   --video_path "input/my_video.mp4" \
-  --fine_ckpt "../dataset/checkpoint_file.pkl" \
-  --output_dir "output"
+  --fine_ckpt "../dataset/vasnet1_best_f1.pkl" \
+  --output_dir "../output"
 ```
 
 **Usage with custom options:**
 ```bash
 python pipeline.py \
   --video_path "input/lecture.mp4" \
-  --fine_ckpt "../dataset/checkpoint_file.pkl" \
-  --output_dir "output" \
+  --fine_ckpt "../dataset/vasnet1_best_f1.pkl" \
+  --output_dir "../output" \
   --device "cuda" \
   --importance_weight 0.8 \
   --budget_time 300 \

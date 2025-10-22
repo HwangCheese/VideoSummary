@@ -85,16 +85,16 @@ python pipeline.py --video_path [비디오_경로] --fine_ckpt [체크포인트_
 ```bash
 python pipeline.py \
   --video_path "input/my_video.mp4" \
-  --fine_ckpt "../dataset/checkpoint_file.pkl" \
-  --output_dir "output"
+  --fine_ckpt "../dataset/vasnet1_best_f1.pkl" \
+  --output_dir "../output"
 ```
 
 **사용자 정의 매개변수를 사용한 사용법:**
 ```bash
 python pipeline.py \
   --video_path "input/lecture.mp4" \
-  --fine_ckpt "../dataset/checkpoint_file.pkl" \
-  --output_dir "output" \
+  --fine_ckpt "../dataset/vasnet1_best_f1.pkl" \
+  --output_dir "../output" \
   --device "cuda" \
   --importance_weight 0.8 \
   --budget_time 300 \
