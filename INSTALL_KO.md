@@ -7,7 +7,7 @@
 
 프로젝트를 실행하기 전에 다음 환경이 필요합니다:
 
-- **Git**  
+- [**Git**](https://git-scm.com/install/) 
   버전 관리 및 소스 코드 다운로드
 
 - **Conda**  
@@ -15,8 +15,10 @@
   - [Anaconda](https://www.anaconda.com/products/distribution)  
   - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 
-- **Node.js & npm**  
+- [**Node.js & npm**](https://nodejs.org/ko/download)
   Express 서버 실행
+
+- [**FFmpeg**](https://www.ffmpeg.org/download.html)
 
 - **CUDA 11.8 이상** (GPU 사용 시)
 
@@ -45,6 +47,7 @@ conda activate vidsum
 ## 3. 의존성 설치
 ### 3-1. Node.js 서버
 Express 서버 실행에 필요한 Node 모듈 설치
+
 ```bash
 cd VideoSummary/server
 npm install
@@ -77,12 +80,11 @@ npm install
       python -c "import cv2; print(cv2.__version__)"
       ```    
 
-  
 - **기본 패키지 설치**
   ```bash
   conda install h5py scikit-learn -c conda-forge
   conda install -c conda-forge moviepy
-  pip install openai-whisper
+  pip install silero-vad openai-whisper soundfile librosa
   pip install ffmpeg-python
   ```
   > `moviepy`, `ffmpeg-python` 등은 Conda와 PIP 혼합 설치 가능
@@ -92,7 +94,20 @@ npm install
 ## 4. TransNetV2 설치
 `transnetv2` 패키지는 PyPI에 등록되어 있지 않으므로 **GitHub 저장소에서 직접 설치**해야 합니다.
 
-### 4-1. GitHub에서 소스 다운로드 및 설치
+### 4-1. TensorFlow 설치
+`transnetv2` 라이브러리는 내부적으로 tensorflow를 필요로 하므로, vidsum 가상환경에 TensorFlow 설치가 필요합니다.
+- **TensorFlow 설치**
+  - CPU 환경
+    ```bash
+    pip install tensorflow==2.19.0
+    ```
+  - GPU 환경 (CUDA 11.8 기준)
+    ```bash
+    pip install tensorflow==2.19.0 transnetv2_pytorch
+    ```
+
+### 4-2. GitHub에서 소스 다운로드 및 설치
+
 ```bash
 # GitHub 웹사이트에서 ZIP 파일 다운로드 또는 git clone
 git clone https://github.com/soCzech/TransNetV2
@@ -102,33 +117,26 @@ cd TransNetV2
 pip install .
 ```
 
-### 4-2. 모델(weights) 파일 복사
+### 4-3. 모델(weights) 파일 복사
+
 GitHub에서 clone만 하면 `transnetv2-weights` 폴더는 비어 있습니다. <br/>
 pretrained 모델(weights)을 사용하려면 GitHub에서직접 다운로드해야 합니다.
+
 1. GitHub에서 다운로드한 `TransNetV2/inference/transnetv2-weights/` 폴더 준비
 2. Conda 가상환경에서 TransNetV2 패키지 경로 확인
-```bash
-python -c "import transnetv2; print(transnetv2.__path__)"
-```
+  ```bash
+  python -c "import transnetv2; print(transnetv2.__path__)"
+  ```
 3. 확인된 경로 안에 `transnetv2-weights` 폴더를 그대로 복사
 > 예:`[가상환경]/Lib/site-packages/transnetv2/transnetv2-weights`
 
-### 4-3. 설치 후 정리
+### 4-4. 설치 후 정리
 - 원본 `TransNetV2` 디렉토리는 삭제 가능
 - 모델(weights) 파일은 반드시 가상환경 내에 유지
 <br/>
 
 
-## 5. TensorFlow 설치
-`transnetv2` 라이브러리는 내부적으로 tensorflow를 필요로 하므로, vidsum 가상환경에 TensorFlow 설치가 필요합니다.
-- **TensorFlow 설치**
-    ```bash
-    pip install tensorflow==2.19.0
-    ```
-<br/>
-
-
-## 6. Matplotlib 설치
+## 5. Matplotlib 설치
 - **Matplotlib 설치**
     ```bash
     conda install -c conda-forge matplotlib
@@ -139,7 +147,7 @@ python -c "import transnetv2; print(transnetv2.__path__)"
     ```    
 <br/>
 
-## 7. VASNet 체크포인트 다운로드
+## 6. VASNet 체크포인트 다운로드
 
 1. 프로젝트 루트 디렉토리로 이동
     ```bash

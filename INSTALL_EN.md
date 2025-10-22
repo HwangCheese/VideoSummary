@@ -7,15 +7,21 @@ This document provides an installation and environment setup guide for running V
 
 The following environment is required before running the project:
 
-- **Git**  
+- [**Git**](https://git-scm.com/install/)  
   Version control and source code download
+
 - **Conda**  
   Python virtual environment management  
   - [Anaconda](https://www.anaconda.com/products/distribution)  
   - [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- **Node.js & npm**  
+
+- [**Node.js & npm**](https://nodejs.org/ko/download)  
   Express server execution
+
+- [**FFmpeg**](https://www.ffmpeg.org/download.html)
+
 - **CUDA 11.8 or higher** (when using GPU)
+
 - **Internet connection**  
   Package and model file downloads
 
@@ -60,7 +66,7 @@ npm install
     conda install pytorch==2.5.1 torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
     ```
 
-- **Installation of decord or OpenCV depending on the operating system﻿**
+- **Installation of decord or OpenCV depending on the operating system**
     - **Windows/Linux: decord Installation**
       ```bash
       pip install decord
@@ -80,8 +86,7 @@ npm install
   ```bash
   conda install h5py scikit-learn -c conda-forge
   conda install -c conda-forge moviepy
-  pip install decord
-  pip install openai-whisper
+  pip install silero-vad openai-whisper soundfile librosa
   pip install ffmpeg-python
   ```
   > `moviepy`, `ffmpeg-python`, etc. can be installed using mixed Conda and PIP
@@ -90,7 +95,20 @@ npm install
 
 ## 4. Install TransNetV2
 The `transnetv2` package is not registered on PyPI, so it must be **installed directly from the GitHub repository**.
-### 4-1. Download and Install Source from GitHub
+
+### 4-1. Install TensorFlow
+The `transnetv2` library requires tensorflow internally, so TensorFlow needs to be installed in the vidsum virtual environment.
+- **TensorFlow Installation**
+  - CPU Environment
+    ```bash
+    pip install tensorflow==2.19.0
+    ```
+  - GPU Environment (CUDA 11.8 based)
+    ```bash
+    pip install tensorflow==2.19.0 transnetv2_pytorch
+    ```
+
+### 4-2. Download and Install Source from GitHub
 
 ```bash
 # Download ZIP file from GitHub website or use git clone
@@ -100,9 +118,9 @@ cd TransNetV2
 pip install .
 ```
 
-### 4-2. Copy Model (weights) Files
+### 4-3. Copy Model (weights) Files
 
-Simply cloning from GitHub leaves the `transnetv2-weights` folder empty.  
+Simply cloning from GitHub leaves the `transnetv2-weights` folder empty. <br/>
 To use pretrained models (weights), you need to download them directly from GitHub.
 
 1. Prepare the `TransNetV2/inference/transnetv2-weights/` folder downloaded from GitHub
@@ -113,20 +131,11 @@ To use pretrained models (weights), you need to download them directly from GitH
 3. Copy the `transnetv2-weights` folder as-is into the confirmed path
 > Example: `[virtual_environment]/Lib/site-packages/transnetv2/transnetv2-weights`
 
-### 4-3. Cleanup After Installation
+### 4-4. Cleanup After Installation
 
 - The original `TransNetV2` directory can be deleted
 - Model (weights) files must be maintained within the virtual environment
 <br>
-
-
-## 5. Install TensorFlow
-The `transnetv2` library requires tensorflow internally, so TensorFlow needs to be installed in the vidsum virtual environment.
-- **TensorFlow Installation**
-    ```bash
-    pip install tensorflow==2.19.0
-    ```
-<br/>
 
 
 ## 6. Install Matplotlib
