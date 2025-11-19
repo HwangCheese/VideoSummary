@@ -114,9 +114,9 @@
                 </div>
               </div>
               <div class="summary-duration">
-                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 비율 (1~80%)</label>
+                <label for="durationPercentageInput"><i class="fas fa-clock"></i> 원하는 요약 영상 비율 (15~80%)</label>
                 <div class="duration-input-group">
-                  <input type="number" id="durationPercentageInput" min="1" max="80" value="20">
+                  <input type="number" id="durationPercentageInput" min="10" max="80" value="20">
                   <span class="unit">%</span>
                   <div class="spinner-buttons">
                     <button type="button" class="spinner-btn up" id="increaseBtn">
@@ -213,7 +213,7 @@
               </div>
               <div class="highlight-section">
                 <div class="highlight-thumbnails">
-                  <h3><i class="fas fa-images"></i> 원본의 주요 장면</h3>
+                  <h3><i class="fas fa-images"></i>요약에 포함된 장면들</h3>
                   <div class="thumbnail-slider" id="thumbnailSlider"></div>
                 </div>
               </div>
@@ -234,36 +234,36 @@
               </div>
             </div>
             <div class="shortform-details-sidebar">
-              <div class="sidebar-header">
-                <i class="fas fa-award sidebar-title-icon"></i>
-                <h4 class="sidebar-title">요약 품질 점수</h4>
-              </div>
-              <div class="score-display">
-                <span class="score-value" id="summaryScoreValue">n</span>
-                <span class="score-max">/ 100</span>
-              </div>
-              <p class="score-description" id="summaryScoreDescription">
-                요약 영상이 원본 영상에서 중요도가 높은 구간을 얼마나 잘 포함했는지와, 선택된 장면들이 전체 내용을 얼마나 잘 대표하는지를 기준으로 점수가 계산됩니다.
-              </p>
               <ul class="summary-metrics-list">
                 <li class="metric-item">
-                  <div class="metric-icon-wrapper"><i class="fas fa-filter"></i></div>
-                  <div class="metric-info"><span class="metric-label">요약 방식</span><span class="metric-value"
-                      id="summaryMethodValue"></span></div>
+                  <div class="metric-info">
+                    <span class="metric-label">
+                      <i class="fas fa-filter" aria-hidden="true"></i> 요약 방식
+                    </span>
+                    <span class="metric-value" id="summaryMethodValue"></span>
+                  </div>
                 </li>
                 <li class="metric-item">
-                  <div class="metric-icon-wrapper"><i class="fas fa-film"></i></div>
-                  <div class="metric-info"><span class="metric-label">핵심 장면</span><span class="metric-value"
-                      id="keyScenesCountValue">n개 <span class="metric-unit">추출됨</span></span></div>
-                </li>
-                <li class="metric-item">
-                  <div class="metric-icon-wrapper"><i class="fas fa-compress-alt"></i></div>
-                  <div class="metric-info"><span class="metric-label">원본 대비 요약 비율</span><span class="metric-value"
+                  <div class="metric-info">
+                    <span class="metric-label">
+                      <i class="fas fa-compress-alt" aria-hidden="true"></i> 원본 대비 요약 비율
+                    </span>
+                    <span class="metric-value"
                       id="compressionRateValue">n% <span class="metric-unit">압축</span></span></div>
                 </li>
                 <li class="metric-item">
-                  <div class="metric-icon-wrapper"><i class="fas fa-clock"></i></div>
-                  <div class="metric-info"><span class="metric-label">시청 시간</span><span class="metric-value"
+                  <div class="metric-info">
+                    <span class="metric-label">
+                      <i class="fas fa-film" aria-hidden="true"></i> 핵심 장면
+                    </span>
+                    <span class="metric-value" id="keyScenesCountValue">n개 <span class="metric-unit">추출됨</span></span></div>
+                </li>
+                <li class="metric-item">
+                  <div class="metric-info">
+                    <span class="metric-label">
+                      <i class="fas fa-clock" aria-hidden="true"></i> 시청 시간
+                    </span>
+                    <span class="metric-value"
                       id="viewingTimeValue"><span class="time-original">n:n</span> → <span
                         class="time-summary">n:n</span></span></div>
                 </li>

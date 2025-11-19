@@ -44,7 +44,7 @@ def visualize_all_segments_frame_scores(segments_path):
     fig, ax = plt.subplots(figsize=(14, 2))
 
     # 반투명 흰색 막대 그래프
-    ax.bar(times, scores, width=widths, color="white", alpha=0.6, align="edge")
+    ax.bar(times, scores, width=widths, color="yellow", alpha=0.8, align="edge")
 
     # X/Y축 범위 지정 (데이터에 딱 맞게)
     ax.set_xlim(times[0], times[-1])

@@ -1,6 +1,7 @@
 // public/static/sharePage.js
 import { loadThumbnails, loadTranscript, loadReportAndScore } from './pipelineRunner.js';
 import { initHighlightEditor } from './highlightEditor.js';
+import { showToast } from './uiUtils.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const section = document.getElementById('result-section');
@@ -68,4 +69,69 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadReportAndScore(baseName);
   await loadTranscript(baseName);
   await loadThumbnails(baseName);
+
+  function getSummaryVideoEl() {
+    // id가 없을 수도 있으니 안전 탐색
+    const byId = document.getElementById('finalVideo');
+    if (byId) return byId;
+    const box = document.querySelector('.shortform-video-box');
+    return box ? box.querySelector('video') : null;
+  }
+
+  async function triggerShareDownload() {
+    const videoEl = getSummaryVideoEl();
+    if (!videoEl || !videoEl.src) {
+      showToast?.('다운로드할 요약 영상을 찾지 못했습니다.', 'warning');
+      return;
+    }
+    const src = videoEl.src;
+
+    // 파일명 추출 (fallback: data-filename)
+    const parsedName = (() => {
+      try {
+       const u = new URL(src, window.location.href);
+        const last = u.pathname.split('/').pop();
+        return last || filename;
+      } catch {
+        return filename;
+      }
+    })();
+
+    // 같은 오리진이면 Blob으로 강제 저장, 아니면 a[download] 폴백
+    try {
+      const res = await fetch(src, { credentials: 'same-origin' });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const hasExt = /\.[a-z0-9]+$/i.test(parsedName);
+      a.download = hasExt ? parsedName : `${parsedName}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast?.('요약 영상을 다운로드했습니다.', 'success');
+    } catch (e) {
+      // CORS 등으로 Blob 실패 시 링크 다운로드
+      const a = document.createElement('a');
+      a.href = src;
+      const hasExt = /\.[a-z0-9]+$/i.test(parsedName);
+      a.download = hasExt ? parsedName : `${parsedName}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      showToast?.('브라우저 정책으로 새 탭이 열릴 수 있습니다.', 'info');
+    }
+  }
+
+  const quickBtn = document.getElementById('quickDownloadBtn');
+  if (quickBtn) {
+    quickBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      triggerShareDownload();
+    });
+  } else {
+    console.warn('[sharePage] quickDownloadBtn을 찾지 못했습니다.');
+  }
 });

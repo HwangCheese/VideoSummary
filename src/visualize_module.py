@@ -97,7 +97,7 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
     # 기본 프레임 점수 (lightgray)
     ax.bar(times, scores,
            width=widths,
-           color="gray",
+           color="yellow",
            align="edge")
 
     # 선택된 세그먼트 구간 배경 (crimson, alpha=0.3)
@@ -115,7 +115,7 @@ def visualize_selected_segments(segments, selected_ids, save_path=None):
     ax.grid(axis="y", linestyle="--", alpha=0.4)
 
     # 5) 범례
-    frame_patch = mpatches.Patch(color="lightgray", label="Frame scores")
+    frame_patch = mpatches.Patch(color="yellow", label="Frame scores")
     sel_patch   = mpatches.Patch(color="crimson", alpha=0.3, label="Selected segments")
     ax.legend(handles=[frame_patch, sel_patch],
               loc="upper left", 
