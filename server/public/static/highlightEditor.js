@@ -48,16 +48,23 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
 
     // 생성된 버튼들을 DOM에 삽입
     const buttonGroup = resultCard.querySelector(".button-group");
-    const downloadBtnEl = document.getElementById("downloadBtn");
-    const newBtnEl = document.getElementById("newBtn");
-    const shareBtnEl = document.getElementById("shareBtn");
+    const downloadBtnEl = resultCard.querySelector("#downloadBtn") || document.getElementById("downloadBtn");
+    const newBtnEl = resultCard.querySelector("#newBtn") || document.getElementById("newBtn");
+    const shareBtnEl = resultCard.querySelector("#shareBtn") || document.getElementById("shareBtn");
 
-    if (buttonGroup && downloadBtnEl && newBtnEl && shareBtnEl) {
-        buttonGroup.insertBefore(saveCustomBtn, newBtnEl);
+    const readOnly = !buttonGroup || (!newBtnEl && !shareBtnEl);
+
+    if (!readOnly && buttonGroup) {
+        if (newBtnEl) { buttonGroup.insertBefore(saveCustomBtn, newBtnEl); }
+        else { buttonGroup.appendChild(saveCustomBtn); }
+        
         buttonGroup.insertBefore(cancelEditBtn, saveCustomBtn);
         buttonGroup.insertBefore(customizeBtn, cancelEditBtn);
     } else {
-        console.error("버튼 그룹 또는 기준 버튼(downloadBtn, newBtn, shareBtn)을 찾을 수 없습니다. 버튼 배치에 실패했습니다.");
+        console.info("읽기 전용(공유) 페이지로 감지됨: 편집 버튼 렌더링을 생략합니다.");
+        customizeBtn.style.display = "none";
+        saveCustomBtn.style.display = "none";
+        cancelEditBtn.style.display = "none";
     }
 
     /**
@@ -68,16 +75,20 @@ export function initHighlightEditor(highlightBarContainer, finalVideo, uploadedF
         if (downloadBtnEl) downloadBtnEl.style.display = isEditingMode ? "none" : "inline-block";
         if (newBtnEl) newBtnEl.style.display = isEditingMode ? "none" : "inline-block";
         if (shareBtnEl) shareBtnEl.style.display = isEditingMode ? "none" : "inline-block";
-
-        customizeBtn.style.display = isEditingMode ? "none" : "inline-block";
-        saveCustomBtn.style.display = isEditingMode ? "inline-block" : "none";
-        cancelEditBtn.style.display = isEditingMode ? "inline-block" : "none";
+        
+        if (customizeBtn) customizeBtn.style.display = isEditingMode ? "none" : "inline-block";
+        if (saveCustomBtn) saveCustomBtn.style.display = isEditingMode ? "inline-block" : "none";
+        if (cancelEditBtn) cancelEditBtn.style.display = isEditingMode ? "inline-block" : "none";
     }
 
     /**
      * 편집 모드로 진입
      */
     function enterEditMode() {
+        if (typeof readOnly !== "undefined" && readOnly) {
+            return;
+        }
+
         if (isEditMode) return;
 
         // 현재 구간 데이터를 백업

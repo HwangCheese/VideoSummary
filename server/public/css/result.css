@@ -11,7 +11,8 @@ server/public/css/result.css
 .scroll-section.result-section {
     justify-content: flex-start;
     min-height: 100vh;
-    padding-top: calc(var(--header-height) + 1rem); /*상단 여백*/
+    padding-top: calc(var(--header-height) + 1rem);
+    /*상단 여백*/
 }
 
 .card {
@@ -40,7 +41,7 @@ server/public/css/result.css
     flex-direction: row;
     flex-wrap: nowrap;
     justify-content: center;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 2rem;
     margin-bottom: 2.5rem;
     width: 100%;
@@ -52,6 +53,8 @@ server/public/css/result.css
     flex-basis: 48%;
     flex-shrink: 1;
     flex-grow: 0;
+    flex-direction: column;
+    display: flex;
     transition:
         flex-basis 0.6s cubic-bezier(0.4, 0, 0.2, 1),
         opacity 0.4s ease-out 0.1s,
@@ -86,8 +89,10 @@ server/public/css/result.css
 
 .video-title-header {
     display: flex;
-    align-items: center; /* 수직 중앙 정렬 */
-    margin-bottom: 0; /* 비디오와의 간격 */
+    align-items: center;
+    /* 수직 중앙 정렬 */
+    margin-bottom: 0;
+    /* 비디오와의 간격 */
 }
 
 .quick-download-icon {
@@ -120,7 +125,8 @@ server/public/css/result.css
     right: 0;
     bottom: 0;
     height: 25px;
-    background: rgba(224, 224, 224, 0.8);
+    /* background: rgba(224, 224, 224, 0.8); */
+    background: yellow;
     border-radius: 8px;
     opacity: 0;
     transition: opacity 0.3s ease;
@@ -128,7 +134,7 @@ server/public/css/result.css
     z-index: 20;
 }
 
-.video-box > .highlight-legend {
+.video-box>.highlight-legend {
     margin-top: 7px;
     display: flex;
     justify-content: flex-start;
@@ -150,8 +156,19 @@ server/public/css/result.css
     gap: 20px;
     min-width: 280px;
     max-width: 340px;
-    height: fit-content;
+    height: auto;
+    min-height: 0;
+    align-self: stretch;
     border: 1px solid var(--border-color, #e5e7eb);
+}
+
+.shortform-details-sidebar .summary-metrics-list {
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.shortform-details-sidebar .metric-item:last-child {
+  margin-bottom: 4px;
 }
 
 .sidebar-header {
@@ -210,14 +227,19 @@ server/public/css/result.css
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 0;
+    flex: 1;
+    justify-content: space-between;
 }
 
 .metric-item {
+    flex: 1 1 0;
+    min-height: 96px;
     display: flex;
     align-items: center;
+    box-sizing: border-box;
     gap: 15px;
-    padding: 12px 15px;
+    padding: 18px 15px;
     background-color: #fff;
     border: 1px solid var(--border-color, #e9ecef);
     border-radius: var(--border-radius-lg, 8px);
@@ -246,6 +268,8 @@ server/public/css/result.css
     flex-shrink: 0;
 }
 
+.shortform-details-sidebar .metric-icon-wrapper { display: none !important; }
+
 .metric-info {
     display: flex;
     flex-direction: column;
@@ -254,10 +278,43 @@ server/public/css/result.css
 }
 
 .metric-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
     font-size: 0.8rem;
-    color: var(--gray-color, #777);
+    color: #000;
     font-weight: 500;
     text-transform: uppercase;
+}
+
+.metric-label i {
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--accent-color, #ec4899);
+}
+
+.shortform-details-sidebar .metric-label {
+  font-size: 0.98rem;
+  letter-spacing: .2px;
+}
+
+.shortform-details-sidebar .metric-label i {
+  font-size: 1.15rem;
+}
+
+.shortform-details-sidebar .metric-info .metric-value {
+  font-size: 1.28rem;
+  font-weight: 700;
+}
+
+.shortform-details-sidebar .metric-info .metric-value .metric-unit {
+  font-size: 1.02rem;
+  font-weight: 500;
+}
+
+.shortform-details-sidebar .metric-info .metric-value .time-original,
+.shortform-details-sidebar .metric-info .metric-value .time-summary {
+  font-size: 1.18rem;
 }
 
 .metric-info .metric-value {
@@ -301,9 +358,11 @@ server/public/css/result.css
     top: 0;
     transform: translateX(-50%);
 }
+
 .time-marker:first-child {
     transform: translateX(0);
 }
+
 .time-marker:last-child {
     transform: translateX(-100%);
 }
@@ -329,9 +388,11 @@ server/public/css/result.css
     height: 14px;
     border-radius: 3px;
 }
+
 .legend-color.original {
     background-color: #e0e0e0;
 }
+
 .legend-color.highlight {
     background-color: var(--accent-color);
 }
@@ -344,15 +405,18 @@ server/public/css/result.css
     z-index: 5;
     cursor: ew-resize;
 }
+
 .resize-handle.left {
     left: -5px;
 }
+
 .resize-handle.right {
     right: -5px;
 }
 
 .shortform-transcript-section {
-    margin-top: 0rem; /* MODIFIED: Reduced from 2rem, header's margin-bottom will control space */
+    margin-top: 0rem;
+    /* MODIFIED: Reduced from 2rem, header's margin-bottom will control space */
     padding: 1.5rem;
     background-color: var(--light-color, #f8f9fa);
     border-radius: var(--border-radius);
@@ -366,8 +430,10 @@ server/public/css/result.css
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem; /* MODIFIED: Reduced from 1rem */
-    margin-top: 2rem; /* MODIFIED: Reduced from 3.5rem */
+    margin-bottom: 0.5rem;
+    /* MODIFIED: Reduced from 1rem */
+    margin-top: 2rem;
+    /* MODIFIED: Reduced from 3.5rem */
     padding-bottom: 0.75rem;
 }
 
@@ -421,6 +487,7 @@ server/public/css/result.css
     border-color: var(--primary-color);
     box-shadow: 0 2px 8px rgba(var(--primary-rgb, 67, 97, 238), 0.3);
 }
+
 .transcript-list li.active-transcript .transcript-time,
 .transcript-list li.active-transcript .transcript-text {
     color: white;
@@ -446,6 +513,7 @@ server/public/css/result.css
 #resultCard.editing-mode .video-container-group {
     gap: 0;
 }
+
 #resultCard.editing-mode .original-video-box {
     flex-basis: 65%;
     max-width: 1200px;
@@ -455,13 +523,18 @@ server/public/css/result.css
 }
 
 #resultCard.editing-mode .original-video-box video {
-    width: 100%; /* 부모(.original-video-box)의 너비에 꽉 참 */
-    height: auto; /* 높이는 너비에 맞춰 자동으로 조절 (비율 유지) */
-    aspect-ratio: 16 / 9; /* 명시적으로 16:9 비율을 강제 */
-    object-fit: contain; /* 중요: 비디오 콘텐츠가 요소 내부에 비율을 유지하며 모두 보이도록 함 */
+    width: 100%;
+    /* 부모(.original-video-box)의 너비에 꽉 참 */
+    height: auto;
+    /* 높이는 너비에 맞춰 자동으로 조절 (비율 유지) */
+    aspect-ratio: 16 / 9;
+    /* 명시적으로 16:9 비율을 강제 */
+    object-fit: contain;
+    /* 중요: 비디오 콘텐츠가 요소 내부에 비율을 유지하며 모두 보이도록 함 */
     display: block;
     background-color: #000;
 }
+
 /* 편집 모드일 때 숏폼 영상 영역 축소 및 숨김 */
 #resultCard.editing-mode .shortform-video-box {
     flex-basis: 0%;
@@ -474,6 +547,8 @@ server/public/css/result.css
     margin: 0;
     border: none;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 편집 모드일 때 요약 품질 사이드바 숨김 */
@@ -539,6 +614,7 @@ server/public/css/result.css
         flex-direction: column;
         align-items: center;
     }
+
     .video-box {
         flex-basis: auto;
         width: 100%;
@@ -557,21 +633,26 @@ server/public/css/result.css
         max-width: 100%;
         margin-top: 1.5rem;
     }
+
     .sidebar-title {
         font-size: 1.15rem;
     }
+
     .score-display .score-value {
         font-size: 2.8rem;
     }
+
     .metric-item {
         padding: 10px 12px;
         gap: 10px;
     }
+
     .metric-icon-wrapper {
         min-width: 36px;
         height: 36px;
         font-size: 1.2rem;
     }
+
     .metric-info .metric-value {
         font-size: 0.95rem;
     }
@@ -579,6 +660,7 @@ server/public/css/result.css
     #resultCard.editing-mode .video-container-group {
         gap: 2rem;
     }
+
     #resultCard.editing-mode .original-video-box,
     #resultCard.editing-mode .shortform-video-box {
         flex-basis: auto;
@@ -612,6 +694,7 @@ server/public/css/result.css
     height: auto;
     display: block;
 }
+
 .frame-graph-overlay {
     position: absolute;
     width: 100%;
@@ -634,7 +717,8 @@ server/public/css/result.css
     right: 0;
     bottom: 0;
     height: 25px;
-    background: rgba(255, 255, 255, 0.2);
+    /* background: rgba(255, 255, 255, 0.2); */
+    background: yellow;
     border-radius: 8px;
     overflow: hidden;
     pointer-events: none;
@@ -642,6 +726,7 @@ server/public/css/result.css
     transition: opacity 0.25s ease;
     z-index: 1000;
 }
+
 #highlightBarContainer.highlight-overlay {
     height: 20px;
     bottom: 1px;
@@ -677,6 +762,7 @@ server/public/css/result.css
 .thumbnail-slider::-webkit-scrollbar {
     height: 6px;
 }
+
 .thumbnail-slider::-webkit-scrollbar-thumb {
     background: var(--primary-color);
     border-radius: 10px;
@@ -693,6 +779,7 @@ server/public/css/result.css
     background-color: #fff;
     transition: transform 0.3s ease;
 }
+
 .thumbnail:hover {
     transform: translateY(-4px);
 }

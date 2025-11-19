@@ -3,6 +3,7 @@ import torchaudio
 import torch
 import json
 import numpy as np
+from pathlib import Path
 
 def check_overlap(whisper_start, whisper_end, vad_start, vad_end):
     """두 시간 범위가 겹치는지 확인"""
@@ -38,8 +39,20 @@ def process(audio_path, vad_output_json_path, whisper_output_json_path, output_j
         )
         vad_model.to(device)
         get_speech_timestamps, _, read_audio, *_ = utils
-        audio_tensor = read_audio(audio_path, sampling_rate=16000)
-        audio_tensor = audio_tensor.to(device)
+        audio_path = str(Path(audio_path).resolve())
+
+        torchaudio.set_audio_backend("soundfile")
+        waveform, sr = torchaudio.load(audio_path)
+
+        if sr != 16000:
+            resampler = torchaudio.transforms.Resample(orig_freq=sr, new_freq=16000)
+            waveform = resampler(waveform)
+
+        if waveform.dim() == 2 and waveform.size(0) > 1:
+            waveform = waveform.mean(dim=0, keepdim=True)
+
+        waveform = waveform.to(device)
+        audio_tensor = waveform.squeeze(0)
     except Exception as e:
         print(f"오류: Silero VAD 모델 로드 또는 오디오 처리 중 문제 발생 - {e}")
         with open(output_json_path, 'w', encoding='utf-8') as f:
@@ -49,6 +62,7 @@ def process(audio_path, vad_output_json_path, whisper_output_json_path, output_j
     try:
         vad_segments = get_speech_timestamps(
             audio_tensor, vad_model,
+            sampling_rate=16000,
             threshold=0.3, 
             min_speech_duration_ms=100, 
             min_silence_duration_ms=50, 
@@ -59,16 +73,12 @@ def process(audio_path, vad_output_json_path, whisper_output_json_path, output_j
         vad_time_ranges = [(s['start'] / 16000, s['end'] / 16000) for s in vad_segments]
         print(f"VAD 감지된 음성 구간 수: {len(vad_time_ranges)}")
        
-        if not vad_time_ranges:
-            print("경고: VAD가 음성 구간을 감지하지 못했습니다.")
+        if vad_time_ranges:
+            with open(vad_output_json_path, 'w', encoding='utf-8') as f:
+                json.dump(vad_time_ranges, f, ensure_ascii=False, indent=4)
+            print(f"VAD 타임 범위 JSON 저장 완료: {vad_output_json_path}")
         else:
-        # VAD 감지 결과를 json 파일로 저장
-            try:
-                with open(vad_output_json_path, 'w', encoding='utf-8') as f:
-                    json.dump(vad_time_ranges, f, ensure_ascii=False, indent=4)
-                print(f"VAD 타임 범위 JSON 저장 완료: {vad_output_json_path}")
-            except Exception as e:
-                print(f"경고: VAD 타임 범위 저장 중 오류 발생 - {e}")
+            print("경고: VAD가 음성 구간을 감지하지 못했습니다.")
 
     except Exception as e:
         print(f"오류: Silero VAD 실행 중 문제 발생 - {e}")
@@ -92,7 +102,8 @@ def process(audio_path, vad_output_json_path, whisper_output_json_path, output_j
             audio_for_detect = whisper.pad_or_trim(audio_for_detect)
             mel = whisper.log_mel_spectrogram(audio_for_detect).to(device)
             _, probs = model.detect_language(mel)
-            detected_lang = max(probs, key=probs.get)
+            # detected_lang = max(probs, key=probs.get)
+            detected_lang = "ko"
             print(f"감지된 언어: {detected_lang} (신뢰도: {probs[detected_lang]:.2f})")
             if detected_lang not in ["ko", "en"]:
                 print(f"지원하지 않는 언어({detected_lang}) 감지. 기본 언어(None) 사용.")

@@ -53,6 +53,11 @@ server/public/css/header.css
     align-items: flex-start;
 }
 
+.logo-link, .logo-area {
+  overflow: visible;
+  flex-shrink: 0;
+}
+
 .logo-text-container {
     display: flex;
     align-items: baseline;

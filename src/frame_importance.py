@@ -1,3 +1,5 @@
+import os
+import json
 import torch
 import numpy as np
 import h5py
@@ -75,7 +77,7 @@ def load_model_checkpoint(model, ckpt_path, device):
     return model
 
 
-def run_frame_importance_pipeline(ckpt_path, feature_h5, device):
+def run_frame_importance_pipeline(ckpt_path, feature_h5, device, out_frame_score_json: str):
     """
     사전 학습된 모델을 사용하여 비디오 세그먼트의 중요도 점수를 계산하는 메인 함수.
     
@@ -83,6 +85,7 @@ def run_frame_importance_pipeline(ckpt_path, feature_h5, device):
         ckpt_path (str): 사전 학습된 VASNet 모델의 체크포인트 파일 경로
         feature_h5 (str): 특징 벡터가 저장된 .h5 파일 경로
         device (str, optional): 연산에 사용할 장치
+        out_frame_score_json (str): 프레임 점수를 저장할 JSON 파일 경로
 
     Returns:
         numpy.ndarray: 각 프레임/세그먼트의 중요도 점수 (scores)
@@ -102,5 +105,20 @@ def run_frame_importance_pipeline(ckpt_path, feature_h5, device):
     
     # 4. 특징 로드 및 점수 예측
     scores = predict_scores(model, features, device=device)
+
+    if out_frame_score_json:
+        try:
+            os.makedirs(os.path.dirname(out_frame_score_json), exist_ok=True)
+            payload = {
+                "feature_h5": os.path.abspath(feature_h5),
+                "device": str(device),
+                "num_frames": int(len(scores)),
+                "frame_scores": [float(s) for s in scores],  # JSON 직렬화 안전
+            }
+            with open(out_frame_score_json, "w", encoding="utf-8") as f:
+                json.dump(payload, f, ensure_ascii=False, indent=2)
+            print(f"[프레임 점수 JSON 저장] {out_frame_score_json}")
+        except Exception as e:
+            print(f"[프레임 점수 JSON 저장 실패] {e}")
 
     return scores

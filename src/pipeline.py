@@ -1,6 +1,8 @@
 import argparse
 import os
 import json
+import time
+from contextlib import contextmanager
 
 # KMP_DUPLICATE_LIB_OK 환경 변수 설정
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -23,9 +25,33 @@ from score_module import manage_quality_score
 from report_module import generate_summary_report
 from thumbnail_module import generate_thumbnails
 
+@contextmanager
+def stage_timer(timings: dict, name: str):
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        timings[name] = time.perf_counter() - start
+
+def fmt_sec(sec: float) -> str:  # ⏱ 보기 좋게 포맷
+    m, s = divmod(sec, 60)
+    h, m = divmod(int(m), 60)
+    return f"{h:02d}:{m:02d}:{s:06.3f}"
+
+
 def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
                 alpha=0.7, std_weight=0.3, top_ratio=0.2,
                 model_size="base", importance_weight=0.8, budget_time=None):
+
+    total_start = time.perf_counter()
+    timings = {
+        "특징 추출": 0.0,
+        "프레임 중요도 산출": 0.0,
+        "장면 분할": 0.0,
+        "장면 선택": 0.0,
+        "장면 경계 보정": 0.0,
+        "장면 병합": 0.0,
+    }
 
     os.makedirs(output_dir, exist_ok=True)
     base = os.path.splitext(os.path.basename(video_path))[0]
@@ -35,6 +61,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
     # 파이프라인 단계별 파일 경로 정의
     h5_path = os.path.join(output_dir, f"{base}.h5")
     scene_json = os.path.join(output_dir, f"{base}_scenes.json")
+    frame_score_json = os.path.join(output_dir, f"{base}_frame_scores.json")
     segment_json = os.path.join(output_dir, f"{base}_segment_scores.json")
     sorted_json = os.path.join(output_dir, f"{base}_sorted_combined.json")
     selected_json = os.path.join(output_dir, f"{base}_selected_segments.json")
@@ -46,74 +73,84 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
     visualize_png = os.path.join(output_dir, f"{base}_w{importance_weight}.png")
     score_path = os.path.join(output_dir, f"{base}_score.json")
     highlight_transcript_json = os.path.join(output_dir, f"{base}_reScript.json")
+    timings_json = os.path.join(output_dir, f"{base}_timings.json")
     
-    cuda_ok = has_cuda()
-    forced_device = "cuda" if cuda_ok else "cpu"
-    device = forced_device
-
-    run_scene_detect_pipeline = import_scene_module(cuda_ok)
+    cuda_ok = True
+    device = "cuda"
+    run_scene_detect_pipeline = import_scene_module(True)
     print(f"{device}로 실행됩니다.")
 
     # 1. 특징 추출
     if os.path.exists(h5_path):
         print("\n[1/6] 특징 추출 - 기존 파일 발견, 스킵", flush=True)
+        timings["특징 추출"] = 0.0
     else:
         print("\n[1/6] 특징 추출", flush=True)
-        extract_features_pipe(video_path, h5_path, device)
+        with stage_timer(timings, "특징 추출"):
+            extract_features_pipe(video_path, h5_path, device)
 
     # 2. 중요도 기반 세그먼트 선택
     print("\n[2/6] 대표 프레임별 중요도 점수 산출", flush=True)
-    frame_scores = run_frame_importance_pipeline(ckpt_path=ckpt_path, feature_h5=h5_path,device=device)
+    with stage_timer(timings, "프레임 중요도 산출"):
+        frame_scores = run_frame_importance_pipeline(
+            ckpt_path=ckpt_path, feature_h5=h5_path, device=device, out_frame_score_json=frame_score_json
+        )
 
     # 3. 장면 분할
     if os.path.exists(scene_json):
         print("\n[3/6] 장면 분할 - 기존 파일 발견, 스킵", flush=True)
+        timings["장면 분할"] = 0.0  # ⏱ 스킵 → 0초
     else:
         print("\n[3/6]TransNetV2로 장면 전환 감지 중...")
-        run_scene_detect_pipeline(video_path, scene_json)
+        with stage_timer(timings, "장면 분할"):
+            run_scene_detect_pipeline(video_path, scene_json)
+                
+            
+
 
     print("\n[4/6]세그먼트 중요도 산출 및 세그먼트 선택")
-    run_segment_importance_pipeline(
-        scene_json=scene_json, frame_scores=frame_scores, 
-        output_json=segment_json, output_sorted_combined_json=sorted_json, 
-        alpha=alpha, std_weight=std_weight, fps=fps)
-
-    run_sub_knapsack_pipeline(
-        feature_h5=h5_path, scene_json=scene_json, fps=fps,
-        output_sorted_combined_json=sorted_json, importance_weight=importance_weight,
-        selected_json=selected_json, top_ratio=top_ratio, budget_time=None)
+    with stage_timer(timings, "장면 선택"):
+        run_segment_importance_pipeline(
+            scene_json=scene_json, frame_scores=frame_scores,
+            output_json=segment_json, output_sorted_combined_json=sorted_json,
+            alpha=alpha, std_weight=std_weight, fps=fps
+        )
+        run_sub_knapsack_pipeline(
+            feature_h5=h5_path, scene_json=scene_json, fps=fps,
+            output_sorted_combined_json=sorted_json, importance_weight=importance_weight,
+            selected_json=selected_json, top_ratio=top_ratio, budget_time=None
+        )
 
 
     print("\n[5/6] VAD + Whisper 기반으로 경계 보정", flush=True)
 
-    # 2. 오디오 추출
-    audio_wav = extract_audio(video_path, output_dir, base)
+    with stage_timer(timings, "장면 경계 보정"):
+        audio_wav = extract_audio(video_path, output_dir, base)
+        if os.path.exists(vad_whisper_json):
+            print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
+        else:
+            print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
+            whisper_process(audio_wav, vad_json, whisper_json, vad_whisper_json, model_size=model_size)
+        refine_selected_segments(selected_json, vad_whisper_json, refined_json)
+        effective_refined_json = refined_json
 
-    # 3. Whisper 세그먼트 생성
-    if os.path.exists(vad_whisper_json):
-        print("\nWhisper 자막 기반 문장 세그먼트 생성 - 기존 파일 발견, 스킵", flush=True)
-    else:
-        print("\nWhisper 자막 기반 문장 세그먼트 생성", flush=True)
-        whisper_process(audio_wav, vad_json, whisper_json, vad_whisper_json, model_size=model_size)
-
-    # 5. 세그먼트 경계 보정
-    refine_selected_segments(selected_json, vad_whisper_json, refined_json)
     
     # 6. 요약 영상 생성
     print("\n[6/6] 요약 영상 생성", flush=True)
-    with open(refined_json, encoding="utf-8") as f:
-        refined_segments_data = json.load(f)
-    create_highlight_video(
-        selected_segments=refined_segments_data,
-        video_path=video_path,
-        output_video=highlight_video
-    )
+    with stage_timer(timings, "장면 병합"):
+        with open(effective_refined_json, encoding="utf-8") as f:
+            refined_segments_data = json.load(f)
+        create_highlight_video(
+            selected_segments=refined_segments_data,
+            video_path=video_path,
+            output_video=highlight_video
+        )
 
     # 7. 썸네일 생성
-    generate_thumbnails(video_path, refined_json, output_dir, base)
+    generate_thumbnails(video_path, effective_refined_json, output_dir, base)
 
     # 8. 요약 영상 자막 재구성
-    reconstruct_highlight_transcripts(refined_json, vad_whisper_json, highlight_transcript_json)
+    reconstruct_highlight_transcripts(effective_refined_json, vad_whisper_json, highlight_transcript_json)
 
     # 9. 품질 점수 계산
     manage_quality_score(
@@ -124,7 +161,7 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
     # 10. 요약 메타 정보 저장
     generate_summary_report(
         output_dir=output_dir, base_name=base, scene_json_path=scene_json,
-        refined_json_path=refined_json, importance_weight=importance_weight
+        refined_json_path=effective_refined_json, importance_weight=importance_weight
     )
 
     # 시각화
@@ -140,6 +177,23 @@ def run_pipeline(video_path, ckpt_path, output_dir, device, fps=1.0,
     if os.path.exists(highlight_transcript_json):
         print(f"요약 영상 자막 (재구성됨): {highlight_transcript_json}", flush=True)
 
+    total_elapsed = time.perf_counter() - total_start
+    order = ["특징 추출", "프레임 중요도 산출", "장면 분할", "장면 선택", "장면 경계 보정", "장면 병합"]
+
+    print("\n================= ⏱ 단계별 소요 시간 =================")
+    for k in order:
+        print(f"{k:>12} : {fmt_sec(timings[k])}  ({timings[k]:.3f} s)")
+    print("------------------------------------------------------")
+    print(f"{'총 파이프라인':>12} : {fmt_sec(total_elapsed)}  ({total_elapsed:.3f} s)")
+    print("======================================================\n")
+
+    try:
+        with open(timings_json, "w", encoding="utf-8") as f:
+            json.dump({"stages": timings, "total_seconds": total_elapsed}, f, ensure_ascii=False, indent=2)
+        print(f"[⏱ 기록] 단계별 시간 저장: {timings_json}")
+    except Exception as e:
+        print(f"[⏱ 기록 실패] {e}")
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="비디오 요약 파이프라인을 실행합니다.")
     parser.add_argument("--video_path", required=True, help="입력 영상 파일 경로 (.mp4)")
@@ -152,7 +206,7 @@ if __name__ == "__main__":
     parser.add_argument("--top_ratio", type=float, default=0.2, help="상위 n% 세그먼트를 선택할 비율")
     parser.add_argument("--model_size", default="base", help="Whisper 모델 크기 (e.g., tiny, base, small, medium)")
 
-    parser.add_argument("--importance_weight", default=0.1, type=float, help="중요도 가중치 (0.0 ~ 1.0). 0에 가까울수록 전반적인 요약, 1에 가까울수록 핵심적인 요약")
+    parser.add_argument("--importance_weight", default=1, type=float, help="중요도 가중치 (0.0 ~ 1.0). 0에 가까울수록 전반적인 요약, 1에 가까울수록 핵심적인 요약")
     parser.add_argument("--budget_time", type=float, default=None, help="요약 영상의 목표 시간(초). 지정하지 않으면 top_ratio에 따라 결정됨")
 
     args = parser.parse_args()
@@ -163,7 +217,7 @@ if __name__ == "__main__":
         video_path=args.video_path,
         ckpt_path=args.fine_ckpt,
         output_dir=args.output_dir,
-        device=auto_dev,
+        device=args.device,
         fps=args.fps,
         alpha=args.alpha,
         std_weight=args.std_weight,

@@ -33,7 +33,6 @@ server/public/css/header.css
 .logo-area {
     display: flex;
     align-items: center;
-    margin-left: -200px; /* 상단 로고 왼쪽으로 이동시키는 값 */
 }
 
 .menu-toggle {
@@ -53,14 +52,24 @@ server/public/css/header.css
     align-items: flex-start;
 }
 
+
+.logo-link, .logo-area {
+  overflow: visible;
+  flex-shrink: 0;
+}
+
 .logo-text-container {
     display: flex;
     align-items: baseline;
 }
 
 .header-logo {
-    width: 200px;
+    display: block;
+    height: calc(var(--header-height) - 12px);
+    width: auto;
+    object-fit: contain; 
 }
+
 .logo-video {
     font-size: 1.7rem;
     font-weight: bold;

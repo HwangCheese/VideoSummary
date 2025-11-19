@@ -35,7 +35,6 @@ const highlightBarContainer = document.getElementById("highlightBarContainer");
 const importanceSlider = document.getElementById('importanceSlider');
 
 // 요약 통계 관련 DOM 요소
-const summaryScoreValueEl = document.getElementById("summaryScoreValue");
 const compressionRateValueEl = document.getElementById("compressionRateValue");
 const keyScenesCountValueEl = document.getElementById("keyScenesCountValue");
 const viewingTimeValueEl = document.getElementById("viewingTimeValue");
@@ -167,11 +166,7 @@ function updateProgressUI(state) {
             uploadedFileName: currentUploadedFileNameFromHandler,
             finalVideoEl: finalVideo,
             getSegments: () => lastSegments,
-            getDuration: () => lastOriginalDuration,
-            getScore: () => {
-              const n = Number(summaryScoreValueEl?.textContent?.trim());
-              return Number.isFinite(n) ? n : null;
-            },
+            getDuration: () => lastOriginalDuration
           };
 
           const shareBtn = document.getElementById("shareBtn");
@@ -339,23 +334,6 @@ async function fetchReportAndScoreForUIInternal(baseFilenameForReport) {
     console.warn(`[${baseFilenameForReport}] Report 데이터 요청 오류:`, err);
   }
 
-  try {
-    const scoreRes = await fetch(`/results/score/${originalFileForEndpoints}?t=${Date.now()}`);
-    if (scoreRes.ok) {
-      const scoreData = await scoreRes.json();
-      if (summaryScoreValueEl && scoreData.summary_score !== undefined) {
-        summaryScoreValueEl.textContent = parseFloat(scoreData.summary_score).toFixed(1);
-      } else if (summaryScoreValueEl) {
-        summaryScoreValueEl.textContent = 'N/A';
-      }
-    } else {
-      console.warn(`[${baseFilenameForReport}] Score 데이터 로드 실패: ${scoreRes.status}`);
-      if (summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
-    }
-  } catch (err) {
-    console.warn(`[${baseFilenameForReport}] Score 데이터 요청 오류:`, err);
-    if (summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
-  }
   if (document.getElementById('result-section')?.classList.contains('active-scroll-section')) {
     animateScoreCounter();
   }
@@ -445,7 +423,6 @@ async function loadAndDisplayShortformTranscriptInternal(baseFilenameForTranscri
  * @param {boolean} excludeScore - 점수 필드를 제외하고 초기화할지 여부
  */
 export function resetSummaryMetrics(excludeScore = false) {
-  if (!excludeScore && summaryScoreValueEl) summaryScoreValueEl.textContent = 'N/A';
   if (compressionRateValueEl) compressionRateValueEl.innerHTML = 'N/A <span class="metric-unit">로 요약</span>';
   if (keyScenesCountValueEl) keyScenesCountValueEl.innerHTML = 'N/A <span class="metric-unit">추출됨</span>';
   if (viewingTimeValueEl) viewingTimeValueEl.innerHTML = `<span class="time-original">N/A</span> → <span class="time-summary">N/A</span>`;
@@ -491,10 +468,6 @@ function updateSummaryMetricsFromServerData(data) {
     }
   } else {
     summaryHtmlContent = "요약 방식 정보 없음";
-  }
-
-  if (summaryScoreValueEl) {
-    summaryScoreValueEl.textContent = data.summary_score !== undefined ? parseFloat(data.summary_score).toFixed(1) : 'N/A';
   }
 
   if (compressionRateValueEl) {
@@ -581,25 +554,12 @@ function animateCounter(element, start, end, decimalPlaces = 0, suffix = '', isC
  * 요약 점수 표시부에 카운터 애니메이션을 적용
  */
 function animateScoreCounter() {
-  if (!summaryScoreValueEl) return;
-  const endValueText = summaryScoreValueEl.textContent;
-  if (endValueText === 'N/A' || endValueText === null || endValueText === undefined || endValueText === 'n') {
-    summaryScoreValueEl.textContent = '0.0'; return;
-  }
-  const endValue = parseFloat(endValueText);
-  if (isNaN(endValue)) {
-    summaryScoreValueEl.textContent = '0.0'; return;
-  }
-  summaryScoreValueEl.textContent = '0.0';
   const duration = 1500;
   const animStartTime = performance.now();
   function updateScoreCounter(timestamp) {
     const elapsedTime = timestamp - animStartTime;
     let progress = elapsedTime / duration;
     if (progress > 1) progress = 1;
-    const easedProgress = easeOutQuart(progress);
-    const currentValue = (endValue * easedProgress).toFixed(1);
-    summaryScoreValueEl.textContent = currentValue;
     if (progress < 1) {
       requestAnimationFrame(updateScoreCounter);
     }
@@ -661,11 +621,7 @@ export async function loadResultDataForExistingSummary(originalFile, baseName, s
             uploadedFileName: currentUploadedFileNameFromHandler,
             finalVideoEl: finalVideo,
             getSegments: () => lastSegments,
-            getDuration: () => lastOriginalDuration,
-            getScore: () => {
-              const n = Number(summaryScoreValueEl?.textContent?.trim());
-              return Number.isFinite(n) ? n : null;
-            },
+            getDuration: () => lastOriginalDuration
           };
 
           // 공유 핸들러 초기화
@@ -872,7 +828,7 @@ export function initPipelineRunner() {
 
         if (durationPercentageInput && durationPercentageInput.value) {
           const percentage = parseFloat(durationPercentageInput.value);
-          if (!isNaN(percentage) && percentage >= 1 && percentage <= 100) {
+          if (!isNaN(percentage) && percentage >= 10 && percentage <= 80) {
             topRatioForPython = (percentage / 100.0);
           } else {
             console.warn(`Invalid duration percentage: ${durationPercentageInput.value}. Using default top_ratio: ${topRatioForPython}`);
